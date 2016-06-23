@@ -1,0 +1,10 @@
+{
+  "name": "laxar-tooling",
+  "version": "0.0.0",
+  "dependencies": {
+    "async": "^2.0.0-rc.6",
+    "glob": "^7.0.5",
+    "jsonlint": "^1.6.2",
+    "q": "^1.4.1"
+  }
+}
