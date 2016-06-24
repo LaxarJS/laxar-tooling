@@ -1,8 +1,30 @@
 {
   "name": "laxar-tooling",
   "version": "0.0.0",
+  "description": "Tool support for LaxarJS",
+  "homepage": "http://laxarjs.org",
+  "authors": [],
+  "license": "MIT",
+  "repsitory": {
+      "type": "git",
+      "url": "https://github.com/LaxarJS/laxar-tooling.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LaxarJS/laxar-tooling/issues",
+    "email": "info@laxarjs.org"
+  },
+  "scripts": {
+  },
+  "keywords": [
+    "laxar",
+    "tooling",
+    "artifacts",
+    "resources"
+  ],
   "dependencies": {
     "glob": "^7.0.5",
     "jsonlint": "^1.6.2"
+  },
+  "devDependencies": {
   }
 }
