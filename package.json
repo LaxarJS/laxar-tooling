@@ -5,15 +5,16 @@
   "homepage": "http://laxarjs.org",
   "authors": [],
   "license": "MIT",
-  "repsitory": {
-      "type": "git",
-      "url": "https://github.com/LaxarJS/laxar-tooling.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LaxarJS/laxar-tooling.git"
   },
   "bugs": {
     "url": "https://github.com/LaxarJS/laxar-tooling/issues",
     "email": "info@laxarjs.org"
   },
   "scripts": {
+    "test": "mocha"
   },
   "keywords": [
     "laxar",
@@ -26,5 +27,7 @@
     "jsonlint": "^1.6.2"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
   }
 }
