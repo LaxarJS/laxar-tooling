@@ -1,3 +1,10 @@
+/**
+ * Copyright 2016 aixigo AG
+ * Released under the MIT license.
+ * http://laxarjs.org/license
+ */
+'use strict';
+
 var fs = require( 'fs' );
 var path = require( 'path' );
 var expect = require( 'chai' ).expect;
@@ -100,7 +107,6 @@ describe( 'artifactCollector', function() {
                .then( function( data ) {
                   return promise.nfcall( fs.writeFile, actualFile, data );
                } );
-
 
             Object.keys( expected ).forEach( function( type ) {
                it( 'resolves ' + expected[ type ].length + ' ' + type, function() {
