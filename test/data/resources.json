@@ -1,0 +1,65 @@
+{
+   "results": {
+      "complete flow": {
+         "expected": "resources_complete_expected.json",
+         "actual": "resources_complete_actual.json"
+      },
+      "multiple flows": {
+         "expected": "resources_multiple_expected.json",
+         "actual": "resources_multiple_actual.json"
+      }
+   },
+   "artifacts": {
+      "empty": {
+         "flows": [ {
+            "path": "xxx/flows/flow1.json",
+            "resources" : {
+               "embed" : [
+                  "."
+               ],
+               "list" : [],
+               "watch" : [
+                  "."
+               ]
+            }
+         } ]
+      },
+      "minimal": {
+         "flows": [ {
+            "path": "xxx/flows/flow2.json",
+            "resources" : {
+               "embed" : [
+                  "."
+               ],
+               "list" : [],
+               "watch" : [
+                  "."
+               ]
+            }
+         } ],
+         "pages": [ {
+            "path": "xxx/pages/page1.json",
+            "resources" : {
+               "embed" : [
+                  "."
+               ],
+               "list" : [],
+               "watch" : [
+                  "."
+               ]
+            }
+         } ]
+      },
+      "complete flow": "artifacts_complete_expected.json",
+      "multiple flows": "artifacts_multiple_expected.json"
+   },
+   "files": {
+      "xxx/flows/flow1.json": "{\"places\":{}}",
+      "xxx/flows/flow2.json": "{\"places\":{\"entry\":{\"page\":\"page1\"}}}",
+      "xxx/flows/flow3.json": "{\"places\":{\"entry\":{\"redirectTo\":\"home\"},\"home\":{\"page\":\"page1\",\"targets\":{\"next\":\"other\"}},\"other\":{\"page\":\"page2\"}}}",
+      "xxx/pages/page1.json": "{\"areas\":{}}",
+      "xxx/pages/page2.json": "{\"areas\":{\"area1\":[{\"widget\":\"widget1\"}],\"area2\":[{\"widget\":\"widget1\"},{\"widget\":\"widget2\"}]}}",
+      "xxx/widgets/widget1/widget.json": "{\"name\":\"widget1\",\"integration\":{\"type\":\"widget\",\"technology\":\"plain\"}}",
+      "xxx/widgets/widget2/widget.json": "{\"name\":\"widget2\",\"integration\":{\"type\":\"widget\",\"technology\":\"plain\"},\"controls\":[\"control1\"]}"
+   }
+}
