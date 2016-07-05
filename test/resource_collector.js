@@ -25,7 +25,7 @@ describe( 'resourceCollector', function() {
 
       var collector = resourceCollector.create( log, {} );
 
-      it( 'returns an resourceCollector', function() {
+      it( 'returns a resourceCollector', function() {
          expect( collector ).to.be.an( 'object' );
       } );
 
