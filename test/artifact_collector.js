@@ -16,6 +16,9 @@ describe( 'artifactCollector', function() {
    var log = {
       error: function() {
          console.log.apply( console, arguments );
+      },
+      warn: function() {
+         console.log.apply( console, arguments );
       }
    };
 

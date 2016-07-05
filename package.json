@@ -23,7 +23,6 @@
     "resources"
   ],
   "dependencies": {
-    "glob": "^7.0.5",
     "jsonlint": "^1.6.2"
   },
   "devDependencies": {

@@ -1,86 +1,87 @@
 {
-   "pages" : [
+   "controls" : [
       {
-         "widgets" : [],
-         "path" : "xxx/pages/page1.json",
-         "references" : {
-            "local" : {
-               "self" : "page1"
-            }
-         },
          "resources" : {
-            "embed" : [
-               "."
+            "list" : [
+               "*.theme/css/control1.css"
             ],
-            "list" : [],
             "watch" : [
-               "."
+               "*.theme/css/control1.css",
+               "control1.js"
+            ],
+            "embed" : [
+               "control.json"
             ]
          },
-         "pages" : []
-      },
-      {
-         "path" : "xxx/pages/page2.json",
+         "integration" : {
+            "type" : "control",
+            "technology" : "angular"
+         },
          "references" : {
+            "amd" : {
+               "module" : "control1/control1",
+               "self" : "../xxx/controls/control1"
+            },
             "local" : {
-               "self" : "page2"
+               "self" : "control1"
             }
          },
-         "widgets" : [
-            "widget1",
-            "widget2"
-         ],
-         "pages" : [],
-         "resources" : {
-            "watch" : [
-               "."
-            ],
-            "embed" : [
-               "."
-            ],
-            "list" : []
-         }
+         "referencedAs" : {
+            "derivedScheme" : "amd",
+            "byUser" : "control1",
+            "derivedReference" : "control1"
+         },
+         "path" : "xxx/controls/control1"
       }
    ],
-   "layouts" : [],
    "widgets" : [
       {
-         "references" : {
-            "local" : {
-               "self" : "widget1"
-            },
-            "amd" : {
-               "module" : "laxar-application/xxx/widgets/widget1/widget1",
-               "self" : "../xxx/widgets/widget1"
-            }
-         },
-         "path" : "xxx/widgets/widget1",
-         "controls" : [],
-         "referencedAs" : {
-            "byUser" : "widget1",
-            "derivedReference" : "widget1"
-         },
-         "integration" : {
-            "technology" : "plain",
-            "type" : "widget"
-         },
          "resources" : {
+            "watch" : [
+               "widget.json",
+               "*.theme/widget1.html",
+               "*.theme/css/widget1.css",
+               "widget1.js"
+            ],
             "embed" : [
                "widget.json",
                "*.theme/widget1.html"
             ],
             "list" : [
                "*.theme/css/widget1.css"
-            ],
-            "watch" : [
-               "widget.json",
-               "*.theme/widget1.html",
-               "*.theme/css/widget1.css",
-               "widget1.js"
             ]
-         }
+         },
+         "integration" : {
+            "technology" : "plain",
+            "type" : "widget"
+         },
+         "controls" : [],
+         "referencedAs" : {
+            "derivedReference" : "widget1",
+            "byUser" : "widget1"
+         },
+         "references" : {
+            "amd" : {
+               "module" : "laxar-application/xxx/widgets/widget1/widget1",
+               "self" : "../xxx/widgets/widget1"
+            },
+            "local" : {
+               "self" : "widget1"
+            }
+         },
+         "path" : "xxx/widgets/widget1"
       },
       {
+         "path" : "xxx/widgets/widget2",
+         "references" : {
+            "amd" : {
+               "self" : "../xxx/widgets/widget2",
+               "module" : "laxar-application/xxx/widgets/widget2/widget2"
+            },
+            "local" : {
+               "self" : "widget2"
+            }
+         },
          "referencedAs" : {
             "derivedReference" : "widget2",
             "byUser" : "widget2"
@@ -88,21 +89,15 @@
          "controls" : [
             "control1"
          ],
-         "path" : "xxx/widgets/widget2",
-         "references" : {
-            "local" : {
-               "self" : "widget2"
-            },
-            "amd" : {
-               "self" : "../xxx/widgets/widget2",
-               "module" : "laxar-application/xxx/widgets/widget2/widget2"
-            }
-         },
          "integration" : {
-            "technology" : "plain",
-            "type" : "widget"
+            "type" : "widget",
+            "technology" : "plain"
          },
          "resources" : {
+            "embed" : [
+               "widget.json",
+               "*.theme/widget2.html"
+            ],
             "watch" : [
                "widget.json",
                "*.theme/widget2.html",
@@ -111,42 +106,12 @@
             ],
             "list" : [
                "*.theme/css/widget2.css"
-            ],
-            "embed" : [
-               "widget.json",
-               "*.theme/widget2.html"
-            ]
-         }
-      }
-   ],
-   "themes" : [
-      {
-         "path" : "xxx/themes/default.theme",
-         "references" : {
-            "local" : {
-               "self" : "default.theme"
-            }
-         },
-         "name" : "default.theme",
-         "resources" : {
-            "list" : [
-               "css/theme.css"
-            ],
-            "embed" : [],
-            "watch" : [
-               "css/theme.css"
             ]
          }
       }
    ],
    "flows" : [
       {
-         "path" : "xxx/flows/flow2.json",
-         "references" : {
-            "local" : {
-               "self" : "xxx/flows/flow2.json"
-            }
-         },
          "resources" : {
             "list" : [],
             "embed" : [
@@ -155,14 +120,20 @@
             "watch" : [
                "."
             ]
-         }
+         },
+         "references" : {
+            "local" : {
+               "self" : "xxx/flows/flow2.json"
+            }
+         },
+         "path" : "xxx/flows/flow2.json"
       },
       {
          "resources" : {
-            "watch" : [
+            "embed" : [
                "."
             ],
-            "embed" : [
+            "watch" : [
                "."
             ],
             "list" : []
@@ -175,38 +146,112 @@
          "path" : "xxx/flows/flow3.json"
       }
    ],
-   "controls" : [
+   "themes" : [
       {
-         "integration" : {
-            "type" : "control",
-            "technology" : "angular"
-         },
          "resources" : {
             "watch" : [
-               "*.theme/css/control1.css",
-               "control1.js"
+               "css/theme.css"
             ],
+            "embed" : [],
             "list" : [
-               "*.theme/css/control1.css"
-            ],
-            "embed" : [
-               "control.json"
+               "css/theme.css"
             ]
          },
-         "referencedAs" : {
-            "derivedReference" : "control1",
-            "byUser" : "control1",
-            "derivedScheme" : "amd"
-         },
-         "path" : "xxx/controls/control1",
+         "name" : "default.theme",
+         "path" : "xxx/themes/default.theme",
          "references" : {
-            "amd" : {
-               "module" : "control1/control1",
-               "self" : "../xxx/controls/control1"
-            },
             "local" : {
-               "self" : "control1"
+               "self" : "default.theme"
             }
+         }
+      }
+   ],
+   "pages" : [
+      {
+         "references" : {
+            "local" : {
+               "self" : "page1"
+            }
+         },
+         "path" : "xxx/pages/page1.json",
+         "layouts" : [
+            "layout1"
+         ],
+         "resources" : {
+            "list" : [],
+            "embed" : [
+               "."
+            ],
+            "watch" : [
+               "."
+            ]
+         },
+         "pages" : [],
+         "widgets" : []
+      },
+      {
+         "path" : "xxx/pages/page2.json",
+         "layouts" : [
+            "layout2"
+         ],
+         "references" : {
+            "local" : {
+               "self" : "page2"
+            }
+         },
+         "widgets" : [
+            "widget1",
+            "widget2"
+         ],
+         "pages" : [],
+         "resources" : {
+            "list" : [],
+            "watch" : [
+               "."
+            ],
+            "embed" : [
+               "."
+            ]
+         }
+      }
+   ],
+   "layouts" : [
+      {
+         "resources" : {
+            "list" : [
+               "/xxx/layouts/layout1/default.theme/css/layout1.css"
+            ],
+            "embed" : [
+               "/xxx/layouts/layout1/default.theme/layout1.html"
+            ],
+            "watch" : [
+               "/xxx/layouts/layout1/default.theme/css/layout1.css",
+               "/xxx/layouts/layout1/default.theme/layout1.html"
+            ]
+         },
+         "references" : {
+            "local" : {
+               "self" : "layout1"
+            }
+         }
+      },
+      {
+         "references" : {
+            "local" : {
+               "self" : "layout2"
+            }
+         },
+         "resources" : {
+            "list" : [
+               "/xxx/layouts/layout2/default.theme/css/layout2.css"
+            ],
+            "embed" : [
+               "/xxx/layouts/layout2/default.theme/layout2.html"
+            ],
+            "watch" : [
+               "/xxx/layouts/layout2/default.theme/css/layout2.css",
+               "/xxx/layouts/layout2/default.theme/layout2.html"
+            ]
          }
       }
    ]

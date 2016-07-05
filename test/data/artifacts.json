@@ -75,9 +75,11 @@
          }
       },
       "xxx/pages/page1.json": {
+         "layout": "layout1",
          "areas": {}
       },
       "xxx/pages/page2.json": {
+         "layout": "layout2",
          "areas": {
             "area1": [ {
                "widget": "widget1"
