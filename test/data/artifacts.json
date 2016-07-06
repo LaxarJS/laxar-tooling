@@ -105,6 +105,12 @@
             "technology": "plain"
          },
          "controls": [ "control1" ]
+      },
+      "xxx/controls/control1/control.json": {
+         "name": "control1",
+         "integration": {
+            "type": "control"
+         }
       }
    }
 }
