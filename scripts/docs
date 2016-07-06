@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+var fs = require( 'fs' );
+var path = require( 'path' );
+
+var promise = require( '../lib/promise' );
+var readFile = promise.nfbind( fs.readFile );
+var writeFile = promise.nfbind( fs.writeFile );
+var createMarkdown = promise.wrap( require( 'laxar-dox' ).createMarkdown );
+
+var files = process.argv.slice( 2 );
+
+Promise.all( files.map( function( file ) {
+   var out = path.join( 'docs', 'api', path.basename( file ) + '.md' );
+   console.log( file, '->', out );
+
+   return readFile( file, 'utf-8' )
+      .then( createMarkdown )
+      .then( function( md ) { return writeFile( out, md ); } );
+} ) )
+.catch( function( err ) {
+   console.error( err );
+} );
+

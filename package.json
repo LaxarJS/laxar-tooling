@@ -14,7 +14,8 @@
     "email": "info@laxarjs.org"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha && npm run-script docs",
+    "docs": "scripts/docs lib/artifact_collector.js lib/dependency_collector.js lib/resource_collector.js lib/json_reader.js lib/file_reader.js"
   },
   "keywords": [
     "laxar",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "laxar-dox": "^1.0.1",
     "mocha": "^2.5.3"
   }
 }
