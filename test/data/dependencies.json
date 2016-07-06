@@ -1,0 +1,36 @@
+{
+   "artifacts": {
+      "empty": {
+         "widgets": [],
+         "controls": []
+      },
+      "minimal": {
+         "widgets": [ {
+            "path": "xxx/widgets/widget1",
+            "integration" : {
+               "type" : "widget",
+               "technology" : "plain"
+            },
+            "references": {
+               "amd": {
+                  "module": "widgets/widget1/widget1"
+               }
+            }
+         } ],
+         "controls": [ {
+            "path": "xxx/controls/control1",
+            "integration" : {
+               "type" : "control",
+               "technology" : "plain"
+            },
+            "references": {
+               "amd": {
+                  "module": "controls/control1/control1"
+               }
+            }
+         } ]
+      },
+      "complete flow": "artifacts_complete_expected.json",
+      "multiple flows": "artifacts_multiple_expected.json"
+   }
+}
