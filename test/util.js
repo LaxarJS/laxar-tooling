@@ -7,10 +7,10 @@
 
 describe( 'utils', function() {
 
-   var expect = require( 'chai' ).expect;
-   var utils = require( '../lib/utils' );
+   const expect = require( 'chai' ).expect;
+   const utils = require( '../lib/utils' );
 
-   var object = {
+   const object = {
       a: 1,
       b: 2,
       c: 3
@@ -21,12 +21,12 @@ describe( 'utils', function() {
    describe( '.flatten( arrays )', function() {
 
       it( 'returns an array with the concatenated elements of each input array', function() {
-         var flat = utils.flatten( [ [ 1, 2 ], [ 3, 4 ] ] );
+         const flat = utils.flatten( [ [ 1, 2 ], [ 3, 4 ] ] );
          expect( flat ).to.eql( [ 1, 2, 3, 4 ] );
       } );
 
       it( 'does not flatten recursively', function() {
-         var flat = utils.flatten( [ [ [ 1 ], [ 2 ] ], [ [ 3 ], [ 4 ] ] ] );
+         const flat = utils.flatten( [ [ [ 1 ], [ 2 ] ], [ [ 3 ], [ 4 ] ] ] );
          expect( flat ).to.eql( [ [ 1 ], [ 2 ], [ 3 ], [ 4 ] ] );
       } );
 
@@ -37,7 +37,7 @@ describe( 'utils', function() {
    describe( '.lookup( object )', function() {
 
       it( 'returns a function for accessing the properties of the given object', function() {
-         var get = utils.lookup( object );
+         const get = utils.lookup( object );
          expect( get ).to.be.a( 'function' );
          expect( get( 'a' ) ).to.equal( 1 );
          expect( get( 'd' ) ).to.equal( undefined );

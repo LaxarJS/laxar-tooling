@@ -16,12 +16,15 @@
       "minimal": [
          "xxx/flows/flow2.json"
       ],
-      "complete flow": [
+      "duplicate": [
          "xxx/flows/flow3.json"
+      ],
+      "complete flow": [
+         "xxx/flows/flow4.json"
       ],
       "multiple flows": [
          "xxx/flows/flow2.json",
-         "xxx/flows/flow3.json"
+         "xxx/flows/flow4.json"
       ]
    },
    "paths": {
@@ -32,6 +35,7 @@
       "laxar-path-pages": "xxx/pages",
       "laxar-path-pages/page1.json": "xxx/pages/page1.json",
       "laxar-path-pages/page2.json": "xxx/pages/page2.json",
+      "laxar-path-pages/page3.json": "xxx/pages/page3.json",
       "laxar-path-widgets": "xxx/widgets",
       "laxar-path-widgets/widget1": "xxx/widgets/widget1",
       "laxar-path-widgets/widget2": "xxx/widgets/widget2",
@@ -41,6 +45,7 @@
 
       "../xxx/pages/page1.json": "xxx/pages/page1.json",
       "../xxx/pages/page2.json": "xxx/pages/page2.json",
+      "../xxx/pages/page3.json": "xxx/pages/page3.json",
       "../xxx/widgets/widget1": "xxx/widgets/widget1",
       "../xxx/widgets/widget2": "xxx/widgets/widget2",
       "../xxx/controls/control1": "xxx/controls/control1"
@@ -59,6 +64,13 @@
          }
       },
       "xxx/flows/flow3.json": {
+         "places": {
+            "entry": {
+               "page": "page3"
+            }
+         }
+      },
+      "xxx/flows/flow4.json": {
          "places": {
             "entry": {
                "redirectTo": "home"
@@ -88,6 +100,16 @@
                "widget": "widget1"
             }, {
                "widget": "widget2"
+            } ]
+         }
+      },
+      "xxx/pages/page3.json": {
+         "layout": "layout1",
+         "areas": {
+            "area1": [ {
+               "widget": "widget1"
+            }, {
+               "widget": "amd:laxar-path-widgets/widget1"
             } ]
          }
       },

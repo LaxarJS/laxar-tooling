@@ -1,1 +1,19 @@
-{"xxx":{"flows":{"flow3.json":"{\"places\":{\"entry\":{\"redirectTo\":\"home\"},\"home\":{\"page\":\"page1\",\"targets\":{\"next\":\"other\"}},\"other\":{\"page\":\"page2\"}}}"},"pages":{"page1.json":"{\"areas\":{}}","page2.json":"{\"areas\":{\"area1\":[{\"widget\":\"widget1\"}],\"area2\":[{\"widget\":\"widget1\"},{\"widget\":\"widget2\"}]}}"},"widgets":{"widget1":{"widget.json":"{\"name\":\"widget1\",\"integration\":{\"type\":\"widget\",\"technology\":\"plain\"}}"},"widget2":{"widget.json":"{\"name\":\"widget2\",\"integration\":{\"type\":\"widget\",\"technology\":\"plain\"},\"controls\":[\"control1\"]}"}}}}
+{
+   "xxx" : {
+      "flows" : {
+         "flow4.json" : "{\"places\":{\"entry\":{\"redirectTo\":\"home\"},\"home\":{\"page\":\"page1\",\"targets\":{\"next\":\"other\"}},\"other\":{\"page\":\"page2\"}}}"
+      },
+      "widgets" : {
+         "widget1" : {
+            "widget.json" : "{\"name\":\"widget1\",\"integration\":{\"type\":\"widget\",\"technology\":\"plain\"}}"
+         },
+         "widget2" : {
+            "widget.json" : "{\"name\":\"widget2\",\"integration\":{\"type\":\"widget\",\"technology\":\"plain\"},\"controls\":[\"control1\"]}"
+         }
+      },
+      "pages" : {
+         "page2.json" : "{\"areas\":{\"area1\":[{\"widget\":\"widget1\"}],\"area2\":[{\"widget\":\"widget1\"},{\"widget\":\"widget2\"}]}}",
+         "page1.json" : "{\"areas\":{}}"
+      }
+   }
+}

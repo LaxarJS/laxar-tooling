@@ -5,28 +5,24 @@
  */
 'use strict';
 
-var fs = require( 'fs' );
-var path = require( 'path' );
-var expect = require( 'chai' ).expect;
-var promise = require( '../lib/promise' );
+const fs = require( 'fs' );
+const path = require( 'path' );
+const expect = require( 'chai' ).expect;
+const promise = require( '../lib/promise' );
 
 describe( 'artifactCollector', function() {
 
-   var artifactCollector = require( '../lib/artifact_collector' );
-   var log = {
-      error: function() {
-         console.log.apply( console, arguments );
-      },
-      warn: function() {
-         console.log.apply( console, arguments );
-      }
+   const artifactCollector = require( '../lib/artifact_collector' );
+   const log = {
+      error() {},
+      warn() {}
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    describe( '.create( log, options )', function() {
 
-      var collector = artifactCollector.create( log, {} );
+      const collector = artifactCollector.create( log, {} );
 
       it( 'returns an artifactCollector', function() {
          expect( collector ).to.be.an( 'object' );
@@ -44,12 +40,12 @@ describe( 'artifactCollector', function() {
 
    describe( '.collectArtifacts( flowPaths )', function() {
 
-      var collector = artifactCollector.create( log, {
-         projectPath: projectPath,
-         readJson: readJson
+      const collector = artifactCollector.create( { warn, error }, {
+         projectPath,
+         readJson
       } );
 
-      var data = require( './data/artifacts.json' );
+      const data = require( './data/artifacts.json' );
 
       function projectPath( ref ) {
          projectPath.called = true;
@@ -63,6 +59,14 @@ describe( 'artifactCollector', function() {
          return data.files[ filepath ];
       }
 
+      function error( message ) {
+         error.called = message;
+      }
+
+      function warn( message ) {
+         warn.called = message;
+      }
+
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'returns a thenable', function() {
@@ -73,7 +77,7 @@ describe( 'artifactCollector', function() {
          projectPath.called = false;
          return collector.collectArtifacts( data.flows.minimal )
             .then( function() {
-               expect( projectPath.called ).to.be.ok;
+               expect( projectPath.called ).to.eql( true );
             } );
       } );
 
@@ -81,7 +85,7 @@ describe( 'artifactCollector', function() {
          readJson.called = false;
          return collector.collectArtifacts( data.flows.minimal )
             .then( function() {
-               expect( readJson.called ).to.be.ok;
+               expect( readJson.called ).to.eql( true );
             } );
       } );
 
@@ -94,18 +98,29 @@ describe( 'artifactCollector', function() {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+      it( 'warns on duplicate widgets', function() {
+         warn.called = false;
+         return collector.collectArtifacts( data.flows.duplicate )
+            .then( function( artifacts ) {
+               expect( warn.called ).to.be.a( 'string' );
+               expect( artifacts ).to.be.an( 'object' );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
       Object.keys( data.results ).forEach( function( flow ) {
 
          describe( 'for ' + flow, function() {
-            var expectedFile = path.join( __dirname, 'data', data.results[ flow ].expected );
-            var actualFile = path.join( __dirname, 'data', data.results[ flow ].actual );
+            const expectedFile = path.join( __dirname, 'data', data.results[ flow ].expected );
+            const actualFile = path.join( __dirname, 'data', data.results[ flow ].actual );
 
-            var expected = require( expectedFile );
+            const expected = require( expectedFile );
 
-            var artifactsPromise = collector.collectArtifacts( data.flows[ flow ] )
+            const artifactsPromise = collector.collectArtifacts( data.flows[ flow ] )
                .then( JSON.stringify )
                .then( JSON.parse );
-            var writePromise = artifactsPromise
+            const writePromise = artifactsPromise
                .then( JSON.stringify )
                .then( function( data ) {
                   return promise.nfcall( fs.writeFile, actualFile, data );
@@ -117,7 +132,7 @@ describe( 'artifactCollector', function() {
                      artifactsPromise,
                      writePromise
                   ] ).then( function( results ) {
-                     var artifacts = results[ 0 ];
+                     const artifacts = results[ 0 ];
 
                      expect( artifacts ).to.contain.a.key( type );
                      expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );

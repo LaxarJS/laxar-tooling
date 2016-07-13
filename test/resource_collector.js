@@ -5,25 +5,23 @@
  */
 'use strict';
 
-var fs = require( 'fs' );
-var path = require( 'path' );
-var expect = require( 'chai' ).expect;
-var promise = require( '../lib/promise' );
+const fs = require( 'fs' );
+const path = require( 'path' );
+const expect = require( 'chai' ).expect;
+const promise = require( '../lib/promise' );
 
 describe( 'resourceCollector', function() {
 
-   var resourceCollector = require( '../lib/resource_collector' );
-   var log = {
-      error: function() {
-         console.log.apply( console, arguments );
-      }
+   const resourceCollector = require( '../lib/resource_collector' );
+   const log = {
+      error() {}
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    describe( '.create( log, options )', function() {
 
-      var collector = resourceCollector.create( log, {} );
+      const collector = resourceCollector.create( log, {} );
 
       it( 'returns a resourceCollector', function() {
          expect( collector ).to.be.an( 'object' );
@@ -41,16 +39,15 @@ describe( 'resourceCollector', function() {
 
    describe( '.collectResource( artifacts )', function() {
 
-      var collector = resourceCollector.create( log, {
-         readFile: readFile,
-         fileExists: fileExists,
+      const collector = resourceCollector.create( log, {
+         readFile,
+         fileExists,
          embed: true
       } );
 
-      var data = require( './data/resources.json' );
+      const data = require( './data/resources.json' );
 
       function readFile( filepath ) {
-         var err;
          readFile.called = true;
          if( !data.files[ filepath ] ) {
             throw fserror( 'No such file or directory: ' + filepath, {
@@ -75,7 +72,7 @@ describe( 'resourceCollector', function() {
 //         fileExists.called = false;
 //         return collector.collectResources( data.artifacts.minimal )
 //            .then( function() {
-//               expect( fileExists.called ).to.be.ok;
+//               expect( fileExists.called ).to.eql( true );
 //            } );
 //      } );
 
@@ -83,7 +80,7 @@ describe( 'resourceCollector', function() {
          readFile.called = false;
          return collector.collectResources( data.artifacts.minimal )
             .then( function() {
-               expect( readFile.called ).to.be.ok;
+               expect( readFile.called ).to.eql( true );
             } );
       } );
 
@@ -99,17 +96,17 @@ describe( 'resourceCollector', function() {
       Object.keys( data.results ).forEach( function( flow ) {
 
          describe( 'for ' + flow, function() {
-            var expectedFile = path.join( __dirname, 'data', data.results[ flow ].expected );
-            var actualFile = path.join( __dirname, 'data', data.results[ flow ].actual );
-            var artifactsFile = path.join( __dirname, 'data', data.artifacts[ flow ] );
+            const expectedFile = path.join( __dirname, 'data', data.results[ flow ].expected );
+            const actualFile = path.join( __dirname, 'data', data.results[ flow ].actual );
+            const artifactsFile = path.join( __dirname, 'data', data.artifacts[ flow ] );
 
-            var artifacts = require( artifactsFile );
-            var expected = require( expectedFile );
+            const artifacts = require( artifactsFile );
+            const expected = require( expectedFile );
 
-            var resourcesPromise = collector.collectResources( artifacts )
+            const resourcesPromise = collector.collectResources( artifacts )
                .then( JSON.stringify )
                .then( JSON.parse );
-            var writePromise = resourcesPromise
+            const writePromise = resourcesPromise
                .then( JSON.stringify )
                .then( function( data ) {
                   return promise.nfcall( fs.writeFile, actualFile, data );
@@ -120,7 +117,7 @@ describe( 'resourceCollector', function() {
                   resourcesPromise,
                   writePromise
                ] ).then( function( results ) {
-                  var resources = results[ 0 ];
+                  const resources = results[ 0 ];
 
                   expect( resources ).to.deep.eql( expected );
                } );
@@ -136,7 +133,7 @@ describe( 'resourceCollector', function() {
 } );
 
 function fserror( message, props ) {
-   var err = new Error( message );
+   const err = new Error( message );
    Object.keys( props ).forEach( function( key ) {
       err[ key ] = props[ key ];
    } );

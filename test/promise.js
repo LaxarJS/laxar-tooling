@@ -7,8 +7,8 @@
 
 describe( 'promise', function() {
 
-   var expect = require( 'chai' ).expect;
-   var promise = require( '../lib/promise' );
+   const expect = require( 'chai' ).expect;
+   const promise = require( '../lib/promise' );
 
    function f( a, b ) {
       if( Number.isInteger( a ) && Number.isInteger( b ) ) {
@@ -31,7 +31,7 @@ describe( 'promise', function() {
    describe( '.nfbind( fn, ...args )', function() {
 
       it( 'returns a function returning a thenable', function() {
-         var pf = promise.nfbind( fn );
+         const pf = promise.nfbind( fn );
          expect( pf ).to.be.a( 'function' );
          expect( pf( 1, 2 ) ).to.respondTo( 'then' );
 
@@ -41,7 +41,7 @@ describe( 'promise', function() {
       } );
 
       it( 'turns error callbacks into rejected promises', function() {
-         var pf = promise.nfbind( fn );
+         const pf = promise.nfbind( fn );
 
          return pf( 1.5, 1 ).then( function() {
             expect.fail();
@@ -51,7 +51,7 @@ describe( 'promise', function() {
       } );
 
       it( 'binds given arguments to the function', function() {
-         var pf = promise.nfbind( fn, 1 );
+         const pf = promise.nfbind( fn, 1 );
          return pf( 2 ).then( function( res ) {
             expect( res ).to.eql( 3 );
          } );
@@ -64,7 +64,7 @@ describe( 'promise', function() {
    describe( '.nfcall( fn, ...args )', function() {
 
       it( 'calls the function and returns a thenable', function() {
-         var p = promise.nfcall( fn, 1, 2 );
+         const p = promise.nfcall( fn, 1, 2 );
          expect( p ).to.respondTo( 'then' );
 
          return p.then( function( res ) {
@@ -73,7 +73,7 @@ describe( 'promise', function() {
       } );
 
       it( 'turns error callbacks into rejected promises', function() {
-         var p = promise.nfcall( fn, 1.5, 1 );
+         const p = promise.nfcall( fn, 1.5, 1 );
 
          return p.then( function() {
             expect.fail();
@@ -89,7 +89,7 @@ describe( 'promise', function() {
    describe( '.nfapply( fn, args )', function() {
 
       it( 'calls the function and returns a thenable', function() {
-         var p = promise.nfapply( fn, [ 1, 2 ] );
+         const p = promise.nfapply( fn, [ 1, 2 ] );
          expect( p ).to.respondTo( 'then' );
 
          return p.then( function( res ) {
@@ -98,7 +98,7 @@ describe( 'promise', function() {
       } );
 
       it( 'turns error callbacks into rejected promises', function() {
-         var p = promise.nfapply( fn, [ 1.5, 1 ] );
+         const p = promise.nfapply( fn, [ 1.5, 1 ] );
 
          return p.then( function() {
             expect.fail();
@@ -114,7 +114,7 @@ describe( 'promise', function() {
    describe( '.wrap( fn )', function() {
 
       it( 'wraps a synchronous function and makes sure it returns a thenable', function() {
-         var pf = promise.wrap( f );
+         const pf = promise.wrap( f );
 
          expect( pf ).to.be.a( 'function' );
          expect( pf( 1, 2 ) ).to.respondTo( 'then' );
@@ -125,7 +125,7 @@ describe( 'promise', function() {
       } );
 
       it( 'turns thrown exceptions into rejected promises', function() {
-         var pf = promise.wrap( f );
+         const pf = promise.wrap( f );
 
          return pf( 1.5, 1 ).then( function() {
             expect.fail();
@@ -145,10 +145,10 @@ describe( 'promise', function() {
       }
 
       it( 'wraps the given function', function() {
-         var of = promise.once( resolve );
+         const of = promise.once( resolve );
          expect( of ).to.be.a( 'function' );
 
-         var p = of( 1 );
+         const p = of( 1 );
          expect( p ).to.respondTo( 'then' );
 
          return p.then( function( x ) {
@@ -157,12 +157,12 @@ describe( 'promise', function() {
       } );
 
       it( 'ensures the wrapped function is not called twice with the same first argument', function() {
-         var called = {};
-         var fn = promise.wrap( function( a, b ) {
+         const called = {};
+         const fn = promise.wrap( function( a, b ) {
             called[ a ] = (called[ a ] || 0) + 1;
             return f( a, b );
          } );
-         var of = promise.once( fn );
+         const of = promise.once( fn );
 
          return Promise.all( [
             of( 1, 2 ),
@@ -177,11 +177,11 @@ describe( 'promise', function() {
       } );
 
       it( 'uses the values object to store previous calls', function() {
-         var values = {
+         const values = {
             1: Promise.resolve( 2 ),
             3: Promise.resolve( 4 )
          };
-         var of = promise.once( resolve, values );
+         const of = promise.once( resolve, values );
 
          return Promise.all( [
             of( 1 ),
@@ -193,7 +193,7 @@ describe( 'promise', function() {
       } );
 
       it( 'uses the map function to return different values on subsequent calls', function() {
-         var of = promise.once( resolve, {}, function( x ) { return x * 2; } );
+         const of = promise.once( resolve, {}, function( x ) { return x * 2; } );
 
          return Promise.all( [
             of( 1 ),

@@ -5,28 +5,21 @@
  */
 'use strict';
 
-var fs = require( 'fs' );
-var path = require( 'path' );
-var expect = require( 'chai' ).expect;
-var promise = require( '../lib/promise' );
+const expect = require( 'chai' ).expect;
 
 describe( 'dependencyCollector', function() {
 
-   var dependencyCollector = require( '../lib/dependency_collector' );
-   var log = {
-      error: function() {
-         console.log.apply( console, arguments );
-      },
-      warn: function() {
-         console.log.apply( console, arguments );
-      }
+   const dependencyCollector = require( '../lib/dependency_collector' );
+   const log = {
+      error() {},
+      warn() {}
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    describe( '.create( log, options )', function() {
 
-      var collector = dependencyCollector.create( log, {} );
+      const collector = dependencyCollector.create( log, {} );
 
       it( 'returns a dependencyCollector', function() {
          expect( collector ).to.be.an( 'object' );
@@ -44,9 +37,9 @@ describe( 'dependencyCollector', function() {
 
    describe( '.collectResource( artifacts )', function() {
 
-      var collector = dependencyCollector.create( log, {} );
+      const collector = dependencyCollector.create( log, {} );
 
-      var data = require( './data/dependencies.json' );
+      const data = require( './data/dependencies.json' );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
