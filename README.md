@@ -1,4 +1,4 @@
-# laxar-tooling
+# laxar-tooling [![Build Status](https://travis-ci.org/LaxarJS/laxar-tooling.svg?branch=master)](https://travis-ci.org/LaxarJS/laxar-tooling)
 
 > A tool support library to inspect [LaxarJS][] applications
 
