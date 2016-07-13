@@ -7,6 +7,8 @@ Helper for reading and caching files.
 
 **Module Members**
 - [create](#create)
+- [- unknown -](#- unknown -)
+- [- unknown -](#- unknown -)
 
 ## Module Members
 #### <a name="create"></a>create( log, fileContents )
@@ -22,3 +24,9 @@ Create a function to read files from the file system an cache the contents.
 | Type | Description |
 | ---- | ----------- |
 | `Function` |  a function that wraps `fs.readFile` and returns a `Promise` |
+
+#### <a name="- unknown -"></a>- unknown -()
+eslint-disable no-param-reassign
+
+#### <a name="- unknown -"></a>- unknown -()
+eslint-enable
