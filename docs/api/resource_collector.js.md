@@ -16,7 +16,6 @@ Create a resource collector instance.
 | log | `Object` |  a logger instance with at least a `log.error()` method. |
 | options | `Object` |  additional options. |
 | options.fileContents | `Object` |   |
-| options.handleDeprecation | `Function` |   |
 | options.readFile | `Function` |   |
 | options.fileExists | `Function` |   |
 

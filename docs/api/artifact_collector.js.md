@@ -24,7 +24,6 @@ Create an artifact collector instance.
 | log | `Object` |  a logger instance with at least a `log.error()` method. |
 | options | `Object` |  additional options. |
 | options.fileContents | `Object` |   |
-| options.handleDeprecation | `Function` |   |
 | options.readJson | `Function` |   |
 | options.projectPath | `Function` |   |
 | options.projectRef | `Function` |   |
