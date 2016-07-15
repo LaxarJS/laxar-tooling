@@ -53,7 +53,7 @@ const dependencyCollector = require( './lib/dependency_collector' );
 const stylesheetCollector = require( './lib/stylesheet_collector' );
 const jsonReader = require( './lib/json_reader' );
 const fileReader = require( './lib/file_reader' );
-const getResourcePaths = exports.artifactCollector.getResourcePaths;
+const getResourcePaths = artifactCollector.getResourcePaths;
 
 module.exports = {
    artifactCollector,
