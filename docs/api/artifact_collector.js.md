@@ -104,6 +104,25 @@ Example:
 #### <a name="ArtifactCollector#collectFlows"></a>ArtifactCollector#collectFlows( flowPaths )
 Asynchronously collect all flows corresponding to the given paths.
 
+Example:
+
+    const flows = collector.collectFlows( [ 'path/to/flow.json' ] )
+       .then( flows => {
+          assert( Array.isArray( flows ) );
+          return flows;
+       } );
+    // => [ {
+    //       path: 'path/to/flow.json',
+    //       resources: {
+    //          watch: [ '.' ],
+    //          embed: [ '.' ],
+    //          list: []
+    //       },
+    //       references: {
+    //          local: { self: 'path/to/flow.json' }
+    //       }
+    //    } ]
+
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
