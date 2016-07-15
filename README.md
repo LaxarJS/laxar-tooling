@@ -13,6 +13,8 @@ Currently `laxar-tooling` serves three main purposes:
   [`fileResourceProvider`][fileResourceProvider]
 - [`dependencyCollector`][dependencyCollector]: generate a list of application dependencies (widgets,
   controls) and their respective integration technologies from the artifacts list
+- [`stylesheetCollector`][stylesheetCollector]: collect stylesheets listed by the artifacts list and
+  corresponding to the themes in use
 
 
 ## Installation
@@ -34,3 +36,4 @@ Refer to the [API documentation](docs/api) and/or real-world usage in [laxar-loa
 [artifactCollector]: docs/api/artifact_collector.js.md
 [resourceCollector]: docs/api/resource_collector.js.md
 [dependencyCollector]: docs/api/dependency_collector.js.md
+[stylesheetCollector]: docs/api/stylesheet_collector.js.md
