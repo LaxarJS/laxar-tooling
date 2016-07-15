@@ -106,10 +106,9 @@ Asynchronously collect all flows corresponding to the given paths.
 
 Example:
 
-    const flows = collector.collectFlows( [ 'path/to/flow.json' ] )
+    collector.collectFlows( [ 'path/to/flow.json' ] )
        .then( flows => {
           assert( Array.isArray( flows ) );
-          return flows;
        } );
     // => [ {
     //       path: 'path/to/flow.json',
@@ -136,6 +135,23 @@ Example:
 #### <a name="ArtifactCollector#collectPages"></a>ArtifactCollector#collectPages( flows )
 Asynchronously collect all pages that are reachable from the given list of flows.
 
+Example:
+
+    collector.collectPages( flows )
+       .then( pages => {
+          assert( Array.isArray( pages ) );
+       } );
+    // => [ {
+    //       path: 'path/to/page.json',
+    //       resources: { ... },
+    //       references: {
+    //          local: { self: 'ref/of/page' }
+    //       },
+    //       pages: [ ... ],
+    //       layouts: [ ... ],
+    //       widgets: [ ... ],
+    //    }, ... ]
+
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
@@ -148,6 +164,26 @@ Asynchronously collect all pages that are reachable from the given list of flows
 
 #### <a name="ArtifactCollector#collectWidgets"></a>ArtifactCollector#collectWidgets( pages, themes )
 Collect meta information on all widget that are referenced from the given pages.
+
+Example:
+
+    collector.collectWidgets( pages, themes )
+       .then( widgets => {
+          assert( Array.isArray( widgets ) );
+       } );
+    // => [ {
+    //       path: 'path/to/widget',
+    //       resources: { ... },
+    //       references: {
+    //          local: { self: 'ref/of/widget' },
+    //          amd: { self: 'ref/of/widget', module: 'ref/of/widget/widget' }
+    //       },
+    //       integration: {
+    //          type: '...',
+    //          technology: '...'
+    //       }
+    //       controls: [ ... ],
+    //    }, ... ]
 
 ##### Parameters
 | Property | Type | Description |
@@ -162,6 +198,25 @@ Collect meta information on all widget that are referenced from the given pages.
 
 #### <a name="ArtifactCollector#collectControls"></a>ArtifactCollector#collectControls( widgets, themes )
 Collect meta information on all control that are referenced by the given widgets.
+
+Example:
+
+    collector.collectControls( widgets, themes )
+       .then( controls => {
+          assert( Array.isArray( controls ) );
+       } );
+    // => [ {
+    //       path: 'path/to/control',
+    //       resources: { ... },
+    //       references: {
+    //          local: { self: 'ref/of/control' },
+    //          amd: { self: 'ref/of/control', module: 'ref/of/control/control' }
+    //       },
+    //       integration: {
+    //          type: '...',
+    //          technology: '...'
+    //       }
+    //    }, ... ]
 
 ##### Parameters
 | Property | Type | Description |
@@ -186,6 +241,19 @@ else.
 
 #### <a name="ArtifactCollector#collectLayouts"></a>ArtifactCollector#collectLayouts( pages, themes )
 Finds layouts based on them being referenced in page areas.
+
+Example:
+
+    collector.collectLayouts( pages, themes )
+       .then( layouts => {
+          assert( Array.isArray( layouts ) );
+       } );
+    // => [ {
+    //       resources: { ... },
+    //       references: {
+    //          local: { self: 'ref/of/layout' }
+    //       }
+    //    }, ... ]
 
 ##### Parameters
 | Property | Type | Description |
