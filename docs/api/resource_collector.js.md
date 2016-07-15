@@ -1,10 +1,15 @@
 
+# resourceCollector
+
+Create a resource map compatible with LaxarJS' `FileResourceProvider`.
 
 ## Contents
 
 **Module Members**
 - [create](#create)
-- [getResourcePaths](#getResourcePaths)
+
+**Types**
+- [ResourceCollectorApi](#ResourceCollectorApi)
 
 ## Module Members
 #### <a name="create"></a>create( log, options )
@@ -22,22 +27,7 @@ Create a resource collector instance.
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `ResourceCollector` |  the created resource collector. |
+| `ResourceCollectorApi` |  the created resource collector. |
 
-#### <a name="getResourcePaths"></a>getResourcePaths( themes, resourceType )
-Generate a function that maps artifacts to resource paths (to watch, list or embed),
-taking into account the available themes.
-
-Note: when asking for `list` paths, `embed` paths will be included (embedding implies listing)!
-This spares artifact developers from specifying embedded resources twice.
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| themes | `Array.<Object>` |  a list of themes, each with a `name` property (e.g. `'default.theme'`) |
-| resourceType | `string` |  the type of resource |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Function.<string, Array.<string>>` |  a function to provide the desired resource paths for the given artifact |
+## Types
+### <a name="ResourceCollectorApi"></a>ResourceCollectorApi

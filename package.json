@@ -14,7 +14,7 @@
     "email": "info@laxarjs.org"
   },
   "scripts": {
-    "test": "mocha && eslint index.js lib test && npm run-script docs",
+    "test": "mocha && eslint . && npm run-script docs",
     "docs": "scripts/docs lib/artifact_collector.js lib/dependency_collector.js lib/resource_collector.js lib/json_reader.js lib/file_reader.js"
   },
   "keywords": [
@@ -29,6 +29,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^3.0.1",
+    "eslint-config-laxarjs": "^0.3.0",
+    "eslint-plugin-node": "^2.0.0",
     "laxar-dox": "^1.0.1",
     "mocha": "^2.5.3"
   }

@@ -11,4 +11,4 @@ exports.dependencyCollector = require( './lib/dependency_collector' );
 exports.stylesheetCollector = require( './lib/stylesheet_collector' );
 exports.jsonReader = require( './lib/json_reader' );
 exports.fileReader = require( './lib/file_reader' );
-exports.getResourcePaths = exports.resourceCollector.getResourcePaths;
+exports.getResourcePaths = exports.artifactCollector.getResourcePaths;
