@@ -53,7 +53,7 @@ Example:
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `ArtifactCollector` |  the created artifact collector. |
+| `ArtifactCollector` |  the created artifact collector |
 
 #### <a name="getResourcePaths"></a>getResourcePaths( themes, resourceType )
 Generate a function that maps artifacts to resource paths (to watch, list or embed),
@@ -90,6 +90,14 @@ Example:
           assert( Array.isArray( artifacts.widgets ) );
           assert( Array.isArray( artifacts.controls ) );
        } );
+    // => {
+    //       flows: [ ... ],
+    //       themes: [ ... ],
+    //       pages: [ ... ],
+    //       layouts: [ ... ],
+    //       widgets: [ ... ],
+    //       contros: [ ... ]
+    //    }
 
 ##### Parameters
 | Property | Type | Description |
@@ -181,8 +189,8 @@ Example:
     //       integration: {
     //          type: '...',
     //          technology: '...'
-    //       }
-    //       controls: [ ... ],
+    //       },
+    //       controls: [ ... ]
     //    }, ... ]
 
 ##### Parameters
