@@ -37,8 +37,8 @@ Example:
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| log | `Object` |  a logger instance with at least a `log.error()` method. |
-| options | `Object` |  additional options. |
+| log | `Object` |  a logger instance with at least a `log.error()` method |
+| options | `Object` |  additional options |
 | _options.fileContents_ | `Object` |  an object mapping file paths (as returned by options.projectPath) to promises that resolve to the raw contents of the file |
 | _options.readFile_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the raw contents of the file (similar to `fs.readFile()`) |
 | _options.fileExists_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to either `true` or `false` depending on the existance of the given file (similar to the deprecated `fs.exists()`) |
