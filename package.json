@@ -14,7 +14,8 @@
     "email": "info@laxarjs.org"
   },
   "scripts": {
-    "test": "mocha && eslint . && npm run-script docs",
+    "test": "mocha && npm run-script lint && npm run-script docs",
+    "lint": "eslint .",
     "docs": "scripts/docs lib/artifact_collector.js lib/dependency_collector.js lib/resource_collector.js lib/json_reader.js lib/file_reader.js"
   },
   "keywords": [

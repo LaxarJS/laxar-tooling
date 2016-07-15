@@ -9,15 +9,13 @@ var createMarkdown = promise.wrap( require( 'laxar-dox' ).createMarkdown );
 
 var files = process.argv.slice( 2 );
 
-Promise.all( files.map( function( file ) {
+Promise.all( files.map( file => {
    var out = path.join( 'docs', 'api', path.basename( file ) + '.md' );
    console.log( file, '->', out );
 
    return readFile( file, 'utf-8' )
       .then( createMarkdown )
-      .then( function( md ) { return writeFile( out, md ); } );
+      .then( md => writeFile( out, md ) );
 } ) )
-.catch( function( err ) {
-   console.error( err );
-} );
+.catch( err => console.error( err ) );
 

@@ -10,14 +10,14 @@ Determine application artifacts by inspecting flow, pages and widgets.
 - [getResourcePaths](#getResourcePaths)
 
 **Types**
-- [ArtifactCollectorApi](#ArtifactCollectorApi)
-  - [ArtifactCollectorApi#collectArtifacts](#ArtifactCollectorApi#collectArtifacts)
-  - [ArtifactCollectorApi#collectFlows](#ArtifactCollectorApi#collectFlows)
-  - [ArtifactCollectorApi#collectPages](#ArtifactCollectorApi#collectPages)
-  - [ArtifactCollectorApi#collectWidgets](#ArtifactCollectorApi#collectWidgets)
-  - [ArtifactCollectorApi#collectControls](#ArtifactCollectorApi#collectControls)
-  - [ArtifactCollectorApi#collectThemes](#ArtifactCollectorApi#collectThemes)
-  - [ArtifactCollectorApi#collectLayouts](#ArtifactCollectorApi#collectLayouts)
+- [ArtifactCollector](#ArtifactCollector)
+  - [ArtifactCollector#collectArtifacts](#ArtifactCollector#collectArtifacts)
+  - [ArtifactCollector#collectFlows](#ArtifactCollector#collectFlows)
+  - [ArtifactCollector#collectPages](#ArtifactCollector#collectPages)
+  - [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets)
+  - [ArtifactCollector#collectControls](#ArtifactCollector#collectControls)
+  - [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes)
+  - [ArtifactCollector#collectLayouts](#ArtifactCollector#collectLayouts)
 
 ## Module Members
 #### <a name="create"></a>create( log, options )
@@ -53,7 +53,7 @@ Example:
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `ArtifactCollectorApi` |  the created artifact collector. |
+| `ArtifactCollector` |  the created artifact collector. |
 
 #### <a name="getResourcePaths"></a>getResourcePaths( themes, resourceType )
 Generate a function that maps artifacts to resource paths (to watch, list or embed),
@@ -74,9 +74,9 @@ This spares artifact developers from specifying embedded resources twice.
 | `Function.<string, Array.<string>>` |  a function to provide the desired resource paths for the given artifact |
 
 ## Types
-### <a name="ArtifactCollectorApi"></a>ArtifactCollectorApi
+### <a name="ArtifactCollector"></a>ArtifactCollector
 
-#### <a name="ArtifactCollectorApi#collectArtifacts"></a>ArtifactCollectorApi#collectArtifacts( flowPaths )
+#### <a name="ArtifactCollector#collectArtifacts"></a>ArtifactCollector#collectArtifacts( flowPaths )
 Obtain artifact information asynchronously, starting from a set of flow definitions.
 
 Example:
@@ -101,7 +101,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Object>` |  the artifact listing with the keys `flows`, `themes`, `pages`, `layouts`, `widgets` and `controls`, of which each is an array of artifact objects |
 
-#### <a name="ArtifactCollectorApi#collectFlows"></a>ArtifactCollectorApi#collectFlows( flowPaths )
+#### <a name="ArtifactCollector#collectFlows"></a>ArtifactCollector#collectFlows( flowPaths )
 Asynchronously collect all flows corresponding to the given paths.
 
 ##### Parameters
@@ -112,67 +112,69 @@ Asynchronously collect all flows corresponding to the given paths.
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |  a promise to an array of flow-meta objects |
+| `Promise.<Array>` |  a promise for an array of flow-meta objects |
 
-#### <a name="ArtifactCollectorApi#collectPages"></a>ArtifactCollectorApi#collectPages( flows )
+#### <a name="ArtifactCollector#collectPages"></a>ArtifactCollector#collectPages( flows )
 Asynchronously collect all pages that are reachable from the given list of flows.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| flows | `Array.<String>` |  a list of flow artifacts as returned by [ArtifactCollectorApi#collectFlows](#ArtifactCollectorApi#collectFlows) |
+| flows | `Array.<String>` |  a list of flow artifacts as returned by [ArtifactCollector#collectFlows](#ArtifactCollector#collectFlows) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |  a promise to a combined array of page meta information for these flows |
+| `Promise.<Array>` |  a promise for a combined array of page meta information for these flows |
 
-#### <a name="ArtifactCollectorApi#collectWidgets"></a>ArtifactCollectorApi#collectWidgets( pages, themes )
+#### <a name="ArtifactCollector#collectWidgets"></a>ArtifactCollector#collectWidgets( pages, themes )
 Collect meta information on all widget that are referenced from the given pages.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| pages | `Array` |   |
-| themes | `Array` |   |
+| pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
+| themes | `Array` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |  a promise for meta-information about all reachable widgets. |
+| `Promise.<Array>` |  a promise for an array of meta-information about all reachable widgets |
 
-#### <a name="ArtifactCollectorApi#collectControls"></a>ArtifactCollectorApi#collectControls( widgets, themes )
-Collect meta information on controls referenced by the given widgets.
+#### <a name="ArtifactCollector#collectControls"></a>ArtifactCollector#collectControls( widgets, themes )
+Collect meta information on all control that are referenced by the given widgets.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| widgets | `Array` |   |
-| themes | `Array` |   |
+| widgets | `Array` |  a list of widget artifacts as returned by [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets) |
+| themes | `Array` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |  a promise for meta-information about all controls referenced by the given widgets |
+| `Promise.<Array>` |  a promise for an array of meta-information about all reachable controls |
 
-#### <a name="ArtifactCollectorApi#collectThemes"></a>ArtifactCollectorApi#collectThemes()
-Collect themes.
+#### <a name="ArtifactCollector#collectThemes"></a>ArtifactCollector#collectThemes()
+Collect themes using the file system.
+TODO: Themes should be referenced somewhere so we can determine using the flow, just like everything
+else.
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |   |
+| `Promise.<Array>` |  a promise for an array of meta-information about all layouts |
 
-#### <a name="ArtifactCollectorApi#collectLayouts"></a>ArtifactCollectorApi#collectLayouts( pages, themes )
+#### <a name="ArtifactCollector#collectLayouts"></a>ArtifactCollector#collectLayouts( pages, themes )
 Finds layouts based on them being referenced in page areas.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| pages | `Array` |   |
-| themes | `Array` |   |
+| pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
+| themes | `Array` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |   |
+| `Promise.<Array>` |  a promise for an array of meta-information about all layouts |
