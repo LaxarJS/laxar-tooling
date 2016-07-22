@@ -19,7 +19,11 @@ Currently `laxar-tooling` serves three main purposes:
 
 ## Installation
 
+First, make sure you are running NodeJS v4.0 or newer. After that, just install `laxar-tooling`:
+
 ```console
+$ node -v
+v4.4.7
 $ npm install --save laxar-tooling
 ```
 
