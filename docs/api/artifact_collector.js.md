@@ -76,7 +76,7 @@ This spares artifact developers from specifying embedded resources twice.
 ## Types
 ### <a name="ArtifactCollector"></a>ArtifactCollector
 
-#### <a name="ArtifactCollector#collectArtifacts"></a>ArtifactCollector#collectArtifacts( flowPaths )
+#### <a name="ArtifactCollector#collectArtifacts"></a>ArtifactCollector#collectArtifacts( flowPaths, themeRefs )
 Obtain artifact information asynchronously, starting from a set of flow definitions.
 
 Example:
@@ -103,6 +103,7 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | flowPaths | `Array.<String>` |  a list of flows to follow to find all the pages reachable form the flow and their required artifacts |
+| themeRefs | `Array.<String>` |  a list of themes to include in the artifacts |
 
 ##### Returns
 | Type | Description |
@@ -205,7 +206,7 @@ Example:
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable widgets |
 
 #### <a name="ArtifactCollector#collectControls"></a>ArtifactCollector#collectControls( widgets, themes )
-Collect meta information on all control that are referenced by the given widgets.
+Collect meta information on all controls that are referenced by the given widgets.
 
 Example:
 
@@ -237,15 +238,36 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable controls |
 
-#### <a name="ArtifactCollector#collectThemes"></a>ArtifactCollector#collectThemes()
-Collect themes using the file system.
-TODO: Themes should be referenced somewhere so we can determine using the flow, just like everything
-else.
+#### <a name="ArtifactCollector#collectThemes"></a>ArtifactCollector#collectThemes( themeRefs )
+Collect meta information on the given themes.
+
+Example:
+
+    collector.collectThemes( themeRefs )
+       .then( themes => {
+          assert( Array.isArray( themes ) );
+       } );
+    // => [ {
+    //       path: 'path/to/my.theme',
+    //       name: 'my.theme',
+    //       resources: { ... },
+    //       references: { ... }
+    //    }, {
+    //       path: 'path/to/laxar-uikit/themes/default.theme',
+    //       name: 'default.theme',
+    //       resources: { ... },
+    //       references: { ... }
+    //    } ]
+
+##### Parameters
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| themeRefs | `Array.<String>` |  a list of themes to include in the artifacts |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Promise.<Array>` |  a promise for an array of meta-information about all layouts |
+| `Promise.<Array>` |  a promise for an array of meta-information about all themes |
 
 #### <a name="ArtifactCollector#collectLayouts"></a>ArtifactCollector#collectLayouts( pages, themes )
 Finds layouts based on them being referenced in page areas.

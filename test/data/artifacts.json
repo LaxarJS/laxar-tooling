@@ -9,6 +9,9 @@
          "actual": "artifacts_multiple_actual.json"
       }
    },
+   "themes": {
+      "default": [ "default.theme" ]
+   },
    "flows": {
       "empty": [
          "xxx/flows/flow1.json"

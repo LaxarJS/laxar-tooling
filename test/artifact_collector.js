@@ -38,7 +38,7 @@ describe( 'artifactCollector', function() {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.collectArtifacts( flowPaths )', function() {
+   describe( '.collectArtifacts( flowPaths, themeRefs )', function() {
 
       const collector = artifactCollector.create( { warn, error }, {
          projectPath,
@@ -70,12 +70,12 @@ describe( 'artifactCollector', function() {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'returns a thenable', function() {
-         expect( collector.collectArtifacts( data.flows.empty ) ).to.respondTo( 'then' );
+         expect( collector.collectArtifacts( data.flows.empty, data.themes.default ) ).to.respondTo( 'then' );
       } );
 
       it( 'uses the projectPath function supplied during creation to resolve paths', function() {
          projectPath.called = false;
-         return collector.collectArtifacts( data.flows.minimal )
+         return collector.collectArtifacts( data.flows.minimal, data.themes.default )
             .then( function() {
                expect( projectPath.called ).to.eql( true );
             } );
@@ -83,14 +83,14 @@ describe( 'artifactCollector', function() {
 
       it( 'uses the readJson function supplied during creation to load JSON files', function() {
          readJson.called = false;
-         return collector.collectArtifacts( data.flows.minimal )
+         return collector.collectArtifacts( data.flows.minimal, data.themes.default )
             .then( function() {
                expect( readJson.called ).to.eql( true );
             } );
       } );
 
       it( 'creates a map of used artifacts', function() {
-         return collector.collectArtifacts( data.flows.empty )
+         return collector.collectArtifacts( data.flows.empty, data.themes.default )
             .then( function( artifacts ) {
                expect( artifacts ).to.be.an( 'object' );
             } );
@@ -100,7 +100,7 @@ describe( 'artifactCollector', function() {
 
       it( 'warns on duplicate widgets', function() {
          warn.called = false;
-         return collector.collectArtifacts( data.flows.duplicate )
+         return collector.collectArtifacts( data.flows.duplicate, data.themes.default )
             .then( function( artifacts ) {
                expect( warn.called ).to.be.a( 'string' );
                expect( artifacts ).to.be.an( 'object' );
@@ -117,7 +117,7 @@ describe( 'artifactCollector', function() {
 
             const expected = require( expectedFile );
 
-            const artifactsPromise = collector.collectArtifacts( data.flows[ flow ] )
+            const artifactsPromise = collector.collectArtifacts( data.flows[ flow ], data.themes.default )
                .then( JSON.stringify )
                .then( JSON.parse );
             const writePromise = artifactsPromise
