@@ -5,7 +5,7 @@
 This library serves as a central point to codify build-time knowledge of LaxarJS applications.
 Use it to add LaxarJS support to your build tool.
 
-Currently `laxar-tooling` serves three main purposes:
+Currently `laxar-tooling` serves four main purposes:
 
 - [`artifactCollector`][artifactCollector]: collect a list of artifacts (pages, layouts, themes, widgets,
   controls) plus meta-information starting from the application's flow(s)
