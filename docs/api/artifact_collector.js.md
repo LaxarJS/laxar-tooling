@@ -36,8 +36,7 @@ Example:
              }
           } );
        } ),
-       projectPath: filename => path.relative( projectRoot, filename ),
-       projectRef: filename => path.relative( baseUrl, filename )
+       projectPath: filename => path.relative( projectRoot, filename )
     } );
 
 ##### Parameters
@@ -48,7 +47,6 @@ Example:
 | _options.fileContents_ | `Object` |  an object mapping file paths (as returned by options.projectPath) to promises that resolve to the parsed JSON contents of the file |
 | _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file |
 | _options.projectPath_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously as a `Promise` |
-| _options.projectRef_ | `Function` |  a function returning a module name or path that can be `require()`d |
 
 ##### Returns
 | Type | Description |
