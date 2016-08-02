@@ -9,6 +9,28 @@
          "actual": "artifacts_multiple_actual.json"
       }
    },
+   "entries": {
+      "empty": [ {
+         "flows": [ "flow1" ],
+         "themes": [ "default.theme" ]
+      } ],
+      "minimal": [ {
+         "flows": [ "flow2" ],
+         "themes": [ "default.theme" ]
+      } ],
+      "duplicate": [ {
+         "flows": [ "flow3" ],
+         "themes": [ "default.theme" ]
+      } ],
+      "complete flow": [ {
+         "flows": [ "flow4" ],
+         "themes": [ "default.theme" ]
+      } ],
+      "multiple flows": [ {
+         "flows": [ "flow4" ],
+         "themes": [ "default.theme" ]
+      } ]
+   },
    "themes": {
       "default": [ "default.theme" ]
    },
@@ -32,16 +54,25 @@
    },
    "paths": {
       ".": "yyy",
+      "laxar-path-flows/flow1.json": "xxx/flows/flow1.json",
+      "laxar-path-flows/flow2.json": "xxx/flows/flow2.json",
+      "laxar-path-flows/flow3.json": "xxx/flows/flow3.json",
+      "laxar-path-flows/flow4.json": "xxx/flows/flow4.json",
+      "laxar-path-pages/page1.json": "xxx/pages/page1.json",
+      "laxar-path-pages/page2.json": "xxx/pages/page2.json",
+      "laxar-path-pages/page3.json": "xxx/pages/page3.json",
+      "laxar-path-widgets/widget1/widget.json": "xxx/widgets/widget1/widget.json",
+      "laxar-path-widgets/widget2/widget.json": "xxx/widgets/widget2/widget.json",
+      "laxar-path-controls/control1/control.json": "xxx/controls/control1/control.json",
+      "laxar-path-controls/control2/control.json": "xxx/controls/control2/control.json",
+      "laxar-path-layouts/layout1": "xxx/layouts/layout1",
+      "laxar-path-layouts/layout2": "xxx/layouts/layout2",
+
       "laxar-path-default-theme": "xxx/themes/default.theme",
       "laxar-path-themes": "xxx/themes",
       "laxar-path-layouts": "xxx/layouts",
       "laxar-path-pages": "xxx/pages",
-      "laxar-path-pages/page1.json": "xxx/pages/page1.json",
-      "laxar-path-pages/page2.json": "xxx/pages/page2.json",
-      "laxar-path-pages/page3.json": "xxx/pages/page3.json",
       "laxar-path-widgets": "xxx/widgets",
-      "laxar-path-widgets/widget1/widget.json": "xxx/widgets/widget1/widget.json",
-      "laxar-path-widgets/widget2/widget.json": "xxx/widgets/widget2/widget.json",
       "laxar-path-controls": "xxx/controls",
 
       "control1/control.json": "xxx/controls/control1/control.json",
