@@ -5,10 +5,7 @@
  */
 'use strict';
 
-const fs = require( 'fs' );
-const path = require( 'path' );
 const expect = require( 'chai' ).expect;
-const promise = require( '../lib/promise' );
 
 describe( 'artifactCollectorCore', function() {
 
@@ -102,47 +99,9 @@ describe( 'artifactCollectorCore', function() {
          return collector.collectArtifacts( data.entries.duplicate )
             .then( function( artifacts ) {
                expect( artifacts ).to.be.an( 'object' );
-               expect( artifacts.widgets ).to.include.entry( {
-                  name: 'widget'
-               } );
+               expect( artifacts.widgets[ 0 ].refs ).to.include( 'widget1' );
+               expect( artifacts.widgets[ 0 ].refs ).to.include( 'amd:laxar-path-widgets/widget1' );
             } );
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      Object.keys( data.results ).forEach( function( entry ) {
-
-         describe( 'for ' + entry, function() {
-            const expectedFile = path.join( __dirname, 'data', data.results[ entry ].expected );
-            const actualFile = path.join( __dirname, 'data', data.results[ entry ].actual );
-
-            const expected = require( expectedFile );
-
-            const artifactsPromise = collector.collectArtifacts( data.entries[ entry ] )
-               .then( JSON.stringify )
-               .then( JSON.parse );
-            const writePromise = artifactsPromise
-               .then( JSON.stringify )
-               .then( function( data ) {
-                  return promise.nfcall( fs.writeFile, actualFile, data );
-               } );
-
-            Object.keys( expected ).forEach( function( type ) {
-               it( 'resolves ' + expected[ type ].length + ' ' + type, function() {
-                  return Promise.all( [
-                     artifactsPromise,
-                     writePromise
-                  ] ).then( function( results ) {
-                     const artifacts = results[ 0 ];
-
-                     expect( artifacts ).to.contain.a.key( type );
-                     expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );
-                     expect( artifacts[ type ] ).to.deep.eql( expected[ type ] );
-                  } );
-               } );
-            } );
-         } );
-
       } );
 
    } );

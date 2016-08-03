@@ -12,23 +12,23 @@
    "entries": {
       "empty": [ {
          "flows": [ "flow1" ],
-         "themes": [ "default.theme" ]
+         "themes": [ "default" ]
       } ],
       "minimal": [ {
          "flows": [ "flow2" ],
-         "themes": [ "default.theme" ]
+         "themes": [ "default" ]
       } ],
       "duplicate": [ {
          "flows": [ "flow3" ],
-         "themes": [ "default.theme" ]
+         "themes": [ "default" ]
       } ],
       "complete flow": [ {
          "flows": [ "flow4" ],
-         "themes": [ "default.theme" ]
+         "themes": [ "default" ]
       } ],
       "multiple flows": [ {
          "flows": [ "flow4" ],
-         "themes": [ "default.theme" ]
+         "themes": [ "default" ]
       } ]
    },
    "themes": {
