@@ -7,17 +7,16 @@ Determine application artifacts by inspecting flow, pages and widgets.
 
 **Module Members**
 - [create](#create)
-- [getResourcePaths](#getResourcePaths)
 
 **Types**
 - [ArtifactCollector](#ArtifactCollector)
   - [ArtifactCollector#collectArtifacts](#ArtifactCollector#collectArtifacts)
   - [ArtifactCollector#collectFlows](#ArtifactCollector#collectFlows)
+  - [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes)
   - [ArtifactCollector#collectPages](#ArtifactCollector#collectPages)
+  - [ArtifactCollector#collectLayouts](#ArtifactCollector#collectLayouts)
   - [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets)
   - [ArtifactCollector#collectControls](#ArtifactCollector#collectControls)
-  - [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes)
-  - [ArtifactCollector#collectLayouts](#ArtifactCollector#collectLayouts)
 
 ## Module Members
 #### <a name="create"></a>create( log, options )
@@ -36,7 +35,7 @@ Example:
              }
           } );
        } ),
-       projectPath: filename => path.relative( projectRoot, filename )
+       projectPath: ref => path.relative( base, path.resolve( ref ) )
     } );
 
 ##### Parameters
@@ -53,33 +52,15 @@ Example:
 | ---- | ----------- |
 | `ArtifactCollector` |  the created artifact collector |
 
-#### <a name="getResourcePaths"></a>getResourcePaths( themes, resourceType )
-Generate a function that maps artifacts to resource paths (to watch, list or embed),
-taking into account the available themes.
-
-Note: when asking for `list` paths, `embed` paths will be included (embedding implies listing)!
-This spares artifact developers from specifying embedded resources twice.
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| themes | `Array.<Object>` |  a list of themes, each with a `name` property (e.g. `'default.theme'`) |
-| resourceType | `string` |  the type of resource |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Function.<string, Array.<string>>` |  a function to provide the desired resource paths for the given artifact |
-
 ## Types
 ### <a name="ArtifactCollector"></a>ArtifactCollector
 
-#### <a name="ArtifactCollector#collectArtifacts"></a>ArtifactCollector#collectArtifacts( flowPaths, themeRefs )
+#### <a name="ArtifactCollector#collectArtifacts"></a>ArtifactCollector#collectArtifacts( entries )
 Obtain artifact information asynchronously, starting from a set of flow definitions.
 
 Example:
 
-    collector.collectArtifacts( [ 'path/to/flow.json' ] )
+    collector.collectArtifacts( [ { flows: [ "flow" ], themes: [ "my", "default"  ] } ] )
        .then( artifacts => {
           assert( Array.isArray( artifacts.flows ) );
           assert( Array.isArray( artifacts.themes ) );
@@ -100,44 +81,67 @@ Example:
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| flowPaths | `Array.<String>` |  a list of flows to follow to find all the pages reachable form the flow and their required artifacts |
-| themeRefs | `Array.<String>` |  a list of themes to include in the artifacts |
+| entries | `Array.<Object>` |  a list of entries containing themes and flows to follow to find all the pages reachable from the flow and their required artifacts |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Object>` |  the artifact listing with the keys `flows`, `themes`, `pages`, `layouts`, `widgets` and `controls`, of which each is an array of artifact objects |
 
-#### <a name="ArtifactCollector#collectFlows"></a>ArtifactCollector#collectFlows( flowPaths )
+#### <a name="ArtifactCollector#collectFlows"></a>ArtifactCollector#collectFlows( entries )
 Asynchronously collect all flows corresponding to the given paths.
 
 Example:
 
-    collector.collectFlows( [ 'path/to/flow.json' ] )
+    collector.collectFlows( [ { flows: [ 'path/to/flow.json' ] } ] )
        .then( flows => {
           assert( Array.isArray( flows ) );
        } );
     // => [ {
+    //       refs: [ 'flow' ],
+    //       name: 'flow',
     //       path: 'path/to/flow.json',
-    //       resources: {
-    //          watch: [ '.' ],
-    //          embed: [ '.' ],
-    //          list: []
-    //       },
-    //       references: {
-    //          local: { self: 'path/to/flow.json' }
-    //       }
+    //       pages: [ ... ]
     //    } ]
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| flowPaths | `Array.<String>` |  a list of flow paths |
+| entries | `Array` |  a list of entry objects containing a flows key |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of flow-meta objects |
+
+#### <a name="ArtifactCollector#collectThemes"></a>ArtifactCollector#collectThemes( entries )
+Collect meta information on the given themes.
+
+Example:
+
+    collector.collectThemes( [ { themes: [ 'my.theme', 'default.theme' ] } ] )
+       .then( themes => {
+          assert( Array.isArray( themes ) );
+       } );
+    // => [ {
+    //       refs: [ 'my.theme' ],
+    //       name: 'my.theme',
+    //       path: 'path/to/my.theme'
+    //    }, {
+    //       refs: [ 'default.theme' ],
+    //       name: 'default.theme',
+    //       path: 'path/to/laxar-uikit/themes/default.theme'
+    //    } ]
+
+##### Parameters
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| entries | `Array.<Object>` |  a list of entries with themes to include in the artifacts |
+
+##### Returns
+| Type | Description |
+| ---- | ----------- |
+| `Promise.<Array>` |  a promise for an array of meta-information about all themes |
 
 #### <a name="ArtifactCollector#collectPages"></a>ArtifactCollector#collectPages( flows )
 Asynchronously collect all pages that are reachable from the given list of flows.
@@ -149,14 +153,12 @@ Example:
           assert( Array.isArray( pages ) );
        } );
     // => [ {
+    //       refs: [ 'page' ],
+    //       name: 'page',
     //       path: 'path/to/page.json',
-    //       resources: { ... },
-    //       references: {
-    //          local: { self: 'ref/of/page' }
-    //       },
     //       pages: [ ... ],
     //       layouts: [ ... ],
-    //       widgets: [ ... ],
+    //       widgets: [ ... ]
     //    }, ... ]
 
 ##### Parameters
@@ -169,26 +171,44 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for a combined array of page meta information for these flows |
 
-#### <a name="ArtifactCollector#collectWidgets"></a>ArtifactCollector#collectWidgets( pages, themes )
+#### <a name="ArtifactCollector#collectLayouts"></a>ArtifactCollector#collectLayouts( pages )
+Finds layouts based on them being referenced in page areas.
+
+Example:
+
+    collector.collectLayouts( pages )
+       .then( layouts => {
+          assert( Array.isArray( layouts ) );
+       } );
+    // => [ {
+    //       refs: [ 'layout' ],
+    //       name: 'layout',
+    //       path: 'path/to/layout'
+    //    }, ... ]
+
+##### Parameters
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
+
+##### Returns
+| Type | Description |
+| ---- | ----------- |
+| `Promise.<Array>` |  a promise for an array of meta-information about all layouts |
+
+#### <a name="ArtifactCollector#collectWidgets"></a>ArtifactCollector#collectWidgets( pages )
 Collect meta information on all widget that are referenced from the given pages.
 
 Example:
 
-    collector.collectWidgets( pages, themes )
+    collector.collectWidgets( pages )
        .then( widgets => {
           assert( Array.isArray( widgets ) );
        } );
     // => [ {
+    //       refs: [ 'widget' ],
+    //       name: 'widget',
     //       path: 'path/to/widget',
-    //       resources: { ... },
-    //       references: {
-    //          local: { self: 'ref/of/widget' },
-    //          amd: { self: 'ref/of/widget', module: 'ref/of/widget/widget' }
-    //       },
-    //       integration: {
-    //          type: '...',
-    //          technology: '...'
-    //       },
     //       controls: [ ... ]
     //    }, ... ]
 
@@ -196,14 +216,13 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
-| themes | `Array` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable widgets |
 
-#### <a name="ArtifactCollector#collectControls"></a>ArtifactCollector#collectControls( widgets, themes )
+#### <a name="ArtifactCollector#collectControls"></a>ArtifactCollector#collectControls( widgets )
 Collect meta information on all controls that are referenced by the given widgets.
 
 Example:
@@ -213,83 +232,18 @@ Example:
           assert( Array.isArray( controls ) );
        } );
     // => [ {
+    //       refs: [ 'control' ],
+    //       name: 'control',
     //       path: 'path/to/control',
-    //       resources: { ... },
-    //       references: {
-    //          local: { self: 'ref/of/control' },
-    //          amd: { self: 'ref/of/control', module: 'ref/of/control/control' }
-    //       },
-    //       integration: {
-    //          type: '...',
-    //          technology: '...'
-    //       }
+    //       controls: [ ... ]
     //    }, ... ]
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | widgets | `Array` |  a list of widget artifacts as returned by [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets) |
-| themes | `Array` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable controls |
-
-#### <a name="ArtifactCollector#collectThemes"></a>ArtifactCollector#collectThemes( themeRefs )
-Collect meta information on the given themes.
-
-Example:
-
-    collector.collectThemes( themeRefs )
-       .then( themes => {
-          assert( Array.isArray( themes ) );
-       } );
-    // => [ {
-    //       path: 'path/to/my.theme',
-    //       name: 'my.theme',
-    //       resources: { ... },
-    //       references: { ... }
-    //    }, {
-    //       path: 'path/to/laxar-uikit/themes/default.theme',
-    //       name: 'default.theme',
-    //       resources: { ... },
-    //       references: { ... }
-    //    } ]
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| themeRefs | `Array.<String>` |  a list of themes to include in the artifacts |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Promise.<Array>` |  a promise for an array of meta-information about all themes |
-
-#### <a name="ArtifactCollector#collectLayouts"></a>ArtifactCollector#collectLayouts( pages, themes )
-Finds layouts based on them being referenced in page areas.
-
-Example:
-
-    collector.collectLayouts( pages, themes )
-       .then( layouts => {
-          assert( Array.isArray( layouts ) );
-       } );
-    // => [ {
-    //       resources: { ... },
-    //       references: {
-    //          local: { self: 'ref/of/layout' }
-    //       }
-    //    }, ... ]
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
-| themes | `Array` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes) |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Promise.<Array>` |  a promise for an array of meta-information about all layouts |

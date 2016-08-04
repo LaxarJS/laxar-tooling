@@ -18,6 +18,22 @@ describe( 'utils', function() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+   describe( '.merge( objects )', function() {
+
+      it( 'returns an object with the properties all input objects', function() {
+         const merged = utils.merge( [ { a: 1 }, { b: 2 } ] );
+         expect( merged ).to.eql( { a: 1, b: 2 } );
+      } );
+
+      it( 'gives precedence to the last element', function() {
+         const merged = utils.merge( [ { a: 1 }, { a: 2, b: 3 }, { b: 4 } ] );
+         expect( merged ).to.eql( { a: 2, b: 4 } );
+      } );
+
+   } );
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
    describe( '.flatten( arrays )', function() {
 
       it( 'returns an array with the concatenated elements of each input array', function() {

@@ -16,7 +16,7 @@
   "scripts": {
     "test": "mocha && npm run-script lint && npm run-script docs",
     "lint": "eslint .",
-    "docs": "scripts/docs lib/artifact_collector.js lib/dependency_collector.js lib/resource_collector.js lib/stylesheet_collector.js lib/json_reader.js lib/file_reader.js"
+    "docs": "scripts/docs lib/artifact_collector.js lib/asset_resolver.js lib/artifacts_listing.js lib/json_reader.js lib/file_reader.js"
   },
   "keywords": [
     "laxar",

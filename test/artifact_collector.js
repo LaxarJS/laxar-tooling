@@ -5,10 +5,7 @@
  */
 'use strict';
 
-const fs = require( 'fs' );
-const path = require( 'path' );
 const expect = require( 'chai' ).expect;
-const promise = require( '../lib/promise' );
 
 describe( 'artifactCollector', function() {
 
@@ -38,7 +35,7 @@ describe( 'artifactCollector', function() {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.collectArtifacts( flowPaths, themeRefs )', function() {
+   describe( '.collectArtifacts( entries )', function() {
 
       const collector = artifactCollector.create( { warn, error }, {
          projectPath,
@@ -70,12 +67,12 @@ describe( 'artifactCollector', function() {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'returns a thenable', function() {
-         expect( collector.collectArtifacts( data.flows.empty, data.themes.default ) ).to.respondTo( 'then' );
+         expect( collector.collectArtifacts( data.entries.empty ) ).to.respondTo( 'then' );
       } );
 
       it( 'uses the projectPath function supplied during creation to resolve paths', function() {
          projectPath.called = false;
-         return collector.collectArtifacts( data.flows.minimal, data.themes.default )
+         return collector.collectArtifacts( data.entries.minimal )
             .then( function() {
                expect( projectPath.called ).to.eql( true );
             } );
@@ -83,14 +80,14 @@ describe( 'artifactCollector', function() {
 
       it( 'uses the readJson function supplied during creation to load JSON files', function() {
          readJson.called = false;
-         return collector.collectArtifacts( data.flows.minimal, data.themes.default )
+         return collector.collectArtifacts( data.entries.minimal )
             .then( function() {
                expect( readJson.called ).to.eql( true );
             } );
       } );
 
       it( 'creates a map of used artifacts', function() {
-         return collector.collectArtifacts( data.flows.empty, data.themes.default )
+         return collector.collectArtifacts( data.entries.empty )
             .then( function( artifacts ) {
                expect( artifacts ).to.be.an( 'object' );
             } );
@@ -98,50 +95,13 @@ describe( 'artifactCollector', function() {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'warns on duplicate widgets', function() {
-         warn.called = false;
-         return collector.collectArtifacts( data.flows.duplicate, data.themes.default )
+      it( 'merges duplicate widgets', function() {
+         return collector.collectArtifacts( data.entries.duplicate )
             .then( function( artifacts ) {
-               expect( warn.called ).to.be.a( 'string' );
                expect( artifacts ).to.be.an( 'object' );
+               expect( artifacts.widgets[ 0 ].refs ).to.include( 'widget1' );
+               expect( artifacts.widgets[ 0 ].refs ).to.include( 'amd:laxar-path-widgets/widget1' );
             } );
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      Object.keys( data.results ).forEach( function( flow ) {
-
-         describe( 'for ' + flow, function() {
-            const expectedFile = path.join( __dirname, 'data', data.results[ flow ].expected );
-            const actualFile = path.join( __dirname, 'data', data.results[ flow ].actual );
-
-            const expected = require( expectedFile );
-
-            const artifactsPromise = collector.collectArtifacts( data.flows[ flow ], data.themes.default )
-               .then( JSON.stringify )
-               .then( JSON.parse );
-            const writePromise = artifactsPromise
-               .then( JSON.stringify )
-               .then( function( data ) {
-                  return promise.nfcall( fs.writeFile, actualFile, data );
-               } );
-
-            Object.keys( expected ).forEach( function( type ) {
-               it( 'resolves ' + expected[ type ].length + ' ' + type, function() {
-                  return Promise.all( [
-                     artifactsPromise,
-                     writePromise
-                  ] ).then( function( results ) {
-                     const artifacts = results[ 0 ];
-
-                     expect( artifacts ).to.contain.a.key( type );
-                     expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );
-                     expect( artifacts[ type ] ).to.deep.eql( expected[ type ] );
-                  } );
-               } );
-            } );
-         } );
-
       } );
 
    } );

@@ -14,22 +14,22 @@
  *     const entries = [ {
  *        flows: [ 'flow1', 'flow2' ],
  *        themes: [ 'default' ]
- *     ];
+ *     } ];
  *
  * @module laxar-tooling
  */
 'use strict';
 
-const artifactCollector = require( './lib/artifact_collector_core' );
-const stylesheetCollector = require( './lib/stylesheet_collector' );
+const artifactCollector = require( './lib/artifact_collector' );
 const assetResolver = require( './lib/asset_resolver' );
+const artifactsListing = require( './lib/artifacts_listing' );
 const jsonReader = require( './lib/json_reader' );
 const fileReader = require( './lib/file_reader' );
 
 module.exports = {
    artifactCollector,
-   stylesheetCollector,
    assetResolver,
+   artifactsListing,
    jsonReader,
    fileReader
 };
