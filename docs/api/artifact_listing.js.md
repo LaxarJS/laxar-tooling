@@ -8,16 +8,22 @@ Determine application artifacts by inspecting flow, pages and widgets.
 **Module Members**
 - [buildAliases](#buildAliases)
 
+**Types**
+- [ArtifactListing](#ArtifactListing)
+
 ## Module Members
-#### <a name="buildAliases"></a>buildAliases( artifacts )
+#### <a name="buildAliases"></a>buildAliases( entries )
 Create a map from artifact refs to indices.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| artifacts | `Object` |  artifacts returned by [ArtifactCollector#collectArtifacts](#ArtifactCollector#collectArtifacts) |
+| entries | `Array` |  any of the artifact sub-lists returned by [ArtifactCollector](#ArtifactCollector) |
 
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `Object` |  the map from artifact refs to indices |
+| `Promise.<Object>` |  the map from artifact refs to indices |
+
+## Types
+### <a name="ArtifactListing"></a>ArtifactListing

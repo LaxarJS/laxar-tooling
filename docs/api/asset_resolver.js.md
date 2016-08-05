@@ -7,13 +7,11 @@ Helpers for resolving artifact assets
 
 **Module Members**
 - [create](#create)
-- [resolveThemeAssets](#resolveThemeAssets)
-- [resolveLayoutAssets](#resolveLayoutAssets)
-- [resolveWidgetAssets](#resolveWidgetAssets)
-- [resolveControlAssets](#resolveControlAssets)
 
 **Types**
 - [AssetResolver](#AssetResolver)
+  - [AssetResolver#resolveAssets](#AssetResolver#resolveAssets)
+  - [AssetResolver#resolveThemedAssets](#AssetResolver#resolveThemedAssets)
 
 ## Module Members
 #### <a name="create"></a>create( log, options )
@@ -41,140 +39,68 @@ Example:
 | ---- | ----------- |
 | `AssetResolver` |  the created asset resolver |
 
-#### <a name="resolveThemeAssets"></a>resolveThemeAssets( theme )
-Resolve assets for a theme.
-Return an asset listing containing the URL of the `theme.css` file associated
-with the given theme.
-
-Example:
-
-    resolver.resolveThemeAssets( { name: 'my.theme', path: 'path/to/my.theme' } )
-       .then( assets => {
-          asset( typeof assets === 'object' )
-       } )
-    // => {
-    //       'my.theme': {
-    //          'css/theme.css': 'path/to/my.theme/css/theme.css'
-    //       }
-    //    }
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| theme | `Object` |  a theme artifact as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes). |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Object` |  an object mapping paths that are relative to the artifact to URLs for existing files |
-
-#### <a name="resolveLayoutAssets"></a>resolveLayoutAssets( layout, themes )
-Resolve assets for a layout.
-For each layout artifact and given theme it searches (in this order):
-1. the theme's layout directory
-2. the layout's theme directory
-
-Example:
-
-    resolver.resolveLayoutAssets( { name: 'my-layout', path: 'path/to/my-layout' }, [
-       { name: 'my.theme', path: 'path/to/my.theme' },
-       { name: 'default.theme', path: 'path/to/default.theme' }
-    ] ).then( assets => {
-          asset( typeof assets === 'object' )
-       } )
-    // => {
-    //       'my.theme': {
-    //          'my-layout.html': 'path/to/my-layout/my.theme/my-layout.html',
-    //          'css/my-layout.css': 'path/to/my-layout/my.theme/css/my-layout.css'
-    //       },
-    //       'default.theme': {
-    //          'my-layout.html': 'path/to/my-layout/default.theme/my-layout.html',
-    //          'css/my-layout.css': 'path/to/my-layout/default.theme/css/my-layout.css'
-    //       }
-    //    }
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| layout | `Object` |  a layout artifact as returned by [ArtifactCollector#collectLayouts](#ArtifactCollector#collectLayouts). |
-| themes | `Array.<Object>` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes). |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Object` |  an object mapping paths (relative to the layout) to URLs for existing files |
-
-#### <a name="resolveWidgetAssets"></a>resolveWidgetAssets( widget, themes )
-Resolve assets for a widget.
-For each widget artifact and given theme it searches (in this order):
-1. the theme's widget directory
-2. the widget's theme directory
-
-Example:
-
-    resolver.resolveWidgetAssets( { name: 'my-widget', path: 'path/to/my-widget' }, [
-       { name: 'my.theme', path: 'path/to/my.theme' },
-       { name: 'default.theme', path: 'path/to/default.theme' }
-    ] ).then( assets => {
-          asset( typeof assets === 'object' )
-       } )
-    // => {
-    //       'my.theme': {
-    //          'my-widget.html': 'path/to/my-widget/my.theme/my-widget.html',
-    //          'css/my-widget.css': 'path/to/my-widget/my.theme/css/my-widget.css'
-    //       },
-    //       'default.theme': {
-    //          'my-widget.html': 'path/to/my-widget/default.theme/my-widget.html',
-    //          'css/my-widget.css': 'path/to/my-widget/default.theme/css/my-widget.css'
-    //       }
-    //    }
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| widget | `Object` |  a widget artifact as returned by [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets). |
-| themes | `Array.<Object>` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes). |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Object` |  an object mapping paths (relative to the widget) to URLs for existing files |
-
-#### <a name="resolveControlAssets"></a>resolveControlAssets( control, themes )
-Resolve assets for a control.
-For each control artifact and given theme it searches (in this order):
-1. the theme's control directory
-2. the control's theme directory
-
-Example:
-
-    resolver.resolveControlAssets( { name: 'my-control', path: 'path/to/my-control' }, [
-       { name: 'my.theme', path: 'path/to/my.theme' },
-       { name: 'default.theme', path: 'path/to/default.theme' }
-    ] ).then( assets => {
-          asset( typeof assets === 'object' )
-       } )
-    // => {
-    //       'my.theme': {
-    //          'my-control.html': 'path/to/my-control/my.theme/my-control.html',
-    //          'css/my-control.css': 'path/to/my-control/my.theme/css/my-control.css'
-    //       },
-    //       'default.theme': {
-    //          'my-control.html': 'path/to/my-control/default.theme/my-control.html',
-    //          'css/my-control.css': 'path/to/my-control/default.theme/css/my-control.css'
-    //       }
-    //    }
-
-##### Parameters
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| control | `Object` |  a control artifact as returned by [ArtifactCollector#collectControls](#ArtifactCollector#collectControls). |
-| themes | `Array.<Object>` |  a list of theme artifacts as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes). |
-
-##### Returns
-| Type | Description |
-| ---- | ----------- |
-| `Object` |  an object mapping paths (relative to the control) to URLs for existing files |
-
 ## Types
 ### <a name="AssetResolver"></a>AssetResolver
+
+#### <a name="AssetResolver#resolveAssets"></a>AssetResolver#resolveAssets( artifact, assetPaths )
+Resolve assets for an artifact.
+
+Example:
+
+    resolver.resolveAssets( {
+       name: 'my-artifact',
+       path: 'path/to/my-artifact'
+    }, [
+       'messages.json',
+       'non-existing-file.txt'
+    ] ).then( assets => {
+          asset( typeof assets === 'object' )
+       } )
+    // => {
+    //       'messages.json': 'path/to/my-artifact/messages.json'
+    //    }
+
+##### Parameters
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| artifact | `Object` |  an artifact as returned by [ArtifactCollector](#ArtifactCollector). |
+| assetPaths | `Array.<String>` |  the artifact assets to resolve |
+
+##### Returns
+| Type | Description |
+| ---- | ----------- |
+| `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |
+
+#### <a name="AssetResolver#resolveThemedAssets"></a>AssetResolver#resolveThemedAssets( artifact, theme, assetPaths )
+Resolve themed assets for an artifact.
+
+Example:
+
+    resolver.resolveThemedAssets( {
+       name: 'my-artifact',
+       path: 'path/to/my-artifact'
+    }, {
+       name: 'default.theme',
+       path: 'path/to/default.theme'
+    }, [
+       'my-artifact.html',
+       'css/my-artifact.css'
+    ] ).then( assets => {
+          asset( typeof assets === 'object' )
+       } )
+    // => {
+    //       'my-artifact.html': 'path/to/my-artifact/default.theme/my-artifact.html',
+    //       'css/my-artifact.css': 'path/to/my-artifact/default.theme/css/my-artifact.css'
+    //    }
+
+##### Parameters
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| artifact | `Object` |  an artifact as returned by [ArtifactCollector](#ArtifactCollector). |
+| theme | `Array.<Object>` |  a theme artifact as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes). |
+| assetPaths | `Array.<String>` |  the artifact assets to resolve |
+
+##### Returns
+| Type | Description |
+| ---- | ----------- |
+| `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |

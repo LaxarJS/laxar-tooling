@@ -22,14 +22,16 @@
 
 const artifactCollector = require( './lib/artifact_collector' );
 const assetResolver = require( './lib/asset_resolver' );
-const artifactsListing = require( './lib/artifacts_listing' );
+const artifactListing = require( './lib/artifact_listing' );
 const jsonReader = require( './lib/json_reader' );
 const fileReader = require( './lib/file_reader' );
+const serialize = require( './lib/serialize' );
 
 module.exports = {
    artifactCollector,
    assetResolver,
-   artifactsListing,
+   artifactListing,
    jsonReader,
-   fileReader
+   fileReader,
+   serialize
 };

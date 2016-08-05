@@ -7,23 +7,27 @@
 
 const expect = require( 'chai' ).expect;
 
-describe( 'laxar-tooling', function() {
+describe( 'laxar-tooling', () => {
 
    const laxarTooling = require( '..' );
 
-   it( 'exports the artifactCollector', function() {
+   it( 'exports the artifactCollector', () => {
       expect( laxarTooling.artifactCollector ).to.respondTo( 'create' );
    } );
 
-   it( 'exports the assetResolver', function() {
+   it( 'exports the assetResolver', () => {
       expect( laxarTooling.assetResolver ).to.respondTo( 'create' );
    } );
 
-   it( 'exports the jsonReader', function() {
+   it( 'exports the artifactListing', () => {
+      expect( laxarTooling.artifactListing ).to.respondTo( 'create' );
+   } );
+
+   it( 'exports the jsonReader', () => {
       expect( laxarTooling.jsonReader ).to.respondTo( 'create' );
    } );
 
-   it( 'exports the fileReader', function() {
+   it( 'exports the fileReader', () => {
       expect( laxarTooling.fileReader ).to.respondTo( 'create' );
    } );
 

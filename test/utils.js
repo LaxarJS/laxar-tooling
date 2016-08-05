@@ -5,7 +5,7 @@
  */
 'use strict';
 
-describe( 'utils', function() {
+describe( 'utils', () => {
 
    const expect = require( 'chai' ).expect;
    const utils = require( '../lib/utils' );
@@ -18,14 +18,14 @@ describe( 'utils', function() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.merge( objects )', function() {
+   describe( '.merge( objects )', () => {
 
-      it( 'returns an object with the properties all input objects', function() {
+      it( 'returns an object with the properties all input objects', () => {
          const merged = utils.merge( [ { a: 1 }, { b: 2 } ] );
          expect( merged ).to.eql( { a: 1, b: 2 } );
       } );
 
-      it( 'gives precedence to the last element', function() {
+      it( 'gives precedence to the last element', () => {
          const merged = utils.merge( [ { a: 1 }, { a: 2, b: 3 }, { b: 4 } ] );
          expect( merged ).to.eql( { a: 2, b: 4 } );
       } );
@@ -34,14 +34,14 @@ describe( 'utils', function() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.flatten( arrays )', function() {
+   describe( '.flatten( arrays )', () => {
 
-      it( 'returns an array with the concatenated elements of each input array', function() {
+      it( 'returns an array with the concatenated elements of each input array', () => {
          const flat = utils.flatten( [ [ 1, 2 ], [ 3, 4 ] ] );
          expect( flat ).to.eql( [ 1, 2, 3, 4 ] );
       } );
 
-      it( 'does not flatten recursively', function() {
+      it( 'does not flatten recursively', () => {
          const flat = utils.flatten( [ [ [ 1 ], [ 2 ] ], [ [ 3 ], [ 4 ] ] ] );
          expect( flat ).to.eql( [ [ 1 ], [ 2 ], [ 3 ], [ 4 ] ] );
       } );
@@ -50,9 +50,9 @@ describe( 'utils', function() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.lookup( object )', function() {
+   describe( '.lookup( object )', () => {
 
-      it( 'returns a function for accessing the properties of the given object', function() {
+      it( 'returns a function for accessing the properties of the given object', () => {
          const get = utils.lookup( object );
          expect( get ).to.be.a( 'function' );
          expect( get( 'a' ) ).to.equal( 1 );
@@ -63,9 +63,9 @@ describe( 'utils', function() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.values( object )', function() {
+   describe( '.values( object )', () => {
 
-      it( 'returns an array containing the values of all the objects properties', function() {
+      it( 'returns an array containing the values of all the objects properties', () => {
          expect( utils.values( object ) ).to.eql( [ 1, 2, 3 ] );
       } );
 
