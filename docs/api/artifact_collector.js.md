@@ -25,6 +25,7 @@ Create an artifact collector instance.
 Example:
 
     const collector = laxarTooling.artifactCollector.create( log, {
+       projectPath: ref => path.relative( base, path.resolve( ref ) ),
        readJson: filename => new Promise( ( resolve, reject ) => {
           fs.readFile( filename, ( err, contents ) => {
              try {
@@ -34,8 +35,7 @@ Example:
                 reject( err );
              }
           } );
-       } ),
-       projectPath: ref => path.relative( base, path.resolve( ref ) )
+       } )
     } );
 
 ##### Parameters
@@ -43,9 +43,9 @@ Example:
 | -------- | ---- | ----------- |
 | log | `Object` |  a logger instance with at least a `log.error()` method |
 | options | `Object` |  additional options |
+| _options.projectPath_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
 | _options.fileContents_ | `Object` |  an object mapping file paths (as returned by options.projectPath) to promises that resolve to the parsed JSON contents of the file |
-| _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file |
-| _options.projectPath_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously as a `Promise` |
+| _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file as a `Promise` |
 
 ##### Returns
 | Type | Description |
