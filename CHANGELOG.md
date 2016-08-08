@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.3.0
+
 - [#3](https://github.com/LaxarJS/laxar-tooling/issues/3): added new `artifactListing` and `serialize` APIs to generate artifact listing code.
   + **BREAKING CHANGE:** see ticket for details.
 
