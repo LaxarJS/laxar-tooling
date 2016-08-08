@@ -14,9 +14,11 @@
     "email": "info@laxarjs.org"
   },
   "scripts": {
-    "test": "mocha && npm run-script lint && npm run-script docs",
-    "lint": "eslint .",
-    "docs": "scripts/docs lib/artifact_collector.js lib/asset_resolver.js lib/artifact_listing.js lib/json_reader.js lib/file_reader.js lib/serialize.js"
+    "prepublish": "npm run lint && npm run build && npm run docs",
+    "build": "babel -d lib src",
+    "test": "mocha --compilers js:babel-register && npm run lint",
+    "lint": "eslint src",
+    "docs": "scripts/docs src/*.js"
   },
   "keywords": [
     "laxar",
@@ -25,9 +27,14 @@
     "resources"
   ],
   "dependencies": {
-    "jsonlint": "^1.6.2"
+    "jsonlint": "^1.6.2",
+    "source-map-support": "^0.4.2"
   },
   "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-register": "^6.11.6",
     "chai": "^3.5.0",
     "eslint": "^3.0.1",
     "eslint-config-laxarjs": "^0.3.0",

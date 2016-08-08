@@ -9,7 +9,7 @@ const expect = require( 'chai' ).expect;
 
 describe( 'laxar-tooling', () => {
 
-   const laxarTooling = require( '..' );
+   const laxarTooling = require( '../src/index' );
 
    it( 'exports the artifactCollector', () => {
       expect( laxarTooling.artifactCollector ).to.respondTo( 'create' );

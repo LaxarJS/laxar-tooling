@@ -20,12 +20,14 @@
  */
 'use strict';
 
-const artifactCollector = require( './lib/artifact_collector' );
-const assetResolver = require( './lib/asset_resolver' );
-const artifactListing = require( './lib/artifact_listing' );
-const jsonReader = require( './lib/json_reader' );
-const fileReader = require( './lib/file_reader' );
-const serialize = require( './lib/serialize' );
+require( 'source-map-support/register' );
+
+const artifactCollector = require( './artifact_collector' );
+const assetResolver = require( './asset_resolver' );
+const artifactListing = require( './artifact_listing' );
+const jsonReader = require( './json_reader' );
+const fileReader = require( './file_reader' );
+const serialize = require( './serialize' );
 
 module.exports = {
    artifactCollector,
