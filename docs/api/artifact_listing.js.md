@@ -11,6 +11,7 @@ Determine application artifacts by inspecting flow, pages and widgets.
 **Types**
 - [ArtifactListing](#ArtifactListing)
   - [ArtifactListing#buildAliases](#ArtifactListing#buildAliases)
+  - [ArtifactListing#buildAssets](#ArtifactListing#buildAssets)
 
 ## Module Members
 #### <a name="create"></a>create( log, options )
@@ -51,7 +52,7 @@ Example:
 ##### Returns
 | Type | Description |
 | ---- | ----------- |
-| `ArtifactListing` |  the created artifact collector |
+| `ArtifactListing` |  the created artifact listing builder |
 
 ## Types
 ### <a name="ArtifactListing"></a>ArtifactListing
@@ -68,3 +69,22 @@ Create a map from artifact refs to indices.
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Object>` |  the map from artifact refs to indices |
+
+#### <a name="ArtifactListing#buildAssets"></a>ArtifactListing#buildAssets( artifact, themes, descriptor )
+Build the assets object for an artifact and the given themes.
+
+##### Parameters
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| artifact | `Object` |  the artifact to generate the asset listing for |
+| themes | `Array.<Object>` |  the themes to use for resolving themed artifacts |
+| descriptor | `Object` |  the (possibly incomplete) artifact descriptor |
+| _descriptor.assets_ | `Array` |  assets to read and embed into the output using the `content` key |
+| _descriptor.assetUrls_ | `Array` |  assets to resolve and list using the `url` key |
+| _descriptor.themedAssets_ | `Array` |  themed assets to read and embed into the output using the `content` key |
+| _descriptor.themedUrlAssets_ | `Array` |  themed assets to resolve and list using the `url` key |
+
+##### Returns
+| Type | Description |
+| ---- | ----------- |
+| `Object` |  the asset listing, containing sub-listings for each theme and entries for each (available) asset, pointing either to a URL or including the asset's raw content |
