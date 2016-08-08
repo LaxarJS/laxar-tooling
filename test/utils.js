@@ -8,7 +8,7 @@
 describe( 'utils', () => {
 
    const expect = require( 'chai' ).expect;
-   const utils = require( '../lib/utils' );
+   const utils = require( '../src/utils' );
 
    const object = {
       a: 1,

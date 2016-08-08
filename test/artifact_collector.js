@@ -8,11 +8,11 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const expect = require( 'chai' ).expect;
-const promise = require( '../lib/promise' );
+const promise = require( '../src/promise' );
 
 describe( 'artifactCollector', () => {
 
-   const artifactCollector = require( '../lib/artifact_collector' );
+   const artifactCollector = require( '../src/artifact_collector' );
    const log = {
       error() {},
       warn() {}

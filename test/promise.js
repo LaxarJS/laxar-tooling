@@ -8,7 +8,7 @@
 describe( 'promise', () => {
 
    const expect = require( 'chai' ).expect;
-   const promise = require( '../lib/promise' );
+   const promise = require( '../src/promise' );
 
    function f( a, b ) {
       if( Number.isInteger( a ) && Number.isInteger( b ) ) {
