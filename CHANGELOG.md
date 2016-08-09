@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.3.1
+
 - [#4](https://github.com/LaxarJS/laxar-tooling/issues/4): converted the source code to ES2015, pre-built with babel
 
 
