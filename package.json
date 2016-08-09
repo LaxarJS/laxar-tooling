@@ -13,6 +13,7 @@
     "url": "https://github.com/LaxarJS/laxar-tooling/issues",
     "email": "info@laxarjs.org"
   },
+  "main": "lib/index.js",
   "scripts": {
     "prepublish": "npm run lint && npm run build && npm run docs",
     "build": "babel -d lib src",
@@ -38,7 +39,6 @@
     "chai": "^3.5.0",
     "eslint": "^3.0.1",
     "eslint-config-laxarjs": "^0.3.0",
-    "eslint-plugin-node": "^2.0.0",
     "laxar-dox": "^1.0.1",
     "mocha": "^2.5.3"
   }

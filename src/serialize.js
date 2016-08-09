@@ -9,7 +9,9 @@
  */
 'use strict';
 
-module.exports = serialize;
+const LIST_LENGTH = 90;
+const INDENT = 3;
+const SPACE = ' ';
 
 /**
  * Serialize the given object to valid, human-readable JavaScript.
@@ -31,11 +33,7 @@ module.exports = serialize;
  *
  * @return {String} the serialized JavaScript code
  */
-function serialize( object, indent, pad, space ) {
-   indent = indent || 3; // eslint-disable-line no-param-reassign
-   pad = pad || 0; // eslint-disable-line no-param-reassign
-   space = space || ' '; // eslint-disable-line no-param-reassign
-
+export default function serialize( object, indent = INDENT, pad = 0, space = SPACE ) {
    if( typeof object === 'function' ) {
       return leftpad( object(), pad, space );
    }
@@ -52,33 +50,6 @@ function serialize( object, indent, pad, space ) {
 }
 
 /**
- * Serialize the body of a list or object.
- * @private
- * @param {Array<String>} elements the serialized elements or key-value pairs
- * @param {Number} [indent] the number of spaces to use for indent
- * @param {Number} [pad] the initial left padding
- * @param {String} [space] the character(s) to use for padding
- * @return {String} the serialized JavaScript code
- */
-function serializeList( elements, indent, pad, space ) {
-   if( elements.length === 0 ) {
-      return '';
-   }
-
-   const length = elements.reduce( ( sum, e ) => sum + e.length + 2, pad || 0 );
-   const multiline = elements.some( element => /\n/.test( element ) );
-   const compact = length < 90 && !multiline;
-
-   const leader = compact ? ' ' : `\n${spaces( pad + indent, space )}`;
-   const trailer = compact ? ' ' : `\n${spaces( pad, space )}`;
-   const separator = `,${leader}`;
-
-   const body = elements.join( separator );
-
-   return `${leader}${body}${trailer}`;
-}
-
-/**
  * Serialize an array.
  * @private
  * @param {Array} array the array to serialize
@@ -87,9 +58,9 @@ function serializeList( elements, indent, pad, space ) {
  * @param {String} [space] the character(s) to use for padding
  * @return {String} the serialized JavaScript code
  */
-function serializeArray( array, indent, pad, space ) {
+function serializeArray( array, indent = INDENT, pad = 0, space ) {
    const elements = array
-      .map( element => serialize( element, indent, ( pad || 0 ) + indent, space ) );
+      .map( element => serialize( element, indent, pad + indent, space ) );
 
    return '[' + serializeList( elements, indent, pad, space ) + ']';
 }
@@ -103,12 +74,39 @@ function serializeArray( array, indent, pad, space ) {
  * @param {String} [space] the character(s) to use for padding
  * @return {String} the serialized JavaScript code
  */
-function serializeObject( object, indent, pad, space ) {
+function serializeObject( object, indent = INDENT, pad = 0, space ) {
    const properties = Object.keys( object )
       .map( key => serializeKey( key ) + ': ' +
-                   serialize( object[ key ], indent, ( pad || 0 ) + indent, space ) );
+                   serialize( object[ key ], indent, pad + indent, space ) );
 
    return '{' + serializeList( properties, indent, pad, space ) + '}';
+}
+
+/**
+ * Serialize the body of a list or object.
+ * @private
+ * @param {Array<String>} elements the serialized elements or key-value pairs
+ * @param {Number} [indent] the number of spaces to use for indent
+ * @param {Number} [pad] the initial left padding
+ * @param {String} [space] the character(s) to use for padding
+ * @return {String} the serialized JavaScript code
+ */
+function serializeList( elements, indent = INDENT, pad = 0, space ) {
+   if( elements.length === 0 ) {
+      return '';
+   }
+
+   const length = elements.reduce( ( sum, e ) => sum + e.length + 2, pad );
+   const multiline = elements.some( element => /\n/.test( element ) );
+   const compact = length < LIST_LENGTH && !multiline;
+
+   const leader = compact ? ' ' : `\n${spaces( pad + indent, space )}`;
+   const trailer = compact ? ' ' : `\n${spaces( pad, space )}`;
+   const separator = `,${leader}`;
+
+   const body = elements.join( separator );
+
+   return `${leader}${body}${trailer}`;
 }
 
 /**
@@ -153,8 +151,8 @@ function serializeValue( value, indent, pad, space ) {
  * @param {String} [space] the character to repeat
  * @return {String} a string that can be used as padding
  */
-function spaces( number, space ) {
-   return new Array( ( number || 0 ) + 1 ).join( space || ' ' );
+function spaces( number = 0, space = SPACE ) {
+   return new Array( number + 1 ).join( space );
 }
 
 /**

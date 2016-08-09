@@ -5,10 +5,10 @@
  */
 'use strict';
 
-describe( 'utils', () => {
+import { expect } from 'chai';
+import * as utils from '../src/utils';
 
-   const expect = require( 'chai' ).expect;
-   const utils = require( '../src/utils' );
+describe( 'utils', () => {
 
    const object = {
       a: 1,

@@ -9,9 +9,10 @@
  */
 'use strict';
 
-const fs = require( 'fs' );
-const promise = require( './promise' );
-const defaultLogger = require( './default_logger' );
+import fs from 'fs';
+
+import { once, nfcall } from './promise';
+import defaultLogger from './default_logger';
 
 /**
  * Create a function to read files from the file system an cache the contents.
@@ -20,15 +21,12 @@ const defaultLogger = require( './default_logger' );
  *
  * @return {Function} a function that wraps `fs.readFile` and returns a `Promise`
  */
-exports.create = function( log, fileContents ) {
-   // These should be default parameters, but we have to support node v4
-   log = log || defaultLogger; // eslint-disable-line no-param-reassign
-   fileContents = fileContents || {}; // eslint-disable-line no-param-reassign
+exports.create = function( log = defaultLogger, fileContents = {} ) {
 
-   return promise.once( readFile, fileContents );
+   return once( readFile, fileContents );
 
-   function readFile( filePath ) {
-      return promise.nfapply( fs.readFile, [].slice.call( arguments ) )
+   function readFile( filePath, ...args ) {
+      return nfcall( fs.readFile, filePath, ...args )
          .then( null, err => {
             log.error( 'Could not read file "' + filePath + '" (' + err.message + ')' );
             return Promise.reject( err );

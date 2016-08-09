@@ -9,13 +9,11 @@
  */
 'use strict';
 
-const fs = require( 'fs' );
-const path = require( 'path' );
-const promise = require( './promise' );
-const utils = require( './utils' );
+import fs from 'fs';
+import path from 'path';
 
-const flatten = utils.flatten;
-const merge = utils.merge;
+import { wrap, nfcall } from './promise';
+import { flatten, merge } from './utils';
 
 /**
  * Create an artifact listing instance.
@@ -67,19 +65,19 @@ const merge = utils.merge;
  */
 exports.create = function( log, options ) {
 
-   const projectPath = options.projectPath ? promise.wrap( options.projectPath ) :
+   const projectPath = options.projectPath ? wrap( options.projectPath ) :
       Promise.resolve;
 
    const fileContents = options.fileContents || {};
 
-   const fileExists = options.fileExists ? promise.wrap( options.fileExists ) :
-      ( file => ( fileContents[ file ] || promise.nfcall( fs.access, file, fs.F_OK ) )
+   const fileExists = options.fileExists ? wrap( options.fileExists ) :
+      ( file => ( fileContents[ file ] || nfcall( fs.access, file, fs.F_OK ) )
          .then( () => true, () => false ) );
 
-   const readJson = options.readJson ? promise.wrap( options.readJson ) :
+   const readJson = options.readJson ? wrap( options.readJson ) :
       require( './json_reader' ).create( log, fileContents );
 
-   const requireFile = options.requireFile ? promise.wrap( options.requireFile ) :
+   const requireFile = options.requireFile ? wrap( options.requireFile ) :
       ( ( module, loader ) =>
          Promise.resolve( () => `require( '${loader ? loader + '!' : ''}${module}' )` ) );
 
@@ -116,25 +114,15 @@ exports.create = function( log, options ) {
          buildLayouts( artifacts.layouts, artifacts.themes ),
          buildWidgets( artifacts.widgets, artifacts.themes ),
          buildControls( artifacts.controls, artifacts.themes )
-      ] ).then( results => {
-         const aliases = results.shift();
-         const flows = results.shift();
-         const themes = results.shift();
-         const pages = results.shift();
-         const layouts = results.shift();
-         const widgets = results.shift();
-         const controls = results.shift();
-
-         return {
-            aliases,
-            flows,
-            themes,
-            pages,
-            layouts,
-            widgets,
-            controls
-         };
-      } );
+      ] ).then( ( [ aliases, flows, themes, pages, layouts, widgets, controls ] ) => ( {
+         aliases,
+         flows,
+         themes,
+         pages,
+         layouts,
+         widgets,
+         controls
+      } ) );
    }
 
    /**
@@ -146,8 +134,8 @@ exports.create = function( log, options ) {
     * @return {Promise<Object>} the map from artifact refs to indices
     */
    function buildAliases( entries ) {
-      return Promise.resolve( flatten( entries.map( ( entry, index ) => [ entry.name ]
-         .concat( entry.refs )
+      return Promise.resolve( flatten( entries.map( ( { name, refs }, index ) => [ name ]
+         .concat( refs )
          .map( ref => ( { [ ref ]: index } ) )
       ) ) ).then( merge );
    }
@@ -158,9 +146,9 @@ exports.create = function( log, options ) {
             buildDescriptor( flow ),
             requireFile( flow.path, 'json' )
          ] )
-         .then( results => ( {
-            descriptor: results[ 0 ],
-            definition: results[ 1 ]
+         .then( ( [ descriptor, definition ] ) => ( {
+            descriptor,
+            definition
          } ) ) ) );
    }
 
@@ -174,9 +162,9 @@ exports.create = function( log, options ) {
                ]
             } )
          ] )
-         .then( results => ( {
-            descriptor: results[ 0 ],
-            assets: results[ 1 ]
+         .then( ( [ descriptor, assets ] ) => ( {
+            descriptor,
+            assets
          } ) ) ) );
    }
 
@@ -186,9 +174,9 @@ exports.create = function( log, options ) {
             buildDescriptor( page ),
             requireFile( page.path, 'json' )
          ] )
-         .then( results => ( {
-            descriptor: results[ 0 ],
-            definition: results[ 1 ]
+         .then( ( [ descriptor, definition ] ) => ( {
+            descriptor,
+            definition
          } ) ) ) );
    }
 
@@ -205,9 +193,9 @@ exports.create = function( log, options ) {
                ]
             } )
          ] )
-         .then( results => ( {
-            descriptor: results[ 0 ],
-            assets: results[ 1 ]
+         .then( ( [ descriptor, assets ] ) => ( {
+            descriptor,
+            assets
          } ) ) ) );
    }
 
@@ -228,10 +216,10 @@ exports.create = function( log, options ) {
                   ].concat( descriptor.assetUrlsForTheme )
                } ) )
          ] )
-         .then( results => ( {
-            descriptor: results[ 0 ],
-            module: results[ 1 ],
-            assets: results[ 2 ]
+         .then( ( [ descriptor, module, assets ] ) => ( {
+            descriptor,
+            module,
+            assets
          } ) ) ) );
    }
 
@@ -252,15 +240,15 @@ exports.create = function( log, options ) {
                   ].concat( descriptor.assetUrlsForTheme )
                } ) )
          ] )
-         .then( results => ( {
-            descriptor: results[ 0 ],
-            module: results[ 1 ],
-            assets: results[ 2 ]
+         .then( ( [ descriptor, module, assets ] ) => ( {
+            descriptor,
+            module,
+            assets
          } ) ) ) );
    }
 
-   function buildDescriptor( artifact ) {
-      return Promise.resolve( { name: artifact.name } );
+   function buildDescriptor( { name } ) {
+      return Promise.resolve( { name } );
    }
 
    /**
@@ -277,49 +265,52 @@ exports.create = function( log, options ) {
     *    assets to read and embed into the output using the `content` key
     * @param {Array} [descriptor.assetUrls]
     *    assets to resolve and list using the `url` key
-    * @param {Array} [descriptor.themedAssets]
+    * @param {Array} [descriptor.assetsForTheme]
     *    themed assets to read and embed into the output using the `content` key
-    * @param {Array} [descriptor.themedUrlAssets]
+    * @param {Array} [descriptor.assetUrlsForTheme]
     *    themed assets to resolve and list using the `url` key
     * @return {Object}
     *    the asset listing, containing sub-listings for each theme and entries
     *    for each (available) asset, pointing either to a URL or including
     *    the asset's raw content
     */
-   function buildAssets( artifact, themes, descriptor ) {
-      const assetPaths = descriptor.assets || [];
-      const assetUrlPaths = descriptor.assetUrls || [];
-      const themedAssetPaths = descriptor.assetsForTheme || [];
-      const themedAssetUrlPaths = descriptor.assetUrlsForTheme || [];
+   function buildAssets( artifact, themes, {
+      assets = [],
+      assetUrls = [],
+      assetsForTheme = [],
+      assetUrlsForTheme = []
+   } ) {
 
       return Promise.all( [
          assetResolver
-            .resolveAssets( artifact, assetPaths.concat( assetUrlPaths ) )
-            .then( assets => wrapAssets( assets, assetPaths, assetUrlPaths ) )
+            .resolveAssets( artifact, [ ...assets, ...assetUrls ] )
+            .then( wrapAssets( assets, assetUrls ) )
       ].concat( themes.map( theme =>
          assetResolver
-            .resolveThemedAssets( artifact, theme, themedAssetPaths.concat( themedAssetUrlPaths ) )
-            .then( assets => wrapAssets( assets, themedAssetPaths, themedAssetUrlPaths ) )
+            .resolveThemedAssets( artifact, theme, [ ...assetsForTheme, ...assetUrlsForTheme ] )
+            .then( wrapAssets( assetsForTheme, assetUrlsForTheme ) )
             .then( assets => ( { [ theme.name ]: assets } ) ) )
       ) ).then( merge );
    }
 
-   function wrapAssets( assets, assetPaths, assetUrlPaths ) {
-      return Promise.all( Object.keys( assets ).map( key => {
-         const asset = assets[ key ];
+   function wrapAssets( assetPaths, assetUrlPaths ) {
+      return function( assets ) {
+         return Promise.all( Object.keys( assets ).map( key => {
+            const asset = assets[ key ];
 
-         if( ( assetPaths || [] ).indexOf( key ) >= 0 ) {
-            return requireFile( asset, 'raw' )
-               .then( content => ( { [ key ]: { content } } ) );
-         }
+            if( ( assetPaths || [] ).indexOf( key ) >= 0 ) {
+               return requireFile( asset, 'raw' )
+                  .then( content => ( { [ key ]: { content } } ) );
+            }
 
-         if( ( assetUrlPaths || [] ).indexOf( key ) >= 0 ) {
-            return requireFile( asset, 'url' )
-               .then( url => ( { [ key ]: { url } } ) );
-         }
+            if( ( assetUrlPaths || [] ).indexOf( key ) >= 0 ) {
+               return requireFile( asset, 'url' )
+                  .then( url => ( { [ key ]: { url } } ) );
+            }
 
-         return {};
-      } ) ).then( merge );
+            return {};
+         } ) ).then( merge );
+      };
    }
 
 };

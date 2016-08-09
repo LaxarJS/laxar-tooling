@@ -5,11 +5,10 @@
  */
 'use strict';
 
-const expect = require( 'chai' ).expect;
+import { expect } from 'chai';
+import * as laxarTooling from '../src/index';
 
 describe( 'laxar-tooling', () => {
-
-   const laxarTooling = require( '../src/index' );
 
    it( 'exports the artifactCollector', () => {
       expect( laxarTooling.artifactCollector ).to.respondTo( 'create' );
