@@ -9,11 +9,10 @@
  */
 'use strict';
 
-const fs = require( 'fs' );
-const promise = require( './promise' );
-const utils = require( './utils' );
+import fs from 'fs';
 
-const merge = utils.merge;
+import { wrap, nfcall } from './promise';
+import { merge } from './utils';
 
 /**
  * Create an asset resolver instance.
@@ -42,14 +41,12 @@ const merge = utils.merge;
  */
 exports.create = function create( log, options ) {
 
-   const projectPath = options.projectPath ? promise.wrap( options.projectPath ) :
+   const projectPath = options.projectPath ? wrap( options.projectPath ) :
       Promise.resolve;
 
-   const fileExists = options.fileExists ? promise.wrap( options.fileExists ) :
-      function( file ) {
-         return ( promise.nfcall( fs.access, file, fs.F_OK ) )
-            .then( () => true, () => false );
-      };
+   const fileExists = options.fileExists ? wrap( options.fileExists ) :
+      ( file => ( nfcall( fs.access, file, fs.F_OK ) )
+         .then( () => true, () => false ) );
 
    /**
     * @name AssetResolver
@@ -88,7 +85,8 @@ exports.create = function create( log, options ) {
     *    an object mapping paths (relative to the artifact) to URLs for existing files
     */
    function resolveAssets( artifact, assetPaths ) {
-      return lookupAssets( assetPaths, [ artifact.path ] );
+      const searchPaths = [ artifact.path ];
+      return lookupAssets( searchPaths, assetPaths );
    }
 
    /**
@@ -125,22 +123,23 @@ exports.create = function create( log, options ) {
     *    an object mapping paths (relative to the artifact) to URLs for existing files
     */
    function resolveThemedAssets( artifact, theme, assetPaths ) {
-      return lookupAssets( assetPaths, [
+      const searchPaths = [
          `${artifact.path}/${theme.name}`,
          `${theme.path}/${artifact.category}/${artifact.name}`
-      ] );
+      ];
+      return lookupAssets( searchPaths, assetPaths );
    }
 
    /**
     * Search for the assets at the given list of search paths.
     * @private
     * @memberOf AssetResolver
-    * @param {Array<String>} assetPaths the relative asset paths to lookup
     * @param {Array<String>} searchPaths a list of paths to try
+    * @param {Array<String>} assetPaths the relative asset paths to lookup
     * @return {Object} an object mapping the input `assetPaths` to their resolved locations
     */
-   function lookupAssets( assetPaths, searchPaths ) {
-      return Promise.all( assetPaths.map( assetPath => lookupAsset( assetPath, searchPaths ) ) )
+   function lookupAssets( searchPaths, assetPaths ) {
+      return Promise.all( assetPaths.map( assetPath => lookupAsset( searchPaths, assetPath ) ) )
          .then( merge );
    }
 
@@ -148,13 +147,13 @@ exports.create = function create( log, options ) {
     * Search for one asset at the given list of search paths.
     * @private
     * @memberOf AssetResolver
-    * @param {String} assetPath the relative asset path to lookup
     * @param {Array<String>} searchPaths a list of paths to try
+    * @param {String} assetPath the relative asset path to lookup
     * @return {Object}
     *   an object mapping the single input `assetPath` to it's resolved location
     *   or, if the file does not exist, `null`
     */
-   function lookupAsset( assetPath, searchPaths ) {
+   function lookupAsset( searchPaths, assetPath ) {
       if( !searchPaths.length ) {
          return Promise.resolve( null );
       }
@@ -164,7 +163,7 @@ exports.create = function create( log, options ) {
       return projectPath( `${searchPaths[ 0 ]}/${assetPath}` )
          .then( resolvedPath => fileExists( resolvedPath )
             .then( exists => exists && { [ assetPath ]: resolvedPath } ) )
-         .then( asset => asset || lookupAsset( assetPath, searchPaths.slice( 1 ) ) );
+         .then( asset => asset || lookupAsset( searchPaths.slice( 1 ), assetPath ) );
    }
 };
 

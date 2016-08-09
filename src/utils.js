@@ -9,21 +9,12 @@
  */
 'use strict';
 
-module.exports = {
-   merge,
-   flatten,
-   lookup,
-   values
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * @param {Array<Object>} objects an array of objects to merge
  * @return {Object} an object containing all the properties of the given objects
  */
-function merge( objects ) {
-   return Object.assign.apply( Object, [ {} ].concat( objects ) );
+export function merge( objects ) {
+   return Object.assign( {}, ...objects );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +23,7 @@ function merge( objects ) {
  * @param {Array<Array>} arrays an array of arrays to flatten
  * @return {Array} an array containing all the elements of the given arrays in the order they were given
  */
-function flatten( arrays ) {
+export function flatten( arrays ) {
    return [].concat.apply( [], arrays );
 }
 
@@ -42,7 +33,7 @@ function flatten( arrays ) {
  * @param {Object} object the object to perform the lookup on
  * @return {Function} a function that accepts a key and returns the corresponding property of `object`
  */
-function lookup( object ) {
+export function lookup( object ) {
    return key => object[ key ];
 }
 
@@ -52,6 +43,6 @@ function lookup( object ) {
  * @param {Object} object the object to get values from
  * @return {Array} an array containing the values corresponding to all enumerable keys of `object`
  */
-function values( object ) {
+export function values( object ) {
    return Object.keys( object ).map( lookup( object ) );
 }

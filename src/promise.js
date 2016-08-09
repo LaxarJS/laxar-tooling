@@ -9,26 +9,15 @@
  */
 'use strict';
 
-module.exports = {
-   nfbind,
-   nfcall,
-   nfapply,
-   wrap,
-   once
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Bind the given node-style function with the supplied arguments and return a function returning a promise.
  * @param {Function} fn the function to bind
  * @param {...*} args the arguments to pass to the function
  * @return {Function} a function that returns a Promise
  */
-function nfbind( fn ) {
-   const args = [].slice.call( arguments, 1 );
-   return function() {
-      return nfapply( fn, [].concat.call( args, [].slice.apply( arguments ) ) );
+export function nfbind( fn, ...args ) {
+   return function( ...cargs ) {
+      return nfapply( fn, [ ...args, ...cargs ] );
    };
 }
 
@@ -41,8 +30,8 @@ function nfbind( fn ) {
  * @return {Promise}
  *    a promise that is either resolved or rejected depending on the result of the invoked function
  */
-function nfcall( fn ) {
-   return nfapply( fn, [].slice.call( arguments, 1 ) );
+export function nfcall( fn, ...args ) {
+   return nfapply( fn, args );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,10 +43,10 @@ function nfcall( fn ) {
  * @return {Promise}
  *    a promise that is either resolved or rejected depending on the result of the invoked function
  */
-function nfapply( fn, args ) {
+export function nfapply( fn, args ) {
    return new Promise( ( resolve, reject ) => {
       const callback = ( err, result ) => err ? reject( err ) : resolve( result );
-      return fn.apply( null, [].concat.apply( args, [ callback ] ) );
+      return fn( ...args, callback );
    } );
 }
 
@@ -70,7 +59,7 @@ function nfapply( fn, args ) {
  *    a function that returns a promise resolving to the value returned by `fn` or being rejected in case the
  *    wrapped function throws an exception
  */
-function wrap( fn ) {
+export function wrap( fn ) {
    return function() {
       try {
          return Promise.resolve( fn.apply( this, arguments ) );
@@ -94,12 +83,12 @@ function wrap( fn ) {
  *    a function that returns a promise resolving to the value returned by `fn` or, for subsequent calls
  *    with the same argument, the value returned by `map`
  */
-function once( fn, values, map ) {
-   const cache = values || {};
-   return function( arg ) {
+export function once( fn, values = {}, map ) {
+   const cache = values;
+   return function( arg, ...args ) {
       let value = cache[ arg ];
       if( !value ) {
-         cache[ arg ] = ( value = fn.apply( null, arguments ) ).then( map || null );
+         cache[ arg ] = ( value = fn( arg, ...args ) ).then( map );
       }
       return value;
    };

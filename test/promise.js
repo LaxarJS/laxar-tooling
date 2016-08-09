@@ -5,10 +5,10 @@
  */
 'use strict';
 
-describe( 'promise', () => {
+import { expect } from 'chai';
+import * as promise from '../src/promise';
 
-   const expect = require( 'chai' ).expect;
-   const promise = require( '../src/promise' );
+describe( 'promise', () => {
 
    function f( a, b ) {
       if( Number.isInteger( a ) && Number.isInteger( b ) ) {

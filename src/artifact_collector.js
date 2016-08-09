@@ -9,12 +9,10 @@
  */
 'use strict';
 
-const path = require( 'path' ).posix;
-const promise = require( './promise' );
-const utils = require( './utils' );
+import path from 'path';
 
-const flatten = utils.flatten;
-const values = utils.values;
+import { wrap, once } from './promise';
+import { flatten, values } from './utils';
 
 /**
  * Create an artifact collector instance.
@@ -52,12 +50,12 @@ const values = utils.values;
  */
 exports.create = function( log, options ) {
 
-   const projectPath = options.projectPath ? promise.wrap( options.projectPath ) :
+   const projectPath = options.projectPath ? wrap( options.projectPath ) :
       Promise.resolve;
 
    const fileContents = options.fileContents || {};
 
-   const readJson = options.readJson ? promise.wrap( options.readJson ) :
+   const readJson = options.readJson ? wrap( options.readJson ) :
       require( './json_reader' ).create( log, fileContents );
 
    const schemeLookup = {
@@ -138,23 +136,14 @@ exports.create = function( log, options ) {
          layoutsPromise,
          widgetsPromise,
          controlsPromise
-      ] ).then( results => {
-         const flows = results[ 0 ];
-         const themes = results[ 1 ];
-         const pages = results[ 2 ];
-         const layouts = results[ 3 ];
-         const widgets = results[ 4 ];
-         const controls = results[ 5 ];
-
-         return {
-            flows,
-            themes,
-            pages,
-            layouts,
-            widgets,
-            controls
-         };
-      } );
+      ] ).then( ( [ flows, themes, pages, layouts, widgets, controls ] ) => ( {
+         flows,
+         themes,
+         pages,
+         layouts,
+         widgets,
+         controls
+      } ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,7 +196,8 @@ exports.create = function( log, options ) {
          .then( flowPath => readJson( flowPath ).then( flow => {
             const pages = values( flow.places )
                .filter( hasField( 'page' ) )
-               .map( getField( 'page' ) );
+               .map( getField( 'page' ) )
+               .filter( unique() );
 
             return [ {
                refs: [ flowRef ],
@@ -268,7 +258,6 @@ exports.create = function( log, options ) {
     * @return {Promise<Array>} a promise for an array with a single theme-meta object
     */
    function followTheme( themeRef ) {
-      // TODO: resolve(?) ref?
       return ( ( themeRef === 'default' ) ?
             resolveFile( '.', 'laxar-path-default-theme' ) :
             resolveFile( `${themeRef}.theme`, 'laxar-path-themes' ) )
@@ -355,18 +344,16 @@ exports.create = function( log, options ) {
                .map( getField( 'composition' ) )
                .concat( page.extends ? [ page.extends ] : [] );
 
-            const layouts = withoutDuplicates(
-               flatten( values( page.areas ) )
-                  .filter( hasField( 'layout' ) )
-                  .map( getField( 'layout' ) )
-                  .concat( page.layout ? [ page.layout ] : [] )
-            );
+            const layouts = flatten( values( page.areas ) )
+               .filter( hasField( 'layout' ) )
+               .map( getField( 'layout' ) )
+               .concat( page.layout ? [ page.layout ] : [] )
+               .filter( unique() );
 
-            const widgets = withoutDuplicates(
-               flatten( values( page.areas ) )
-                  .filter( hasField( 'widget' ) )
-                  .map( getField( 'widget' ) )
-            );
+            const widgets = flatten( values( page.areas ) )
+               .filter( hasField( 'widget' ) )
+               .map( getField( 'widget' ) )
+               .filter( unique() );
 
             return [ {
                refs: [ pageRef ],
@@ -591,7 +578,7 @@ exports.create = function( log, options ) {
  * @return {Function} the wrapped function
  */
 function promiseOnce( f ) {
-   return promise.once( f, {}, () => ( [] ) );
+   return once( f, {}, () => ( [] ) );
 }
 
 /**
@@ -625,36 +612,34 @@ function getField( field ) {
 }
 
 function dedupe( entries ) {
-   const refs = {};
+   const refs = entries.reduce( ( map, { name, refs } ) => ( {
+      ...map,
+      [ name ]: map[ name ] ? map[ name ].concat( refs ) : refs
+   } ), {} );
 
-   return entries.filter( entry => {
-      const name = entry.name;
-
-      if( !refs.hasOwnProperty( name ) ) {
-         refs[ name ] = entry.refs;
-         return true;
-      }
-
-      refs[ name ] = refs[ name ].concat( entry.refs );
-      return false;
-   } ).map( entry => {
-      entry.refs = refs[ entry.name ];
-      return entry;
-   } );
+   return entries
+      .filter( unique( 'name' ) )
+      .map( ( { name, ...entry } ) => ( {
+         ...entry,
+         name,
+         refs: refs[ name ]
+      } ) );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function withoutDuplicates( items, field ) {
+function unique( field ) {
    const seen = {};
-   return items.filter( value => {
-      const key = field ? value[ field ] : value;
+   const id = field ? value => value[ field ] : value => value;
+
+   return value => {
+      const key = id( value );
       if( seen[ key ] ) {
          return false;
       }
       seen[ key ] = true;
       return true;
-   } );
+   };
 }
 
 

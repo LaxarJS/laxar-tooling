@@ -20,16 +20,16 @@
  */
 'use strict';
 
-require( 'source-map-support/register' );
+import 'source-map-support/register';
 
-const artifactCollector = require( './artifact_collector' );
-const assetResolver = require( './asset_resolver' );
-const artifactListing = require( './artifact_listing' );
-const jsonReader = require( './json_reader' );
-const fileReader = require( './file_reader' );
-const serialize = require( './serialize' );
+import artifactCollector from './artifact_collector';
+import assetResolver from './asset_resolver';
+import artifactListing from './artifact_listing';
+import jsonReader from './json_reader';
+import fileReader from './file_reader';
+import serialize from './serialize';
 
-module.exports = {
+export {
    artifactCollector,
    assetResolver,
    artifactListing,

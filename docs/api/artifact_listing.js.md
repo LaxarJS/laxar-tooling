@@ -81,8 +81,8 @@ Build the assets object for an artifact and the given themes.
 | descriptor | `Object` |  the (possibly incomplete) artifact descriptor |
 | _descriptor.assets_ | `Array` |  assets to read and embed into the output using the `content` key |
 | _descriptor.assetUrls_ | `Array` |  assets to resolve and list using the `url` key |
-| _descriptor.themedAssets_ | `Array` |  themed assets to read and embed into the output using the `content` key |
-| _descriptor.themedUrlAssets_ | `Array` |  themed assets to resolve and list using the `url` key |
+| _descriptor.assetsForTheme_ | `Array` |  themed assets to read and embed into the output using the `content` key |
+| _descriptor.assetUrlsForTheme_ | `Array` |  themed assets to resolve and list using the `url` key |
 
 ##### Returns
 | Type | Description |

@@ -5,14 +5,15 @@
  */
 'use strict';
 
-const fs = require( 'fs' );
-const path = require( 'path' );
-const expect = require( 'chai' ).expect;
-const promise = require( '../src/promise' );
+import fs from 'fs';
+import path from 'path';
+import { expect } from 'chai';
+import * as promise from '../src/promise';
+import data from './data/artifacts.json';
+import artifactCollector from '../src/artifact_collector';
 
 describe( 'artifactCollector', () => {
 
-   const artifactCollector = require( '../src/artifact_collector' );
    const log = {
       error() {},
       warn() {}
@@ -44,8 +45,6 @@ describe( 'artifactCollector', () => {
          projectPath,
          readJson
       } );
-
-      const data = require( './data/artifacts.json' );
 
       function projectPath( ref ) {
          projectPath.called = true;

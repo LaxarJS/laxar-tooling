@@ -2,7 +2,7 @@
 var fs = require( 'fs' );
 var path = require( 'path' );
 
-var promise = require( '../src/promise' );
+var promise = require( '../lib/promise' );
 var readFile = promise.nfbind( fs.readFile );
 var writeFile = promise.nfbind( fs.writeFile );
 var createMarkdown = promise.wrap( require( 'laxar-dox' ).createMarkdown );
