@@ -11,8 +11,9 @@ Currently `laxar-tooling` serves four main purposes:
   controls) plus meta-information starting from the application's flow(s)
 - [`assetResolver`][assetResolver]: for a single artifact from that list and the list of themes, resolve
   themed assets for that artifact
-- [`artifactsListing`][artifactsListing]: generate a JavaScript module to be used by LaxarJS'
+- [`artifactListing`][artifactListing]: generate a JavaScript module to be used by LaxarJS'
   `artifactProvider`
+- [`serialize`][serialize]: serialize the generated module into valid JavaScript
 
 
 ## Installation
@@ -35,4 +36,5 @@ Refer to the [API documentation](docs/api) and/or real-world usage in [laxar-loa
 [grunt-laxar]: https://github.com/LaxarJS/grunt-laxar
 [artifactCollector]: docs/api/artifact_collector.js.md
 [assetResolver]: docs/api/asset_resolver.js.md
-[artifactsListing]: docs/api/artifacts_listing.js.md
+[artifactListing]: docs/api/artifact_listing.js.md
+[serialize]: docs/api/serialize.js.md
