@@ -14,13 +14,13 @@ Helpers for resolving artifact assets
   - [AssetResolver#resolveThemedAssets](#AssetResolver#resolveThemedAssets)
 
 ## Module Members
-#### <a name="create"></a>create( log, options )
+#### <a name="create"></a>create( options )
 Create an asset resolver instance.
 
 Example:
 
-    const resolver = laxarTooling.assetResolver.create( log, {
-       projectPath: ref => path.relative( base, path.resolve( ref ) ),
+    const resolver = laxarTooling.assetResolver.create( {
+       resolve: ref => path.relative( base, path.resolve( ref ) ),
        fileExists: filename => new Promise( resolve => {
           fs.access( filename, fs.F_OK, err => resolve( !err ) );
        } )
@@ -29,9 +29,9 @@ Example:
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| log | `Object` |  a logger instance with at least a `log.error()` method |
-| options | `Object` |  additional options |
-| _options.projectPath_ | `Function` |  a function resolving a given file path to something that can be read by the `fileExists` function and either returning it as a `String` or asynchronously as a `Promise` |
+| _options_ | `Object` |  additional options |
+| _options.log_ | `Object` |  a logger instance with at least a `log.error()` method |
+| _options.resolve_ | `Function` |  a function resolving a given file path to something that can be read by the `fileExists` function and either returning it as a `String` or asynchronously as a `Promise` |
 | _options.fileExists_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to either `true` or `false` depending on the existance of the given file (similar to the deprecated `fs.exists()`) |
 
 ##### Returns

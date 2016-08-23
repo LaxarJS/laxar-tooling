@@ -5,7 +5,7 @@
             "widget1"
          ],
          "name" : "widget1",
-         "path" : "xxx/widgets/widget1",
+         "path" : "/app/x-widgets/widget1",
          "category" : "widgets"
       },
       {
@@ -13,7 +13,7 @@
             "widget2"
          ],
          "name" : "widget2",
-         "path" : "xxx/widgets/widget2",
+         "path" : "/app/x-widgets/widget2",
          "controls" : [
             "control1"
          ],
@@ -31,7 +31,7 @@
             "page2"
          ],
          "category" : "flows",
-         "path" : "xxx/flows/flow4.json"
+         "path" : "/app/x-flows/flow4.json"
       }
    ],
    "controls" : [
@@ -40,7 +40,7 @@
             "control1"
          ],
          "name" : "control1",
-         "path" : "xxx/controls/control1",
+         "path" : "/app/libs/control1",
          "category" : "controls"
       }
    ],
@@ -51,12 +51,12 @@
             "default"
          ],
          "category" : "themes",
-         "path" : "xxx/themes/default.theme"
+         "path" : "/app/x-themes/default.theme"
       }
    ],
    "layouts" : [
       {
-         "path" : "xxx/layouts/layout1",
+         "path" : "/app/x-layouts/layout1",
          "category" : "layouts",
          "refs" : [
             "layout1"
@@ -69,7 +69,7 @@
          ],
          "name" : "layout2",
          "category" : "layouts",
-         "path" : "xxx/layouts/layout2"
+         "path" : "/app/x-layouts/layout2"
       }
    ],
    "pages" : [
@@ -84,10 +84,10 @@
             "layout1"
          ],
          "pages" : [],
-         "path" : "xxx/pages/page1.json"
+         "path" : "/app/x-pages/page1.json"
       },
       {
-         "path" : "xxx/pages/page2.json",
+         "path" : "/app/x-pages/page2.json",
          "pages" : [],
          "layouts" : [
             "layout2"

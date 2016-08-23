@@ -19,13 +19,14 @@ Determine application artifacts by inspecting flow, pages and widgets.
   - [ArtifactCollector#collectControls](#ArtifactCollector#collectControls)
 
 ## Module Members
-#### <a name="create"></a>create( log, options )
+#### <a name="create"></a>create( options )
 Create an artifact collector instance.
 
 Example:
 
-    const collector = laxarTooling.artifactCollector.create( log, {
-       projectPath: ref => path.relative( base, path.resolve( ref ) ),
+    const collector = laxarTooling.artifactCollector.create( {
+       paths: { widgets: 'custom/widgets/path' },
+       resolve: ref => path.relative( base, path.resolve( ref ) ),
        readJson: filename => new Promise( ( resolve, reject ) => {
           fs.readFile( filename, ( err, contents ) => {
              try {
@@ -41,11 +42,12 @@ Example:
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| log | `Object` |  a logger instance with at least a `log.error()` method |
-| options | `Object` |  additional options |
-| _options.projectPath_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
-| _options.fileContents_ | `Object` |  an object mapping file paths (as returned by options.projectPath) to promises that resolve to the parsed JSON contents of the file |
+| _options_ | `Object` |  additional options |
+| _options.log_ | `Object` |  a logger instance with at least a `log.error()` method |
+| _options.paths_ | `Object` |  configuration where to look for flows, pages, etc. |
+| _options.resolve_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
 | _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file as a `Promise` |
+| _options.fileContents_ | `Object` |  an object mapping file paths (as returned by `options.resolve`) to promises that resolve to the parsed JSON contents of the file (used if `readJson` is omitted) |
 
 ##### Returns
 | Type | Description |

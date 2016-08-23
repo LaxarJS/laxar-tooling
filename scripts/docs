@@ -10,7 +10,7 @@ var createMarkdown = promise.wrap( require( 'laxar-dox' ).createMarkdown );
 var files = process.argv.slice( 2 );
 
 Promise.all( files.map( file => {
-   var out = path.join( 'docs', 'api', path.basename( file ) + '.md' );
+   var out = path.join( 'docs', 'api', path.basename( file, '.js' ) + '.md' );
    console.log( file, '->', out );
 
    return readFile( file, 'utf-8' )

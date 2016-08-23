@@ -1,13 +1,12 @@
 {
-   "results": {
-      "complete flow": {
-         "expected": "artifacts_complete_expected.json",
-         "actual": "artifacts_complete_actual.json"
-      },
-      "multiple flows": {
-         "expected": "artifacts_multiple_expected.json",
-         "actual": "artifacts_multiple_actual.json"
-      }
+   "paths": {
+      "flows": "x-flows",
+      "themes": "x-themes",
+      "pages": "x-pages",
+      "layouts": "x-layouts",
+      "widgets": "x-widgets",
+      "controls": "x-controls",
+      "default-theme": "x-themes/default.theme"
    },
    "entries": {
       "empty": [ {
@@ -31,80 +30,54 @@
          "themes": [ "default" ]
       } ]
    },
-   "themes": {
-      "default": [ "default.theme" ]
+   "results": {
+      "complete flow": {
+         "expected": "artifacts_complete_expected.json",
+         "actual": "artifacts_complete_actual.json"
+      },
+      "multiple flows": {
+         "expected": "artifacts_multiple_expected.json",
+         "actual": "artifacts_multiple_actual.json"
+      }
    },
-   "flows": {
-      "empty": [
-         "xxx/flows/flow1.json"
-      ],
-      "minimal": [
-         "xxx/flows/flow2.json"
-      ],
-      "duplicate": [
-         "xxx/flows/flow3.json"
-      ],
-      "complete flow": [
-         "xxx/flows/flow4.json"
-      ],
-      "multiple flows": [
-         "xxx/flows/flow2.json",
-         "xxx/flows/flow4.json"
-      ]
-   },
-   "paths": {
-      ".": "yyy",
-      "laxar-path-flows/flow1.json": "xxx/flows/flow1.json",
-      "laxar-path-flows/flow2.json": "xxx/flows/flow2.json",
-      "laxar-path-flows/flow3.json": "xxx/flows/flow3.json",
-      "laxar-path-flows/flow4.json": "xxx/flows/flow4.json",
-      "laxar-path-pages/page1.json": "xxx/pages/page1.json",
-      "laxar-path-pages/page2.json": "xxx/pages/page2.json",
-      "laxar-path-pages/page3.json": "xxx/pages/page3.json",
-      "laxar-path-widgets/widget1/widget.json": "xxx/widgets/widget1/widget.json",
-      "laxar-path-widgets/widget2/widget.json": "xxx/widgets/widget2/widget.json",
-      "laxar-path-controls/control1/control.json": "xxx/controls/control1/control.json",
-      "laxar-path-controls/control2/control.json": "xxx/controls/control2/control.json",
-      "laxar-path-layouts/layout1": "xxx/layouts/layout1",
-      "laxar-path-layouts/layout2": "xxx/layouts/layout2",
+   "resolve": {
+      "x-flows/flow1.json": "/app/x-flows/flow1.json",
+      "x-flows/flow2.json": "/app/x-flows/flow2.json",
+      "x-flows/flow3.json": "/app/x-flows/flow3.json",
+      "x-flows/flow4.json": "/app/x-flows/flow4.json",
+      "x-themes/default.theme": "/app/x-themes/default.theme",
+      "x-pages/page1.json": "/app/x-pages/page1.json",
+      "x-pages/page2.json": "/app/x-pages/page2.json",
+      "x-pages/page3.json": "/app/x-pages/page3.json",
+      "x-widgets/widget1/widget.json": "/app/x-widgets/widget1/widget.json",
+      "x-widgets/widget2/widget.json": "/app/x-widgets/widget2/widget.json",
+      "x-controls/control1/control.json": false,
+      "x-controls/control2/control.json": "/app/x-controls/control2/control.json",
+      "x-layouts/layout1": "/app/x-layouts/layout1",
+      "x-layouts/layout2": "/app/x-layouts/layout2",
 
-      "laxar-path-default-theme": "xxx/themes/default.theme",
-      "laxar-path-themes": "xxx/themes",
-      "laxar-path-layouts": "xxx/layouts",
-      "laxar-path-pages": "xxx/pages",
-      "laxar-path-widgets": "xxx/widgets",
-      "laxar-path-controls": "xxx/controls",
-
-      "control1/control.json": "xxx/controls/control1/control.json",
-
-      "../xxx/pages/page1.json": "xxx/pages/page1.json",
-      "../xxx/pages/page2.json": "xxx/pages/page2.json",
-      "../xxx/pages/page3.json": "xxx/pages/page3.json",
-      "../xxx/widgets/widget1/widget.json": "xxx/widgets/widget1/widget.json",
-      "../xxx/widgets/widget2/widget.json": "xxx/widgets/widget2/widget.json",
-      "../xxx/controls/control1/control.json": "xxx/controls/control1/control.json"
-
+      "control1/control.json": "/app/libs/control1/control.json"
    },
    "files": {
-      "xxx/flows/flow1.json": {
+      "/app/x-flows/flow1.json": {
          "places": {
          }
       },
-      "xxx/flows/flow2.json": {
+      "/app/x-flows/flow2.json": {
          "places": {
             "entry": {
                "page": "page1"
             }
          }
       },
-      "xxx/flows/flow3.json": {
+      "/app/x-flows/flow3.json": {
          "places": {
             "entry": {
                "page": "page3"
             }
          }
       },
-      "xxx/flows/flow4.json": {
+      "/app/x-flows/flow4.json": {
          "places": {
             "entry": {
                "redirectTo": "home"
@@ -120,11 +93,11 @@
             }
          }
       },
-      "xxx/pages/page1.json": {
+      "/app/x-pages/page1.json": {
          "layout": "layout1",
          "areas": {}
       },
-      "xxx/pages/page2.json": {
+      "/app/x-pages/page2.json": {
          "layout": "layout2",
          "areas": {
             "area1": [ {
@@ -137,24 +110,24 @@
             } ]
          }
       },
-      "xxx/pages/page3.json": {
+      "/app/x-pages/page3.json": {
          "layout": "layout1",
          "areas": {
             "area1": [ {
                "widget": "widget1"
             }, {
-               "widget": "amd:laxar-path-widgets/widget1"
+               "widget": "local:widget1"
             } ]
          }
       },
-      "xxx/widgets/widget1/widget.json": {
+      "/app/x-widgets/widget1/widget.json": {
          "name": "widget1",
          "integration": {
             "type": "widget",
             "technology": "plain"
          }
       },
-      "xxx/widgets/widget2/widget.json": {
+      "/app/x-widgets/widget2/widget.json": {
          "name": "widget2",
          "integration": {
             "type": "widget",
@@ -162,7 +135,7 @@
          },
          "controls": [ "control1" ]
       },
-      "xxx/controls/control1/control.json": {
+      "/app/libs/control1/control.json": {
          "name": "control1",
          "integration": {
             "type": "control"

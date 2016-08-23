@@ -9,19 +9,19 @@
  */
 'use strict';
 
-import fs from 'fs';
 import path from 'path';
 
-import { wrap, nfcall } from './promise';
+import { wrap } from './promise';
 import { flatten, merge } from './utils';
+import defaults from './defaults';
 
 /**
  * Create an artifact listing instance.
  *
  * Example:
  *
- *     const listing = laxarTooling.artifactListing.create( log, {
- *        projectPath: ref => path.relative( process.cwd, path.resolve( ref ) ),
+ *     const listing = laxarTooling.artifactListing.create( {
+ *        resolve: ref => path.relative( process.cwd, path.resolve( ref ) ),
  *        fileExists: filename => new Promise( resolve => {
  *           fs.access( filename, fs.F_OK, err => { resolve( !err ); } );
  *        } ),
@@ -38,13 +38,13 @@ import { flatten, merge } from './utils';
  *        requireFile: ( module, loader ) => ( () => `require( '${module}' )` )
  *     } );
  *
- * @param {Object} log a logger instance with at least a `log.error()` method
- * @param {Object} options additional options
- * @param {Function} [options.projectPath]
+ * @param {Object} [options] additional options
+ * @param {Object} [options.log] a logger instance with at least a `log.error()` method
+ * @param {Function} [options.resolve]
  *    a function resolving a given file path to something that can be read by
  *    the `readJson` function and either returning it as a `String` or asynchronously
  * @param {Object} [options.fileContents]
- *    an object mapping file paths (as returned by options.projectPath) to
+ *    an object mapping file paths (as returned by options.resolve) to
  *    promises that resolve to the parsed JSON contents of the file
  * @param {Function} [options.readJson]
  *    a function accepting a file path as an argument and returning a promise
@@ -55,7 +55,7 @@ import { flatten, merge } from './utils';
  *    that resolves to either `true` or `false` depending on the existance of
  *    the given file (similar to the deprecated `fs.exists()`)
  * @param {Function} [options.assetResolver]
- *    override the default asset resolver created with the `projectPath` and
+ *    override the default asset resolver created with the `resolve` and
  *    `fileExists` callbacks
  * @param {Function} [options.requireFile]
  *    a callback that is called for descriptors, definitions, modules and
@@ -63,29 +63,16 @@ import { flatten, merge } from './utils';
  *
  * @return {ArtifactListing} the created artifact listing builder
  */
-exports.create = function( log, options ) {
+exports.create = function( options ) {
 
-   const projectPath = options.projectPath ? wrap( options.projectPath ) :
-      Promise.resolve;
-
-   const fileContents = options.fileContents || {};
-
-   const fileExists = options.fileExists ? wrap( options.fileExists ) :
-      ( file => ( fileContents[ file ] || nfcall( fs.access, file, fs.F_OK ) )
-         .then( () => true, () => false ) );
-
-   const readJson = options.readJson ? wrap( options.readJson ) :
-      require( './json_reader' ).create( log, fileContents );
+   const {
+      readJson,
+      assetResolver
+   } = defaults( options );
 
    const requireFile = options.requireFile ? wrap( options.requireFile ) :
       ( ( module, loader ) =>
          Promise.resolve( () => `require( '${loader ? loader + '!' : ''}${module}' )` ) );
-
-   const assetResolver = options.assetResolver ||
-      require( './asset_resolver' ).create( log, {
-         projectPath,
-         fileExists
-      } );
 
    /**
     * @name ArtifactListing

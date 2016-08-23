@@ -9,14 +9,16 @@ Helper for reading, parsing and caching JSON files.
 - [create](#create)
 
 ## Module Members
-#### <a name="create"></a>create( log, fileContents )
+#### <a name="create"></a>create( options )
 Create a function to read files from the file system, parses them as JSON an cache the contents.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| _log_ | `Logger` |  a logger to log messages in case of error |
-| _fileContents_ | `Object` |  the object to cache file content promises in |
+| _options_ | `Object` |  options |
+| _options.log_ | `Logger` |  a logger to log messages in case of error |
+| _options.readFile_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the contents of the file |
+| _options.fileContents_ | `Object` |  the object to cache file content promises in |
 
 ##### Returns
 | Type | Description |

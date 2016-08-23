@@ -21,9 +21,9 @@ describe( 'artifactCollector', () => {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.create( log, options )', () => {
+   describe( '.create( options )', () => {
 
-      const collector = artifactCollector.create( log, {} );
+      const collector = artifactCollector.create( {} );
 
       it( 'returns an artifactCollector', () => {
          expect( collector ).to.be.an( 'object' );
@@ -41,15 +41,17 @@ describe( 'artifactCollector', () => {
 
    describe( '.collectArtifacts( entries )', () => {
 
-      const collector = artifactCollector.create( { warn, error }, {
-         projectPath,
+      const collector = artifactCollector.create( {
+         log: { warn, error },
+         paths: data.paths,
+         resolve,
          readJson
       } );
 
-      function projectPath( ref ) {
-         projectPath.called = true;
-         expect( data.paths ).to.include.key( ref );
-         return data.paths[ ref ];
+      function resolve( ref ) {
+         resolve.called = true;
+         expect( data.resolve ).to.include.key( ref );
+         return data.resolve[ ref ] ? Promise.resolve( data.resolve[ ref ] ) : Promise.reject();
       }
 
       function readJson( filepath ) {
@@ -72,11 +74,11 @@ describe( 'artifactCollector', () => {
          expect( collector.collectArtifacts( data.entries.empty ) ).to.respondTo( 'then' );
       } );
 
-      it( 'uses the projectPath function supplied during creation to resolve paths', () => {
-         projectPath.called = false;
+      it( 'uses the resolve function supplied during creation to resolve paths', () => {
+         resolve.called = false;
          return collector.collectArtifacts( data.entries.minimal )
             .then( () => {
-               expect( projectPath.called ).to.eql( true );
+               expect( resolve.called ).to.eql( true );
             } );
       } );
 
@@ -102,7 +104,7 @@ describe( 'artifactCollector', () => {
             .then( artifacts => {
                expect( artifacts ).to.be.an( 'object' );
                expect( artifacts.widgets[ 0 ].refs ).to.include( 'widget1' );
-               expect( artifacts.widgets[ 0 ].refs ).to.include( 'amd:laxar-path-widgets/widget1' );
+               expect( artifacts.widgets[ 0 ].refs ).to.include( 'local:widget1' );
             } );
       } );
 
@@ -124,18 +126,14 @@ describe( 'artifactCollector', () => {
                .then( data => promise.nfcall( fs.writeFile, actualFile, data ) );
 
             Object.keys( expected ).forEach( type => {
-               it( 'resolves ' + expected[ type ].length + ' ' + type, () => {
-                  return Promise.all( [
-                     artifactsPromise,
-                     writePromise
-                  ] ).then( results => {
-                     const artifacts = results[ 0 ];
-
-                     expect( artifacts ).to.contain.a.key( type );
-                     expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );
-                     expect( artifacts[ type ] ).to.deep.eql( expected[ type ] );
-                  } );
+               expected[ type ].forEach( ( artifact, index ) => {
+                  it( `resolves ${artifact.name}`, () => artifactsPromise.then( artifacts => {
+                     expect( artifacts[ type ][ index ] ).to.deep.eql( artifact );
+                  } ) );
                } );
+               it( 'resolves no ' + ( expected[ type ].length ? 'further ' : '') + type, () => artifactsPromise.then( artifacts => {
+                  expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );
+               } ) );
             } );
          } );
 

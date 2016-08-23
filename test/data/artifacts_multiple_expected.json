@@ -3,7 +3,7 @@
       {
          "name" : "widget1",
          "category" : "widgets",
-         "path" : "xxx/widgets/widget1",
+         "path" : "/app/x-widgets/widget1",
          "refs" : [
             "widget1"
          ]
@@ -17,7 +17,7 @@
          "refs" : [
             "widget2"
          ],
-         "path" : "xxx/widgets/widget2"
+         "path" : "/app/x-widgets/widget2"
       }
    ],
    "controls" : [
@@ -27,14 +27,14 @@
          "refs" : [
             "control1"
          ],
-         "path" : "xxx/controls/control1"
+         "path" : "/app/libs/control1"
       }
    ],
    "themes" : [
       {
          "name" : "default.theme",
          "category" : "themes",
-         "path" : "xxx/themes/default.theme",
+         "path" : "/app/x-themes/default.theme",
          "refs" : [
             "default"
          ]
@@ -45,7 +45,7 @@
          "refs" : [
             "layout1"
          ],
-         "path" : "xxx/layouts/layout1",
+         "path" : "/app/x-layouts/layout1",
          "category" : "layouts",
          "name" : "layout1"
       },
@@ -55,7 +55,7 @@
          "refs" : [
             "layout2"
          ],
-         "path" : "xxx/layouts/layout2"
+         "path" : "/app/x-layouts/layout2"
       }
    ],
    "pages" : [
@@ -66,7 +66,7 @@
          "layouts" : [
             "layout1"
          ],
-         "path" : "xxx/pages/page1.json",
+         "path" : "/app/x-pages/page1.json",
          "pages" : [],
          "refs" : [
             "page1"
@@ -86,7 +86,7 @@
          "refs" : [
             "page2"
          ],
-         "path" : "xxx/pages/page2.json"
+         "path" : "/app/x-pages/page2.json"
       }
    ],
    "flows" : [
@@ -100,7 +100,7 @@
             "page1",
             "page2"
          ],
-         "path" : "xxx/flows/flow4.json"
+         "path" : "/app/x-flows/flow4.json"
       }
    ]
 }

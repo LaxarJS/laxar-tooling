@@ -12,16 +12,22 @@
 import fs from 'fs';
 
 import { once, nfcall } from './promise';
-import defaultLogger from './default_logger';
+import defaults from './defaults';
 
 /**
  * Create a function to read files from the file system an cache the contents.
- * @param {Logger} [log] a logger to log messages in case of error
- * @param {Object} [fileContents] the object to cache file content promises in
+ * @param {Object} [options] addition options
+ * @param {Logger} [options.log] a logger to log messages in case of error
+ * @param {Object} [options.fileContents] the object to cache file content promises in
  *
  * @return {Function} a function that wraps `fs.readFile` and returns a `Promise`
  */
-exports.create = function( log = defaultLogger, fileContents = {} ) {
+exports.create = function( options ) {
+
+   const {
+      log,
+      fileContents
+   } = defaults( options );
 
    return once( readFile, fileContents );
 

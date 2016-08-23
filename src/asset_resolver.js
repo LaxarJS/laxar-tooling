@@ -9,26 +9,24 @@
  */
 'use strict';
 
-import fs from 'fs';
-
-import { wrap, nfcall } from './promise';
 import { merge } from './utils';
+import defaults from './defaults';
 
 /**
  * Create an asset resolver instance.
  *
  * Example:
  *
- *     const resolver = laxarTooling.assetResolver.create( log, {
- *        projectPath: ref => path.relative( base, path.resolve( ref ) ),
+ *     const resolver = laxarTooling.assetResolver.create( {
+ *        resolve: ref => path.relative( base, path.resolve( ref ) ),
  *        fileExists: filename => new Promise( resolve => {
  *           fs.access( filename, fs.F_OK, err => resolve( !err ) );
  *        } )
  *     } );
  *
- * @param {Object} log a logger instance with at least a `log.error()` method
- * @param {Object} options additional options
- * @param {Function} [options.projectPath]
+ * @param {Object} [options] additional options
+ * @param {Object} [options.log] a logger instance with at least a `log.error()` method
+ * @param {Function} [options.resolve]
  *    a function resolving a given file path to something that can be read by
  *    the `fileExists` function and either returning it as a `String` or asynchronously
  *    as a `Promise`
@@ -39,14 +37,12 @@ import { merge } from './utils';
  *
  * @return {AssetResolver} the created asset resolver
  */
-exports.create = function create( log, options ) {
+exports.create = function create( options ) {
 
-   const projectPath = options.projectPath ? wrap( options.projectPath ) :
-      Promise.resolve;
-
-   const fileExists = options.fileExists ? wrap( options.fileExists ) :
-      ( file => ( nfcall( fs.access, file, fs.F_OK ) )
-         .then( () => true, () => false ) );
+   const {
+      resolve,
+      fileExists
+   } = defaults( options );
 
    /**
     * @name AssetResolver
@@ -160,7 +156,7 @@ exports.create = function create( log, options ) {
 
       // resolve the path and check if it exists
       // return mapping if successful, otherwise repeat recursively
-      return projectPath( `${searchPaths[ 0 ]}/${assetPath}` )
+      return resolve( `${searchPaths[ 0 ]}/${assetPath}` )
          .then( resolvedPath => fileExists( resolvedPath )
             .then( exists => exists && { [ assetPath ]: resolvedPath } ) )
          .then( asset => asset || lookupAsset( searchPaths.slice( 1 ), assetPath ) );

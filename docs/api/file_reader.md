@@ -9,14 +9,15 @@ Helper for reading and caching files.
 - [create](#create)
 
 ## Module Members
-#### <a name="create"></a>create( log, fileContents )
+#### <a name="create"></a>create( options )
 Create a function to read files from the file system an cache the contents.
 
 ##### Parameters
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| _log_ | `Logger` |  a logger to log messages in case of error |
-| _fileContents_ | `Object` |  the object to cache file content promises in |
+| _options_ | `Object` |  addition options |
+| _options.log_ | `Logger` |  a logger to log messages in case of error |
+| _options.fileContents_ | `Object` |  the object to cache file content promises in |
 
 ##### Returns
 | Type | Description |

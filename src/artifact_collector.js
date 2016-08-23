@@ -11,16 +11,18 @@
 
 import path from 'path';
 
-import { wrap, once } from './promise';
+import { once } from './promise';
 import { flatten, values } from './utils';
+import defaults from './defaults';
 
 /**
  * Create an artifact collector instance.
  *
  * Example:
  *
- *     const collector = laxarTooling.artifactCollector.create( log, {
- *        projectPath: ref => path.relative( base, path.resolve( ref ) ),
+ *     const collector = laxarTooling.artifactCollector.create( {
+ *        paths: { widgets: 'custom/widgets/path' },
+ *        resolve: ref => path.relative( base, path.resolve( ref ) ),
  *        readJson: filename => new Promise( ( resolve, reject ) => {
  *           fs.readFile( filename, ( err, contents ) => {
  *              try {
@@ -33,43 +35,46 @@ import { flatten, values } from './utils';
  *        } )
  *     } );
  *
- * @param {Object} log a logger instance with at least a `log.error()` method
- * @param {Object} options additional options
- * @param {Function} [options.projectPath]
+ * @param {Object} [options] additional options
+ * @param {Object} [options.log] a logger instance with at least a `log.error()` method
+ * @param {Object} [options.paths]
+ *    configuration where to look for flows, pages, etc.
+ * @param {Function} [options.resolve]
  *    a function resolving a given file path to something that can be read by
  *    the `readJson` function and either returning it as a `String` or asynchronously
- * @param {Object} [options.fileContents]
- *    an object mapping file paths (as returned by options.projectPath) to
- *    promises that resolve to the parsed JSON contents of the file
  * @param {Function} [options.readJson]
  *    a function accepting a file path as an argument and returning a promise
- *    that resolves to the parsed JSON contents of the file
- *    as a `Promise`
+ *    that resolves to the parsed JSON contents of the file as a `Promise`
+ * @param {Object} [options.fileContents]
+ *    an object mapping file paths (as returned by `options.resolve`) to
+ *    promises that resolve to the parsed JSON contents of the file (used if `readJson`
+ *    is omitted)
  *
  * @return {ArtifactCollector} the created artifact collector
  */
-exports.create = function( log, options ) {
+exports.create = function( options ) {
 
-   const projectPath = options.projectPath ? wrap( options.projectPath ) :
-      Promise.resolve;
+   const {
+      paths,
+      resolve,
+      readJson
+   } = defaults( options );
 
-   const fileContents = options.fileContents || {};
-
-   const readJson = options.readJson ? wrap( options.readJson ) :
-      require( './json_reader' ).create( log, fileContents );
-
-   const schemeLookup = {
-      local: ( ref, lookupPath ) => projectPath( path.join( lookupPath, ref ) ),
-      amd: projectPath
+   const lookup = {
+      default: ( ...args ) => lookup.local( ...args )
+         .catch( () => lookup.module( ...args ) ),
+      local: ( ref, lookupPath ) => resolve( path.join( lookupPath, ref ) ),
+      module: resolve
    };
 
-   function resolveFile( ref, lookupPath ) {
+   lookup.amd = lookup.module; // backwards compatibility
+
+   function resolveRef( ref, lookupPath ) {
       const parts = ref.split( ':', 2 );
       const path = parts.pop();
-      const scheme = parts[ 0 ] || 'local';
-      const lookup = schemeLookup[ scheme ];
+      const scheme = parts[ 0 ] || 'default';
 
-      return lookup( path, lookupPath );
+      return lookup[ scheme ]( path, lookupPath );
    }
 
    /**
@@ -192,7 +197,7 @@ exports.create = function( log, options ) {
    function followFlow( flowRef ) {
       const flowName = path.basename( flowRef );
 
-      return resolveFile( flowRef + '.json', 'laxar-path-flows' )
+      return resolveRef( flowRef + '.json', paths.flows )
          .then( flowPath => readJson( flowPath ).then( flow => {
             const pages = values( flow.places )
                .filter( hasField( 'page' ) )
@@ -259,8 +264,8 @@ exports.create = function( log, options ) {
     */
    function followTheme( themeRef ) {
       return ( ( themeRef === 'default' ) ?
-            resolveFile( '.', 'laxar-path-default-theme' ) :
-            resolveFile( `${themeRef}.theme`, 'laxar-path-themes' ) )
+            resolveRef( paths[ 'default-theme' ], paths.themes ) :
+            resolveRef( `${themeRef}.theme`, paths.themes ) )
          .then( themePath => [ {
             refs: [ themeRef ],
             name: path.basename( themePath ),
@@ -337,7 +342,7 @@ exports.create = function( log, options ) {
    function followPage( pageRef ) {
       const pageName = path.basename( pageRef );
 
-      return resolveFile( pageRef + '.json', 'laxar-path-pages' )
+      return resolveRef( pageRef + '.json', paths.pages )
          .then( pagePath => readJson( pagePath ).then( page => {
             const pages = flatten( values( page.areas ) )
                .filter( hasField( 'composition' ) )
@@ -413,7 +418,7 @@ exports.create = function( log, options ) {
    function followLayout( layoutRef ) {
       const layoutName = path.basename( layoutRef );
 
-      return resolveFile( layoutRef, 'laxar-path-layouts' )
+      return resolveRef( layoutRef, paths.layouts )
          .then( layoutPath => [ {
             refs: [ layoutRef ],
             name: layoutName,
@@ -466,7 +471,7 @@ exports.create = function( log, options ) {
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single widget
     */
    function followWidget( widgetRef ) {
-      return resolveFile( path.join( widgetRef, 'widget.json' ), 'laxar-path-widgets' )
+      return resolveRef( path.join( widgetRef, 'widget.json' ), paths.widgets )
          .then( descriptorPath => readJson( descriptorPath ).then( widget => {
             const widgetPath = path.dirname( descriptorPath );
             const widgetName = widget.name;
@@ -547,7 +552,7 @@ exports.create = function( log, options ) {
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single control
     */
    function followControl( controlRef ) {
-      return resolveFile( path.join( controlRef, 'control.json' ), 'laxar-path-controls' )
+      return resolveRef( path.join( controlRef, 'control.json' ), paths.controls )
          .then( descriptorPath => readJson( descriptorPath ).then( control => {
             const controlPath = path.dirname( descriptorPath );
             const controlName = control.name;
@@ -622,7 +627,7 @@ function dedupe( entries ) {
       .map( ( { name, ...entry } ) => ( {
          ...entry,
          name,
-         refs: refs[ name ]
+         refs: refs[ name ].filter( unique )
       } ) );
 }
 

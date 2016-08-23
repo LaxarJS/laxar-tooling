@@ -13,22 +13,27 @@ import path from 'path';
 import jsonlint from 'jsonlint';
 
 import { once } from './promise';
-import fileReader from './file_reader';
-import defaultLogger from './default_logger';
+import defaults from './defaults';
 
 /**
  * Create a function to read files from the file system, parses them as JSON an cache the contents.
- * @param {Logger} [log] a logger to log messages in case of error
- * @param {Object} [fileContents] the object to cache file content promises in
+ * @param {Object} [options] options
+ * @param {Logger} [options.log]
+ *    a logger to log messages in case of error
+ * @param {Function} [options.readFile]
+ *    a function accepting a file path as an argument and returning a promise
+ *    that resolves to the contents of the file
+ * @param {Object} [options.fileContents]
+ *    the object to cache file content promises in
  *
  * @return {Function} a function that returns a `Promise`
  */
-exports.create = function( log, fileContents ) {
-   // These should be default parameters, but we have to support node v4
-   log = log || defaultLogger; // eslint-disable-line no-param-reassign
-   fileContents = fileContents || {}; // eslint-disable-line no-param-reassign
+exports.create = function( options ) {
 
-   const readFile = fileReader.create( log, fileContents );
+   const {
+      log,
+      readFile
+   } = defaults( options );
 
    return once( readJson );
 
