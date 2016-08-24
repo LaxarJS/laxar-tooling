@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import path from 'path';
+import { posix as path } from 'path';
 import jsonlint from 'jsonlint';
 
 import { once } from './promise';

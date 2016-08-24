@@ -30,4 +30,8 @@ describe( 'laxar-tooling', () => {
       expect( laxarTooling.fileReader ).to.respondTo( 'create' );
    } );
 
+   it( 'exports the serialize function', () => {
+      expect( laxarTooling ).to.respondTo( 'serialize' );
+   } );
+
 } );

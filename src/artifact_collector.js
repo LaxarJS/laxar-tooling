@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import path from 'path';
+import { posix as path } from 'path';
 
 import { once } from './promise';
 import { flatten, values } from './utils';

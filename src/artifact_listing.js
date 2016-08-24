@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import path from 'path';
+import { posix as path } from 'path';
 
 import { wrap } from './promise';
 import { flatten, merge } from './utils';
