@@ -188,10 +188,10 @@ exports.create = function( options ) {
                   assets: descriptor.assets,
                   assetUrls: descriptor.assetUrls,
                   assetsForTheme: [
-                     `${widget.name}.html`
+                     descriptor.templateSource || `${widget.name}.html`
                   ].concat( descriptor.assetsForTheme || []),
                   assetUrlsForTheme: [
-                     `css/${widget.name}.css`
+                     descriptor.styleSource || `css/${widget.name}.css`
                   ].concat( descriptor.assetUrlsForTheme || [] )
                } ) )
          ] )
@@ -212,10 +212,10 @@ exports.create = function( options ) {
                   assets: descriptor.assets,
                   assetUrls: descriptor.assetUrls,
                   assetsForTheme: [
-                     `${control.name}.html`
+                     descriptor.templateSource || `${control.name}.html`
                   ].concat( descriptor.assetsForTheme || []),
                   assetUrlsForTheme: [
-                     `css/${control.name}.css`
+                     descriptor.styleSource || `css/${control.name}.css`
                   ].concat( descriptor.assetUrlsForTheme || [] )
                } ) )
          ] )
