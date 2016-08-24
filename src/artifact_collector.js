@@ -191,7 +191,7 @@ exports.create = function( options ) {
     *
     * @private
     * @memberOf ArtifactCollector
-    * @param {String} flowRef the flow reference (relative to 'laxar-path-flows') to follow
+    * @param {String} flowRef the flow reference (relative to `paths.flows`) to follow
     * @return {Promise<Array>} a promise for an array with a single flow-meta object
     */
    function followFlow( flowRef ) {
@@ -254,18 +254,19 @@ exports.create = function( options ) {
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    /**
-    * Collect meta information about the single theme. If the theme is the default theme, use
-    * the configured 'laxar-path-default-theme'.
+    * Collect meta information about the single theme. If the theme is the default theme, and a custom
+    * path was configured with `paths[ 'default-theme' ]` resolve the theme at the given path; otherwise
+    * treat it like any other theme.
     *
     * @private
     * @memberOf ArtifactCollector
-    * @param {String} themeRef the theme reference (relative to 'laxar-path-themes') to follow
+    * @param {String} themeRef the theme reference (relative to `paths.themes`) to follow
     * @return {Promise<Array>} a promise for an array with a single theme-meta object
     */
    function followTheme( themeRef ) {
-      return ( ( themeRef === 'default' ) ?
-            resolveRef( '.', paths[ 'default-theme' ] ) :
-            resolveRef( `${themeRef}.theme`, paths.themes ) )
+      const lookupRef = themeRef === 'default' ? paths[ 'default-theme' ] : `${themeRef}.theme`;
+
+      return resolveRef( lookupRef, paths.themes )
          .then( themePath => [ {
             refs: [ themeRef ],
             name: path.basename( themePath ),
@@ -316,7 +317,7 @@ exports.create = function( options ) {
        * Skip collection if the page has already been processed (returning an empty result array).
        *
        * @private
-       * @param {String} pageRef the page reference (relative to 'laxar-path-pages') to follow
+       * @param {String} pageRef the page reference (relative to `paths.pages`) to follow
        * @return {Promise<Array>}
        *    a promise for an array of page-meta objects for this page, including the page itself
        */
@@ -336,7 +337,7 @@ exports.create = function( options ) {
     *
     * @private
     * @memberOf ArtifactCollector
-    * @param {String} pageRef the page reference (relative to 'laxar-path-pages') to follow
+    * @param {String} pageRef the page reference (relative to `paths.pages`) to follow
     * @return {Promise<Array>} a promise for an array with a single page-meta object
     */
    function followPage( pageRef ) {
@@ -412,7 +413,7 @@ exports.create = function( options ) {
     *
     * @private
     * @memberOf ArtifactCollector
-    * @param {String} layoutRef the layout reference (relative to 'laxar-path-layouts') to follow
+    * @param {String} layoutRef the layout reference (relative to `paths.layouts`) to follow
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single layout
     */
    function followLayout( layoutRef ) {
@@ -467,7 +468,7 @@ exports.create = function( options ) {
     *
     * @private
     * @memberOf ArtifactCollector
-    * @param {String} widgetRef the widget reference (relative to 'laxar-path-widgets') to follow
+    * @param {String} widgetRef the widget reference (relative to `paths.widgets`) to follow
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single widget
     */
    function followWidget( widgetRef ) {
@@ -528,7 +529,7 @@ exports.create = function( options ) {
        * Skip collection if the control has already been processed (returning an empty result array).
        *
        * @private
-       * @param {String} controlRef the control reference (relative to 'laxar-path-controls') to follow
+       * @param {String} controlRef the control reference (relative to `paths.controls`) to follow
        * @return {Promise<Array>}
        *    a promise for an array of control-meta objects for this control, including the control itself
        */
@@ -548,7 +549,7 @@ exports.create = function( options ) {
     *
     * @private
     * @memberOf ArtifactCollector
-    * @param {String} controlRef the control reference (relative to 'laxar-path-controls') to follow
+    * @param {String} controlRef the control reference (relative to `paths.controls`) to follow
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single control
     */
    function followControl( controlRef ) {

@@ -24,7 +24,7 @@ const DEFAULT_PATHS = {
    layouts: './layouts',
    widgets: './widgets',
    controls: './controls',
-   'default-theme': 'laxar-uikit/themes/default.theme'
+   'default-theme': 'default.theme'
 };
 
 const DEFAULT_LOGGER = {
