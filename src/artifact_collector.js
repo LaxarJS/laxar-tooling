@@ -264,7 +264,7 @@ exports.create = function( options ) {
     */
    function followTheme( themeRef ) {
       return ( ( themeRef === 'default' ) ?
-            resolveRef( paths[ 'default-theme' ], paths.themes ) :
+            resolveRef( '.', paths[ 'default-theme' ] ) :
             resolveRef( `${themeRef}.theme`, paths.themes ) )
          .then( themePath => [ {
             refs: [ themeRef ],

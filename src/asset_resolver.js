@@ -18,30 +18,21 @@ import defaults from './defaults';
  * Example:
  *
  *     const resolver = laxarTooling.assetResolver.create( {
- *        resolve: ref => path.relative( base, path.resolve( ref ) ),
- *        fileExists: filename => new Promise( resolve => {
- *           fs.access( filename, fs.F_OK, err => resolve( !err ) );
- *        } )
+ *        resolve: ref => path.relative( base, path.resolve( ref ) )
  *     } );
  *
  * @param {Object} [options] additional options
  * @param {Object} [options.log] a logger instance with at least a `log.error()` method
  * @param {Function} [options.resolve]
- *    a function resolving a given file path to something that can be read by
- *    the `fileExists` function and either returning it as a `String` or asynchronously
- *    as a `Promise`
- * @param {Function} [options.fileExists]
- *    a function accepting a file path as an argument and returning a promise
- *    that resolves to either `true` or `false` depending on the existance of
- *    the given file (similar to the deprecated `fs.exists()`)
+ *    a function resolving a given file path, returning it as a `String` or asynchronously
+ *    as a `Promise` and throwing or rejecting the promise if the file does not exist
  *
  * @return {AssetResolver} the created asset resolver
  */
 exports.create = function create( options ) {
 
    const {
-      resolve,
-      fileExists
+      resolve
    } = defaults( options );
 
    /**
@@ -154,12 +145,11 @@ exports.create = function create( options ) {
          return Promise.resolve( null );
       }
 
-      // resolve the path and check if it exists
-      // return mapping if successful, otherwise repeat recursively
+      const retry = () => lookupAsset( searchPaths.slice( 1 ), assetPath );
+
+      // resolve the path and return mapping, or repeat recursively on error
       return resolve( `${searchPaths[ 0 ]}/${assetPath}` )
-         .then( resolvedPath => fileExists( resolvedPath )
-            .then( exists => exists && { [ assetPath ]: resolvedPath } ) )
-         .then( asset => asset || lookupAsset( searchPaths.slice( 1 ), assetPath ) );
+         .then( resolvedPath => ( { [ assetPath ]: resolvedPath } ), retry );
    }
 };
 

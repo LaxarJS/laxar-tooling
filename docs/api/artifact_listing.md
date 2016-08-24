@@ -21,9 +21,6 @@ Example:
 
     const listing = laxarTooling.artifactListing.create( {
        resolve: ref => path.relative( process.cwd, path.resolve( ref ) ),
-       fileExists: filename => new Promise( resolve => {
-          fs.access( filename, fs.F_OK, err => { resolve( !err ); } );
-       } ),
        readJson: filename => new Promise( ( resolve, reject ) => {
           fs.readFile( filename, ( err, contents ) => {
              try {
@@ -45,8 +42,7 @@ Example:
 | _options.resolve_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
 | _options.fileContents_ | `Object` |  an object mapping file paths (as returned by options.resolve) to promises that resolve to the parsed JSON contents of the file |
 | _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file as a `Promise` |
-| _options.fileExists_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to either `true` or `false` depending on the existance of the given file (similar to the deprecated `fs.exists()`) |
-| _options.assetResolver_ | `Function` |  override the default asset resolver created with the `resolve` and `fileExists` callbacks |
+| _options.assetResolver_ | `Function` |  override the default asset resolver created with the `resolve` callback |
 | _options.requireFile_ | `Function` |  a callback that is called for descriptors, definitions, modules and assets, to inject content into the output |
 
 ##### Returns

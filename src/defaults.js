@@ -9,14 +9,13 @@
  */
 'use strict';
 
-import fs from 'fs';
-import path from 'path';
+import { posix as path } from 'path';
 
 import jsonReader from './json_reader';
 import fileReader from './file_reader';
 import assetResolver from './asset_resolver';
 
-import { wrap, nfcall } from './promise';
+import { wrap } from './promise';
 
 const DEFAULT_PATHS = {
    flows: './flows',
@@ -83,16 +82,6 @@ export default function( options = {} ) {
          }
 
          return getable.readFile;
-      },
-      get fileExists() {
-         if( !getable.fileExists ) {
-            getable.fileExists = options.fileExists ?
-               wrap( options.fileExists ) :
-               ( file => ( this.fileContents[ file ] || nfcall( fs.access, file, fs.F_OK ) )
-                  .then( () => true, () => false ) );
-         }
-
-         return getable.fileExists;
       },
       get assetResolver() {
          if( !getable.assetResolver ) {

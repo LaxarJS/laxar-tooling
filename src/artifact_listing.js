@@ -22,9 +22,6 @@ import defaults from './defaults';
  *
  *     const listing = laxarTooling.artifactListing.create( {
  *        resolve: ref => path.relative( process.cwd, path.resolve( ref ) ),
- *        fileExists: filename => new Promise( resolve => {
- *           fs.access( filename, fs.F_OK, err => { resolve( !err ); } );
- *        } ),
  *        readJson: filename => new Promise( ( resolve, reject ) => {
  *           fs.readFile( filename, ( err, contents ) => {
  *              try {
@@ -50,13 +47,8 @@ import defaults from './defaults';
  *    a function accepting a file path as an argument and returning a promise
  *    that resolves to the parsed JSON contents of the file
  *    as a `Promise`
- * @param {Function} [options.fileExists]
- *    a function accepting a file path as an argument and returning a promise
- *    that resolves to either `true` or `false` depending on the existance of
- *    the given file (similar to the deprecated `fs.exists()`)
  * @param {Function} [options.assetResolver]
- *    override the default asset resolver created with the `resolve` and
- *    `fileExists` callbacks
+ *    override the default asset resolver created with the `resolve` callback
  * @param {Function} [options.requireFile]
  *    a callback that is called for descriptors, definitions, modules and
  *    assets, to inject content into the output
@@ -197,10 +189,10 @@ exports.create = function( options ) {
                   assetUrls: descriptor.assetUrls,
                   assetsForTheme: [
                      `${widget.name}.html`
-                  ].concat( descriptor.assetsForTheme ),
+                  ].concat( descriptor.assetsForTheme || []),
                   assetUrlsForTheme: [
                      `css/${widget.name}.css`
-                  ].concat( descriptor.assetUrlsForTheme )
+                  ].concat( descriptor.assetUrlsForTheme || [] )
                } ) )
          ] )
          .then( ( [ descriptor, module, assets ] ) => ( {
@@ -221,10 +213,10 @@ exports.create = function( options ) {
                   assetUrls: descriptor.assetUrls,
                   assetsForTheme: [
                      `${control.name}.html`
-                  ].concat( descriptor.assetsForTheme ),
+                  ].concat( descriptor.assetsForTheme || []),
                   assetUrlsForTheme: [
                      `css/${control.name}.css`
-                  ].concat( descriptor.assetUrlsForTheme )
+                  ].concat( descriptor.assetUrlsForTheme || [] )
                } ) )
          ] )
          .then( ( [ descriptor, module, assets ] ) => ( {
