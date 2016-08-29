@@ -266,13 +266,28 @@ exports.create = function( options ) {
    function followTheme( themeRef ) {
       const lookupRef = themeRef === 'default' ? paths[ 'default-theme' ] : `${themeRef}.theme`;
 
-      return resolveRef( lookupRef, paths.themes )
-         .then( themePath => [ {
-            refs: [ themeRef ],
-            name: path.basename( themePath ),
-            path: themePath,
-            category: 'themes'
-         } ] );
+      return resolveRef( path.join( lookupRef, 'theme.json' ), paths.themes )
+         .then( descriptorPath => readJson( descriptorPath ).then( theme => {
+            const themePath = path.dirname( descriptorPath );
+            const themeName = theme.name;
+
+            return [ {
+               refs: [ themeRef ],
+               name: themeName,
+               path: themePath,
+               desc: descriptorPath,
+               category: 'themes'
+            } ];
+         } ), () => resolveRef( lookupRef, paths.themes ).then( themePath => {
+            const themeName = path.basename( themePath );
+
+            return [ {
+               refs: [ themeRef ],
+               name: themeName,
+               path: themePath,
+               category: 'themes'
+            } ];
+         } ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -417,15 +432,28 @@ exports.create = function( options ) {
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single layout
     */
    function followLayout( layoutRef ) {
-      const layoutName = path.basename( layoutRef );
+      return resolveRef( path.join( layoutRef, 'layout.json' ), paths.layouts )
+         .then( descriptorPath => readJson( descriptorPath ).then( layout => {
+            const layoutPath = path.dirname( descriptorPath );
+            const layoutName = layout.name;
 
-      return resolveRef( layoutRef, paths.layouts )
-         .then( layoutPath => [ {
-            refs: [ layoutRef ],
-            name: layoutName,
-            path: layoutPath,
-            category: 'layouts'
-         } ] );
+            return [ {
+               refs: [ layoutRef ],
+               name: layoutName,
+               path: layoutPath,
+               desc: descriptorPath,
+               category: 'layouts'
+            } ];
+         } ), () => resolveRef( layoutRef, paths.layouts ).then( layoutPath => {
+            const layoutName = path.basename( layoutPath );
+
+            return [ {
+               refs: [ layoutRef ],
+               name: layoutName,
+               path: layoutPath,
+               category: 'layouts'
+            } ];
+         } ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,6 +510,7 @@ exports.create = function( options ) {
                refs: [ widgetRef ],
                name: widgetName,
                path: widgetPath,
+               desc: descriptorPath,
                category: 'widgets',
 
                controls
@@ -563,6 +592,7 @@ exports.create = function( options ) {
                refs: [ controlRef ],
                name: controlName,
                path: controlPath,
+               desc: descriptorPath,
                category: 'controls',
 
                controls

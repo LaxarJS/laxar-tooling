@@ -1,106 +1,109 @@
 {
-   "widgets" : [
-      {
-         "name" : "widget1",
-         "category" : "widgets",
-         "path" : "/app/x-widgets/widget1",
-         "refs" : [
-            "widget1"
-         ]
-      },
-      {
-         "name" : "widget2",
-         "category" : "widgets",
-         "controls" : [
-            "control1"
-         ],
-         "refs" : [
-            "widget2"
-         ],
-         "path" : "/app/x-widgets/widget2"
-      }
-   ],
-   "controls" : [
-      {
-         "category" : "controls",
-         "name" : "control1",
-         "refs" : [
-            "control1"
-         ],
-         "path" : "/app/libs/control1"
-      }
-   ],
-   "themes" : [
-      {
-         "name" : "default.theme",
-         "category" : "themes",
-         "path" : "/app/x-themes/default.theme",
-         "refs" : [
-            "default"
-         ]
-      }
-   ],
    "layouts" : [
       {
-         "refs" : [
-            "layout1"
-         ],
+         "name" : "layout1",
          "path" : "/app/x-layouts/layout1",
          "category" : "layouts",
-         "name" : "layout1"
+         "refs" : [
+            "layout1"
+         ]
       },
       {
-         "category" : "layouts",
          "name" : "layout2",
+         "path" : "/app/x-layouts/layout2",
          "refs" : [
             "layout2"
          ],
-         "path" : "/app/x-layouts/layout2"
+         "category" : "layouts"
       }
    ],
    "pages" : [
       {
          "widgets" : [],
-         "category" : "pages",
          "name" : "page1",
          "layouts" : [
             "layout1"
          ],
-         "path" : "/app/x-pages/page1.json",
          "pages" : [],
+         "path" : "/app/x-pages/page1.json",
          "refs" : [
             "page1"
-         ]
+         ],
+         "category" : "pages"
       },
       {
-         "widgets" : [
-            "widget1",
-            "widget2"
+         "refs" : [
+            "page2"
          ],
-         "name" : "page2",
          "category" : "pages",
          "layouts" : [
             "layout2"
          ],
          "pages" : [],
-         "refs" : [
-            "page2"
+         "path" : "/app/x-pages/page2.json",
+         "widgets" : [
+            "widget1",
+            "widget2"
          ],
-         "path" : "/app/x-pages/page2.json"
+         "name" : "page2"
+      }
+   ],
+   "controls" : [
+      {
+         "name" : "control1",
+         "desc" : "/app/libs/control1/control.json",
+         "path" : "/app/libs/control1",
+         "refs" : [
+            "control1"
+         ],
+         "category" : "controls"
       }
    ],
    "flows" : [
       {
-         "category" : "flows",
          "name" : "flow4",
          "refs" : [
             "flow4"
          ],
+         "category" : "flows",
          "pages" : [
             "page1",
             "page2"
          ],
          "path" : "/app/x-flows/flow4.json"
+      }
+   ],
+   "widgets" : [
+      {
+         "name" : "widget1",
+         "desc" : "/app/x-widgets/widget1/widget.json",
+         "path" : "/app/x-widgets/widget1",
+         "refs" : [
+            "widget1"
+         ],
+         "category" : "widgets"
+      },
+      {
+         "name" : "widget2",
+         "desc" : "/app/x-widgets/widget2/widget.json",
+         "path" : "/app/x-widgets/widget2",
+         "refs" : [
+            "widget2"
+         ],
+         "controls" : [
+            "control1"
+         ],
+         "category" : "widgets"
+      }
+   ],
+   "themes" : [
+      {
+         "name" : "default.theme",
+         "refs" : [
+            "default"
+         ],
+         "category" : "themes",
+         "path" : "/app/x-themes/default.theme"
       }
    ]
 }
