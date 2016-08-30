@@ -56,6 +56,10 @@
       "x-layouts/layout1": "/app/x-layouts/layout1",
       "x-layouts/layout2": "/app/x-layouts/layout2",
 
+      "x-widgets/widget1/default.theme/widget1.haml": "/app/x-widgets/widget1/default.theme/widget1.haml",
+      "x-widgets/widget1/default.theme/scss/widget1.scss": "/app/x-widgets/widget1/default.theme/scss/widget1.scss",
+      "x-widgets/widget1/default.theme/image.png": "/app/x-widgets/widget1/default.theme/image.png",
+
       "control1/control.json": "/app/libs/control1/control.json"
    },
    "files": {
@@ -125,7 +129,10 @@
          "integration": {
             "type": "widget",
             "technology": "plain"
-         }
+         },
+         "templateSource": "widget1.haml",
+         "styleSource": "scss/widget1.scss",
+         "assetsForTheme": [ "image.png" ]
       },
       "/app/x-widgets/widget2/widget.json": {
          "name": "widget2",

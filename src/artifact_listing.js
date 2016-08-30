@@ -9,8 +9,6 @@
  */
 'use strict';
 
-import { posix as path } from 'path';
-
 import { wrap } from './promise';
 import { flatten, merge } from './utils';
 import defaults from './defaults';
@@ -123,7 +121,7 @@ exports.create = function( options ) {
       return Promise.all( flows.map( flow =>
          Promise.all( [
             buildDescriptor( flow ),
-            requireFile( flow.path, 'json' )
+            buildDefinition( flow )
          ] )
          .then( ( [ descriptor, definition ] ) => ( {
             descriptor,
@@ -135,11 +133,12 @@ exports.create = function( options ) {
       return Promise.all( themes.map( theme =>
          Promise.all( [
             buildDescriptor( theme ),
-            buildAssets( theme, [], {
-               assetUrls: [
-                  'css/theme.css'
-               ]
-            } )
+            readDescriptor( theme )
+               .then( descriptor => buildAssets( theme, [], {
+                  assetUrls: [
+                     descriptor.styleSource || 'css/theme.css'
+                  ]
+               } ) )
          ] )
          .then( ( [ descriptor, assets ] ) => ( {
             descriptor,
@@ -151,7 +150,7 @@ exports.create = function( options ) {
       return Promise.all( pages.map( page =>
          Promise.all( [
             buildDescriptor( page ),
-            requireFile( page.path, 'json' )
+            buildDefinition( page )
          ] )
          .then( ( [ descriptor, definition ] ) => ( {
             descriptor,
@@ -163,14 +162,15 @@ exports.create = function( options ) {
       return Promise.all( layouts.map( layout =>
          Promise.all( [
             buildDescriptor( layout ),
-            buildAssets( layout, themes, {
-               assetsForTheme: [
-                  `${layout.name}.html`
-               ],
-               assetUrlsForTheme: [
-                  `css/${layout.name}.css`
-               ]
-            } )
+            readDescriptor( layout )
+               .then( descriptor => buildAssets( layout, themes, {
+                  assetsForTheme: [
+                     descriptor.templateSource || `${layout.name}.html`
+                  ],
+                  assetUrlsForTheme: [
+                     descriptor.styleSource || `css/${layout.name}.css`
+                  ]
+               } ) )
          ] )
          .then( ( [ descriptor, assets ] ) => ( {
             descriptor,
@@ -181,17 +181,17 @@ exports.create = function( options ) {
    function buildWidgets( widgets, themes ) {
       return Promise.all( widgets.map( widget =>
          Promise.all( [
-            requireFile( path.join( widget.path, 'widget.json' ), 'json' ),
-            requireFile( path.join( widget.path, widget.name ) ),
-            readJson( path.join( widget.path, 'widget.json' ) )
+            buildDescriptor( widget ),
+            buildModule( widget ),
+            readDescriptor( widget )
                .then( descriptor => buildAssets( widget, themes, {
                   assets: descriptor.assets,
                   assetUrls: descriptor.assetUrls,
                   assetsForTheme: [
-                     `${widget.name}.html`
+                     descriptor.templateSource || `${widget.name}.html`
                   ].concat( descriptor.assetsForTheme || []),
                   assetUrlsForTheme: [
-                     `css/${widget.name}.css`
+                     descriptor.styleSource || `css/${widget.name}.css`
                   ].concat( descriptor.assetUrlsForTheme || [] )
                } ) )
          ] )
@@ -205,17 +205,17 @@ exports.create = function( options ) {
    function buildControls( controls, themes ) {
       return Promise.all( controls.map( control =>
          Promise.all( [
-            requireFile( path.join( control.path, 'control.json' ), 'json' ),
-            requireFile( path.join( control.path, control.name ) ),
-            readJson( path.join( control.path, 'control.json' ) )
+            buildDescriptor( control ),
+            buildModule( control ),
+            readDescriptor( control )
                .then( descriptor => buildAssets( control, themes, {
                   assets: descriptor.assets,
                   assetUrls: descriptor.assetUrls,
                   assetsForTheme: [
-                     `${control.name}.html`
+                     descriptor.templateSource || `${control.name}.html`
                   ].concat( descriptor.assetsForTheme || []),
                   assetUrlsForTheme: [
-                     `css/${control.name}.css`
+                     descriptor.styleSource || `css/${control.name}.css`
                   ].concat( descriptor.assetUrlsForTheme || [] )
                } ) )
          ] )
@@ -226,8 +226,28 @@ exports.create = function( options ) {
          } ) ) ) );
    }
 
-   function buildDescriptor( { name } ) {
-      return Promise.resolve( { name } );
+   function buildDefinition( { path } ) {
+      return requireFile( path, 'json' );
+   }
+
+   function buildModule( { path, name } ) {
+      return requireFile( `${path}/${name}` );
+   }
+
+   function buildDescriptor( { name, desc } ) {
+      if( !desc ) {
+         return Promise.resolve( { name } );
+      }
+
+      return requireFile( desc, 'json' );
+   }
+
+   function readDescriptor( { name, desc } ) {
+      if( !desc ) {
+         return Promise.resolve( { name } );
+      }
+
+      return readJson( desc );
    }
 
    /**
@@ -278,7 +298,7 @@ exports.create = function( options ) {
             const asset = assets[ key ];
 
             if( ( assetPaths || [] ).indexOf( key ) >= 0 ) {
-               return requireFile( asset, 'raw' )
+               return requireFile( asset, 'content' )
                   .then( content => ( { [ key ]: { content } } ) );
             }
 
