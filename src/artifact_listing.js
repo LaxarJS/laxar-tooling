@@ -298,7 +298,7 @@ exports.create = function( options ) {
             const asset = assets[ key ];
 
             if( ( assetPaths || [] ).indexOf( key ) >= 0 ) {
-               return requireFile( asset, 'raw' )
+               return requireFile( asset, 'content' )
                   .then( content => ( { [ key ]: { content } } ) );
             }
 
