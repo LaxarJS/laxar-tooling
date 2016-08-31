@@ -34,7 +34,7 @@ Refer to the [API documentation](docs/api) and/or real-world usage in [laxar-loa
 [LaxarJS]: https://github.com/LaxarJS/laxar
 [laxar-loader]: https://github.com/LaxarJS/laxar-loader
 [grunt-laxar]: https://github.com/LaxarJS/grunt-laxar
-[artifactCollector]: docs/api/artifact_collector.js.md
-[assetResolver]: docs/api/asset_resolver.js.md
-[artifactListing]: docs/api/artifact_listing.js.md
-[serialize]: docs/api/serialize.js.md
+[artifactCollector]: docs/api/artifact_collector.md
+[assetResolver]: docs/api/asset_resolver.md
+[artifactListing]: docs/api/artifact_listing.md
+[serialize]: docs/api/serialize.md

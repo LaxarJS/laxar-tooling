@@ -1,0 +1,28 @@
+{
+   "themes": [ {
+      "name": "default.theme",
+      "category": "themes",
+      "refs": [],
+      "path": "/app/x-themes/default.theme"
+   }, {
+      "name": "custom.theme",
+      "category": "themes",
+      "refs": [],
+      "path": "/app/x-themes/custom.theme"
+   } ],
+   "artifacts": [ {
+      "name": "widget1",
+      "category": "widgets",
+      "path": "/app/x-widgets/widget1"
+   } ],
+   "assets": [
+      "artifact.html",
+      "css/artifact.css",
+      "missing/persons.txt"
+   ],
+   "resolve": {
+      "/app/x-widgets/widget1/artifact.html": "/app/x-widgets/widget1/artifact.html",
+      "/app/x-widgets/widget1/css/artifact.css": "/app/x-widgets/widget1/css/artifact.css",
+      "/app/x-widgets/widget1/missing/persons.txt": false
+   }
+}

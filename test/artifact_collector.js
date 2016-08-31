@@ -14,11 +14,6 @@ import artifactCollector from '../src/artifact_collector';
 
 describe( 'artifactCollector', () => {
 
-   const log = {
-      error() {},
-      warn() {}
-   };
-
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    describe( '.create( options )', () => {
@@ -120,21 +115,22 @@ describe( 'artifactCollector', () => {
 
             const artifactsPromise = collector.collectArtifacts( data.entries[ entry ] )
                .then( JSON.stringify )
+               .then( data => promise.nfcall( fs.writeFile, actualFile, data ).then( () => data ) )
                .then( JSON.parse );
-            const writePromise = artifactsPromise
-               .then( JSON.stringify )
-               .then( data => promise.nfcall( fs.writeFile, actualFile, data ) );
 
             Object.keys( expected ).forEach( type => {
+               const further = expected[ type ].length ? `further ${type}` : type;
+
                expected[ type ].forEach( ( artifact, index ) => {
                   it( `resolves ${artifact.name}`, () => artifactsPromise.then( artifacts => {
                      expect( artifacts[ type ][ index ] ).to.deep.eql( artifact );
                   } ) );
                } );
-               it( 'resolves no ' + ( expected[ type ].length ? 'further ' : '') + type, () => artifactsPromise.then( artifacts => {
+               it( `resolves no ${further}`, () => artifactsPromise.then( artifacts => {
                   expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );
                } ) );
             } );
+
          } );
 
       } );

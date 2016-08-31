@@ -1,18 +1,22 @@
 
-# jsonReader
+# <a name="jsonReader"></a>jsonReader
 
 Helper for reading, parsing and caching JSON files.
 
 ## Contents
 
 **Module Members**
-- [create](#create)
+
+- [create()](#create)
 
 ## Module Members
+
 #### <a name="create"></a>create( options )
+
 Create a function to read files from the file system, parses them as JSON an cache the contents.
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | _options_ | `Object` |  options |
@@ -21,6 +25,7 @@ Create a function to read files from the file system, parses them as JSON an cac
 | _options.fileContents_ | `Object` |  the object to cache file content promises in |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Function` |  a function that returns a `Promise` |

@@ -1,20 +1,24 @@
 
-# assetResolver
+# <a name="assetResolver"></a>assetResolver
 
 Helpers for resolving artifact assets
 
 ## Contents
 
 **Module Members**
-- [create](#create)
+
+- [create()](#create)
 
 **Types**
+
 - [AssetResolver](#AssetResolver)
-  - [AssetResolver#resolveAssets](#AssetResolver#resolveAssets)
-  - [AssetResolver#resolveThemedAssets](#AssetResolver#resolveThemedAssets)
+  - [AssetResolver.resolveAssets()](#AssetResolver.resolveAssets)
+  - [AssetResolver.resolveThemedAssets()](#AssetResolver.resolveThemedAssets)
 
 ## Module Members
+
 #### <a name="create"></a>create( options )
+
 Create an asset resolver instance.
 
 Example:
@@ -24,6 +28,7 @@ Example:
     } );
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | _options_ | `Object` |  additional options |
@@ -31,14 +36,17 @@ Example:
 | _options.resolve_ | `Function` |  a function resolving a given file path, returning it as a `String` or asynchronously as a `Promise` and throwing or rejecting the promise if the file does not exist |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
-| `AssetResolver` |  the created asset resolver |
+| [`AssetResolver`](#AssetResolver) |  the created asset resolver |
 
 ## Types
+
 ### <a name="AssetResolver"></a>AssetResolver
 
-#### <a name="AssetResolver#resolveAssets"></a>AssetResolver#resolveAssets( artifact, assetPaths )
+#### <a name="AssetResolver.resolveAssets"></a>AssetResolver.resolveAssets( artifact, assetPaths )
+
 Resolve assets for an artifact.
 
 Example:
@@ -57,17 +65,20 @@ Example:
     //    }
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| artifact | `Object` |  an artifact as returned by [ArtifactCollector](#ArtifactCollector). |
+| artifact | `Object` |  an artifact as returned by [`ArtifactCollector`](artifact_collector.md). |
 | assetPaths | `Array.<String>` |  the artifact assets to resolve |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |
 
-#### <a name="AssetResolver#resolveThemedAssets"></a>AssetResolver#resolveThemedAssets( artifact, theme, assetPaths )
+#### <a name="AssetResolver.resolveThemedAssets"></a>AssetResolver.resolveThemedAssets( artifact, theme, assetPaths )
+
 Resolve themed assets for an artifact.
 
 Example:
@@ -90,13 +101,15 @@ Example:
     //    }
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| artifact | `Object` |  an artifact as returned by [ArtifactCollector](#ArtifactCollector). |
-| theme | `Array.<Object>` |  a theme artifact as returned by [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes). |
+| artifact | `Object` |  an artifact as returned by [`ArtifactCollector`](artifact_collector.md). |
+| theme | `Array.<Object>` |  a theme artifact as returned by [`ArtifactCollector#collectThemes`](artifact_collector.md#collectThemes). |
 | assetPaths | `Array.<String>` |  the artifact assets to resolve |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |

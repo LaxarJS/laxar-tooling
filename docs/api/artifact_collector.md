@@ -1,25 +1,29 @@
 
-# artifactCollector
+# <a name="artifactCollector"></a>artifactCollector
 
 Determine application artifacts by inspecting flow, pages and widgets.
 
 ## Contents
 
 **Module Members**
-- [create](#create)
+
+- [create()](#create)
 
 **Types**
+
 - [ArtifactCollector](#ArtifactCollector)
-  - [ArtifactCollector#collectArtifacts](#ArtifactCollector#collectArtifacts)
-  - [ArtifactCollector#collectFlows](#ArtifactCollector#collectFlows)
-  - [ArtifactCollector#collectThemes](#ArtifactCollector#collectThemes)
-  - [ArtifactCollector#collectPages](#ArtifactCollector#collectPages)
-  - [ArtifactCollector#collectLayouts](#ArtifactCollector#collectLayouts)
-  - [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets)
-  - [ArtifactCollector#collectControls](#ArtifactCollector#collectControls)
+  - [ArtifactCollector.collectArtifacts()](#ArtifactCollector.collectArtifacts)
+  - [ArtifactCollector.collectFlows()](#ArtifactCollector.collectFlows)
+  - [ArtifactCollector.collectThemes()](#ArtifactCollector.collectThemes)
+  - [ArtifactCollector.collectPages()](#ArtifactCollector.collectPages)
+  - [ArtifactCollector.collectLayouts()](#ArtifactCollector.collectLayouts)
+  - [ArtifactCollector.collectWidgets()](#ArtifactCollector.collectWidgets)
+  - [ArtifactCollector.collectControls()](#ArtifactCollector.collectControls)
 
 ## Module Members
+
 #### <a name="create"></a>create( options )
+
 Create an artifact collector instance.
 
 Example:
@@ -40,6 +44,7 @@ Example:
     } );
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | _options_ | `Object` |  additional options |
@@ -50,14 +55,17 @@ Example:
 | _options.fileContents_ | `Object` |  an object mapping file paths (as returned by `options.resolve`) to promises that resolve to the parsed JSON contents of the file (used if `readJson` is omitted) |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
-| `ArtifactCollector` |  the created artifact collector |
+| [`ArtifactCollector`](#ArtifactCollector) |  the created artifact collector |
 
 ## Types
+
 ### <a name="ArtifactCollector"></a>ArtifactCollector
 
-#### <a name="ArtifactCollector#collectArtifacts"></a>ArtifactCollector#collectArtifacts( entries )
+#### <a name="ArtifactCollector.collectArtifacts"></a>ArtifactCollector.collectArtifacts( entries )
+
 Obtain artifact information asynchronously, starting from a set of flow definitions.
 
 Example:
@@ -81,16 +89,19 @@ Example:
     //    }
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | entries | `Array.<Object>` |  a list of entries containing themes and flows to follow to find all the pages reachable from the flow and their required artifacts |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Object>` |  the artifact listing with the keys `flows`, `themes`, `pages`, `layouts`, `widgets` and `controls`, of which each is an array of artifact objects |
 
-#### <a name="ArtifactCollector#collectFlows"></a>ArtifactCollector#collectFlows( entries )
+#### <a name="ArtifactCollector.collectFlows"></a>ArtifactCollector.collectFlows( entries )
+
 Asynchronously collect all flows corresponding to the given paths.
 
 Example:
@@ -107,16 +118,19 @@ Example:
     //    } ]
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | entries | `Array` |  a list of entry objects containing a flows key |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of flow-meta objects |
 
-#### <a name="ArtifactCollector#collectThemes"></a>ArtifactCollector#collectThemes( entries )
+#### <a name="ArtifactCollector.collectThemes"></a>ArtifactCollector.collectThemes( entries )
+
 Collect meta information on the given themes.
 
 Example:
@@ -136,16 +150,19 @@ Example:
     //    } ]
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | entries | `Array.<Object>` |  a list of entries with themes to include in the artifacts |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all themes |
 
-#### <a name="ArtifactCollector#collectPages"></a>ArtifactCollector#collectPages( flows )
+#### <a name="ArtifactCollector.collectPages"></a>ArtifactCollector.collectPages( flows )
+
 Asynchronously collect all pages that are reachable from the given list of flows.
 
 Example:
@@ -164,16 +181,19 @@ Example:
     //    }, ... ]
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| flows | `Array.<String>` |  a list of flow artifacts as returned by [ArtifactCollector#collectFlows](#ArtifactCollector#collectFlows) |
+| flows | `Array.<String>` |  a list of flow artifacts as returned by [`ArtifactCollector#collectFlows`](artifact_collector.md#collectFlows) |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for a combined array of page meta information for these flows |
 
-#### <a name="ArtifactCollector#collectLayouts"></a>ArtifactCollector#collectLayouts( pages )
+#### <a name="ArtifactCollector.collectLayouts"></a>ArtifactCollector.collectLayouts( pages )
+
 Finds layouts based on them being referenced in page areas.
 
 Example:
@@ -189,16 +209,19 @@ Example:
     //    }, ... ]
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
+| pages | `Array` |  a list of page artifacts as returned by [`ArtifactCollector#collectPages`](artifact_collector.md#collectPages) |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all layouts |
 
-#### <a name="ArtifactCollector#collectWidgets"></a>ArtifactCollector#collectWidgets( pages )
+#### <a name="ArtifactCollector.collectWidgets"></a>ArtifactCollector.collectWidgets( pages )
+
 Collect meta information on all widget that are referenced from the given pages.
 
 Example:
@@ -215,16 +238,19 @@ Example:
     //    }, ... ]
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| pages | `Array` |  a list of page artifacts as returned by [ArtifactCollector#collectPages](#ArtifactCollector#collectPages) |
+| pages | `Array` |  a list of page artifacts as returned by [`ArtifactCollector#collectPages`](artifact_collector.md#collectPages) |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable widgets |
 
-#### <a name="ArtifactCollector#collectControls"></a>ArtifactCollector#collectControls( widgets )
+#### <a name="ArtifactCollector.collectControls"></a>ArtifactCollector.collectControls( widgets )
+
 Collect meta information on all controls that are referenced by the given widgets.
 
 Example:
@@ -241,11 +267,13 @@ Example:
     //    }, ... ]
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| widgets | `Array` |  a list of widget artifacts as returned by [ArtifactCollector#collectWidgets](#ArtifactCollector#collectWidgets) |
+| widgets | `Array` |  a list of widget artifacts as returned by [`ArtifactCollector#collectWidgets`](artifact_collector.md#collectWidgets) |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable controls |

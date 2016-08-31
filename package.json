@@ -18,8 +18,8 @@
     "prepublish": "npm run lint && npm run build && npm run docs",
     "build": "babel -d lib src",
     "test": "mocha --compilers js:babel-register && npm run lint",
-    "lint": "eslint src",
-    "docs": "scripts/docs src/*.js"
+    "lint": "eslint src test",
+    "docs": "laxardox -d docs/api src/*.js"
   },
   "keywords": [
     "laxar",
@@ -39,7 +39,7 @@
     "chai": "^3.5.0",
     "eslint": "^3.0.1",
     "eslint-config-laxarjs": "^0.3.0",
-    "laxar-dox": "^1.0.1",
+    "laxar-dox": "^2.0.0-alpha.1",
     "mocha": "^2.5.3"
   }
 }

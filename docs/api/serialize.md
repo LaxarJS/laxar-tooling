@@ -1,15 +1,18 @@
 
-# serialize
+# <a name="serialize"></a>serialize
 
 Serialize JavaScript objects.
 
 ## Contents
 
 **Module Members**
-- [serialize](#serialize)
+
+- [serialize()](#serialize)
 
 ## Module Members
+
 #### <a name="serialize"></a>serialize( object, indent, pad, space )
+
 Serialize the given object to valid, human-readable JavaScript.
 Mostly like JSON.stringify, this function drops quotes from object keys if possible,
 and "serializes" functions by calling them and writing the result to the output
@@ -23,6 +26,7 @@ Example:
     // => '{ a: 1, b: [ 1, 2, 3 ], c: require( "test" ) }'
 
 ##### Parameters
+
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | object | `Object` |  the object to serialize |
@@ -31,6 +35,7 @@ Example:
 | _space_ | `String` |  the character(s) to use for padding |
 
 ##### Returns
+
 | Type | Description |
 | ---- | ----------- |
 | `String` |  the serialized JavaScript code |
