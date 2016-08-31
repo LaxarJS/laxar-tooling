@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.4.0
+
 - [#6](https://github.com/LaxarJS/laxar-tooling/issues/6): support preprocessed theme-, layout-, widget- and control-artifacts
   + **BREAKING CHANGE:** see ticket for details
 - [#5](https://github.com/LaxarJS/laxar-tooling/issues/5): implement new path resolution scheme
