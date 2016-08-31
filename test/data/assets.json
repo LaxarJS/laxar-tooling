@@ -23,6 +23,31 @@
    "resolve": {
       "/app/x-widgets/widget1/artifact.html": "/app/x-widgets/widget1/artifact.html",
       "/app/x-widgets/widget1/css/artifact.css": "/app/x-widgets/widget1/css/artifact.css",
-      "/app/x-widgets/widget1/missing/persons.txt": false
-   }
+      "/app/x-widgets/widget1/missing/persons.txt": false,
+
+      "/app/x-widgets/widget1/default.theme/artifact.html": "/app/x-widgets/widget1/default.theme/artifact.html",
+      "/app/x-widgets/widget1/default.theme/css/artifact.css": false,
+      "/app/x-widgets/widget1/default.theme/missing/persons.txt": false,
+
+      "/app/x-widgets/widget1/custom.theme/artifact.html": false,
+      "/app/x-widgets/widget1/custom.theme/css/artifact.css": false,
+      "/app/x-widgets/widget1/custom.theme/missing/persons.txt": false,
+
+      "/app/x-themes/default.theme/widgets/widget1/artifact.html": "/app/x-themes/default.theme/widgets/widget1/artifact.html",
+      "/app/x-themes/default.theme/widgets/widget1/css/artifact.css": "/app/x-themes/default.theme/widgets/widget1/css/artifact.css",
+      "/app/x-themes/default.theme/widgets/widget1/missing/persons.txt": false,
+
+      "/app/x-themes/custom.theme/widgets/widget1/artifact.html": "/app/x-themes/custom.theme/widgets/widget1/artifact.html",
+      "/app/x-themes/custom.theme/widgets/widget1/css/artifact.css": false,
+      "/app/x-themes/custom.theme/widgets/widget1/missing/persons.txt": false
+   },
+   "results": [ {
+      "artifact.html": "/app/x-widgets/widget1/artifact.html",
+      "css/artifact.css": "/app/x-widgets/widget1/css/artifact.css"
+   }, {
+      "artifact.html": "/app/x-widgets/widget1/default.theme/artifact.html",
+      "css/artifact.css": "/app/x-themes/default.theme/widgets/widget1/css/artifact.css"
+   }, {
+      "artifact.html": "/app/x-themes/custom.theme/widgets/widget1/artifact.html"
+   } ]
 }

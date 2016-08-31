@@ -48,7 +48,6 @@ describe( 'artifactResolver', () => {
          return data.resolve[ ref ] ? Promise.resolve( data.resolve[ ref ] ) : Promise.reject();
       }
 
-
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'returns a thenable', () => {
@@ -65,8 +64,9 @@ describe( 'artifactResolver', () => {
 
       it( 'creates a map of resolved assets', () => {
          return resolver.resolveAssets( data.artifacts[ 0 ], data.assets )
-            .then( artifacts => {
-               expect( artifacts ).to.be.an( 'object' );
+            .then( assets => {
+               expect( assets ).to.be.an( 'object' );
+               expect( assets ).to.eql( data.results[ 0 ] );
             } );
       } );
 
@@ -86,7 +86,6 @@ describe( 'artifactResolver', () => {
          return data.resolve[ ref ] ? Promise.resolve( data.resolve[ ref ] ) : Promise.reject();
       }
 
-
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'returns a thenable', () => {
@@ -102,10 +101,19 @@ describe( 'artifactResolver', () => {
             } );
       } );
 
-      it( 'creates a map of resolved assets', () => {
+      it( 'creates a map of resolved theme assets', () => {
          return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes[ 0 ], data.assets )
-            .then( artifacts => {
-               expect( artifacts ).to.be.an( 'object' );
+            .then( assets => {
+               expect( assets ).to.be.an( 'object' );
+               expect( assets ).to.eql( data.results[ 1 ] );
+            } );
+      } );
+
+      it( 'omits missing files from listing', () => {
+         return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes[ 1 ], data.assets )
+            .then( assets => {
+               expect( assets ).to.be.an( 'object' );
+               expect( assets ).to.eql( data.results[ 2 ] );
             } );
       } );
 
