@@ -37,3 +37,12 @@ export {
    fileReader,
    serialize
 };
+
+export default {
+   artifactCollector,
+   assetResolver,
+   artifactListing,
+   jsonReader,
+   fileReader,
+   serialize
+};

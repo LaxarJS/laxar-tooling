@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#7](https://github.com/LaxarJS/laxar-tooling/issues/7): the API is now exported as a ES2015 default export as well
+
 
 ## v0.4.0
 
