@@ -14,6 +14,10 @@ describe( 'laxar-tooling', () => {
       expect( laxarTooling.artifactCollector ).to.respondTo( 'create' );
    } );
 
+   it( 'exports the artifactValidator', () => {
+      expect( laxarTooling.artifactValidator ).to.respondTo( 'create' );
+   } );
+
    it( 'exports the assetResolver', () => {
       expect( laxarTooling.assetResolver ).to.respondTo( 'create' );
    } );

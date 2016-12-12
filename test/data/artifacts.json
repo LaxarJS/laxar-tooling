@@ -6,6 +6,7 @@
       "layouts": "x-layouts",
       "widgets": "x-widgets",
       "controls": "x-controls",
+      "schemas": "x-schemas",
       "default-theme": "x-themes/default.theme"
    },
    "entries": {
@@ -41,6 +42,9 @@
       }
    },
    "resolve": {
+      "x-schemas/flow.json": "/app/x-schemas/flow.json",
+      "x-schemas/page.json": "/app/x-schemas/page.json",
+      "x-schemas/widget.json": "/app/x-schemas/widget.json",
       "x-flows/flow1.json": "/app/x-flows/flow1.json",
       "x-flows/flow2.json": "/app/x-flows/flow2.json",
       "x-flows/flow3.json": "/app/x-flows/flow3.json",
@@ -63,6 +67,20 @@
       "control1/control.json": "/app/libs/control1/control.json"
    },
    "files": {
+      "/app/x-schemas/flow.json": {
+         "$schema": "http://json-schema.org/draft-04/schema#",
+         "type": "object",
+         "required": [ "places" ]
+      },
+      "/app/x-schemas/page.json": {
+         "$schema": "http://json-schema.org/draft-04/schema#",
+         "type": "object"
+      },
+      "/app/x-schemas/widget.json": {
+         "$schema": "http://json-schema.org/draft-04/schema#",
+         "type": "object",
+         "required": [ "name" ]
+      },
       "/app/x-flows/flow1.json": {
          "places": {
          }

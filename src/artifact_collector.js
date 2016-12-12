@@ -83,6 +83,7 @@ exports.create = function( options ) {
     */
    return {
       collectArtifacts,
+      collectSchemas,
       collectFlows,
       collectThemes,
       collectPages,
@@ -141,24 +142,90 @@ exports.create = function( options ) {
          layoutsPromise,
          widgetsPromise,
          controlsPromise
-      ] ).then( ( [ flows, themes, pages, layouts, widgets, controls ] ) => ( {
+      ] ).then( artifacts => {
+         const entries = add( flatten( artifacts ) );
+
+         return collectSchemas( entries )
+            .then( schemas => artifacts.concat( [ schemas ] ) );
+      } )
+      .then( ( [ flows, themes, pages, layouts, widgets, controls, schemas ] ) => ( {
          flows,
          themes,
          pages,
          layouts,
          widgets,
-         controls
+         controls,
+         schemas
       } ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    /**
-    * Asynchronously collect all flows corresponding to the given paths.
+    * Asynchronously collect all schemas corresponding to the given paths.
     *
     * Example:
     *
-    *     collector.collectFlows( [ { flows: [ 'path/to/flow.json' ] } ] )
+    *     collector.collectSchemas( [ { schemas: [ 'schema' ] } ] )
+    *        .then( schemas => {
+    *           assert( Array.isArray( schemas ) );
+    *        } );
+    *     // => [ {
+    *     //       refs: [ 'schema' ],
+    *     //       name: 'schema',
+    *     //       path: 'path/to/schema.json',
+    *     //       pages: [ ... ]
+    *     //    } ]
+    *
+    *
+    * @memberOf ArtifactCollector
+    * @param {Array} entries a list of entry objects containing a schemas key
+    * @return {Promise<Array>}
+    *    a promise for an array of schema-meta objects
+    */
+   function collectSchemas( entries ) {
+      const followSchemaOnce = promiseOnce( followSchema );
+      const followEntryToSchemas = followEntryRefs( 'schemas', followSchemaOnce );
+
+      return Promise.all( entries.map( followEntryToSchemas ) )
+         .then( flatten )
+         .then( dedupe );
+   }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * Collect meta information about a single schema.
+    *
+    * @private
+    * @memberOf ArtifactCollector
+    * @param {String} schemaRef the schema reference (relative to `paths.schemas`) to follow
+    * @return {Promise<Array>} a promise for an array with a single schema-meta object
+    */
+   function followSchema( schemaRef ) {
+      const name = basename( schemaRef );
+
+      return resolveRef( schemaRef + '.json', paths.schemas )
+         .then( path => readJson( path ).then( schema => {
+            return [ {
+               refs: [ schemaRef ],
+               name,
+               path,
+               definition: schema,
+               descriptor: { name },
+               category: 'schemas'
+            } ];
+         } ) );
+   }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * Asynchronously collect all flows corresponding to the given refs.
+    *
+    * Example:
+    *
+    *     collector.collectFlows( [ { flows: [ 'flow' ] } ] )
     *        .then( flows => {
     *           assert( Array.isArray( flows ) );
     *        } );
@@ -211,6 +278,7 @@ exports.create = function( options ) {
                definition: flow,
                descriptor: { name },
                category: 'flows',
+               schemas: [ 'flow' ],
 
                pages
             } ];
@@ -386,6 +454,7 @@ exports.create = function( options ) {
                definition: page,
                descriptor: { name },
                category: 'pages',
+               schemas: [ 'page' ],
 
                pages,
                widgets,
@@ -518,6 +587,7 @@ exports.create = function( options ) {
                path,
                descriptor: widget,
                category: 'widgets',
+               schemas: [ 'widget' ],
 
                controls
             } ];

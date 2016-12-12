@@ -13,6 +13,7 @@ Determine application artifacts by inspecting flow, pages and widgets.
 
 - [ArtifactCollector](#ArtifactCollector)
   - [ArtifactCollector.collectArtifacts()](#ArtifactCollector.collectArtifacts)
+  - [ArtifactCollector.collectSchemas()](#ArtifactCollector.collectSchemas)
   - [ArtifactCollector.collectFlows()](#ArtifactCollector.collectFlows)
   - [ArtifactCollector.collectThemes()](#ArtifactCollector.collectThemes)
   - [ArtifactCollector.collectPages()](#ArtifactCollector.collectPages)
@@ -100,13 +101,42 @@ Example:
 | ---- | ----------- |
 | `Promise.<Object>` |  the artifact listing with the keys `flows`, `themes`, `pages`, `layouts`, `widgets` and `controls`, of which each is an array of artifact objects |
 
-#### <a name="ArtifactCollector.collectFlows"></a>ArtifactCollector.collectFlows( entries )
+#### <a name="ArtifactCollector.collectSchemas"></a>ArtifactCollector.collectSchemas( entries )
 
-Asynchronously collect all flows corresponding to the given paths.
+Asynchronously collect all schemas corresponding to the given paths.
 
 Example:
 
-    collector.collectFlows( [ { flows: [ 'path/to/flow.json' ] } ] )
+    collector.collectSchemas( [ { schemas: [ 'schema' ] } ] )
+       .then( schemas => {
+          assert( Array.isArray( schemas ) );
+       } );
+    // => [ {
+    //       refs: [ 'schema' ],
+    //       name: 'schema',
+    //       path: 'path/to/schema.json',
+    //       pages: [ ... ]
+    //    } ]
+
+##### Parameters
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| entries | `Array` |  a list of entry objects containing a schemas key |
+
+##### Returns
+
+| Type | Description |
+| ---- | ----------- |
+| `Promise.<Array>` |  a promise for an array of schema-meta objects |
+
+#### <a name="ArtifactCollector.collectFlows"></a>ArtifactCollector.collectFlows( entries )
+
+Asynchronously collect all flows corresponding to the given refs.
+
+Example:
+
+    collector.collectFlows( [ { flows: [ 'flow' ] } ] )
        .then( flows => {
           assert( Array.isArray( flows ) );
        } );

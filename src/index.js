@@ -23,12 +23,14 @@
 import 'source-map-support/register';
 
 import artifactCollector from './artifact_collector';
+import artifactValidator from './artifact_validator';
 import assetResolver from './asset_resolver';
 import artifactListing from './artifact_listing';
 import serialize from './serialize';
 
 export {
    artifactCollector,
+   artifactValidator,
    assetResolver,
    artifactListing,
    serialize
@@ -36,6 +38,7 @@ export {
 
 export default {
    artifactCollector,
+   artifactValidator,
    assetResolver,
    artifactListing,
    serialize

@@ -1,129 +1,178 @@
 {
-   "themes" : [
+   "schemas" : [
       {
-         "category" : "themes",
-         "name" : "default.theme",
-         "path" : "/app/x-themes/default.theme",
-         "descriptor" : {
-            "name" : "default.theme"
+         "definition" : {
+            "required" : [
+               "places"
+            ],
+            "type" : "object",
+            "$schema" : "http://json-schema.org/draft-04/schema#"
          },
+         "path" : "/app/x-schemas/flow.json",
+         "category" : "schemas",
+         "descriptor" : {
+            "name" : "flow"
+         },
+         "name" : "flow",
          "refs" : [
-            "default"
+            "flow"
          ]
-      }
-   ],
-   "layouts" : [
-      {
-         "descriptor" : {
-            "name" : "layout1"
-         },
-         "refs" : [
-            "layout1"
-         ],
-         "name" : "layout1",
-         "path" : "/app/x-layouts/layout1",
-         "category" : "layouts"
       },
       {
+         "name" : "page",
          "refs" : [
-            "layout2"
+            "page"
          ],
          "descriptor" : {
-            "name" : "layout2"
+            "name" : "page"
          },
-         "name" : "layout2",
-         "path" : "/app/x-layouts/layout2",
-         "category" : "layouts"
+         "category" : "schemas",
+         "path" : "/app/x-schemas/page.json",
+         "definition" : {
+            "$schema" : "http://json-schema.org/draft-04/schema#",
+            "type" : "object"
+         }
+      },
+      {
+         "descriptor" : {
+            "name" : "widget"
+         },
+         "category" : "schemas",
+         "name" : "widget",
+         "refs" : [
+            "widget"
+         ],
+         "path" : "/app/x-schemas/widget.json",
+         "definition" : {
+            "$schema" : "http://json-schema.org/draft-04/schema#",
+            "type" : "object",
+            "required" : [
+               "name"
+            ]
+         }
       }
    ],
    "controls" : [
       {
          "path" : "/app/libs/control1",
          "name" : "control1",
+         "refs" : [
+            "control1"
+         ],
          "category" : "controls",
          "descriptor" : {
             "name" : "control1",
             "integration" : {
                "type" : "control"
             }
-         },
+         }
+      }
+   ],
+   "layouts" : [
+      {
+         "name" : "layout1",
          "refs" : [
-            "control1"
-         ]
+            "layout1"
+         ],
+         "category" : "layouts",
+         "descriptor" : {
+            "name" : "layout1"
+         },
+         "path" : "/app/x-layouts/layout1"
+      },
+      {
+         "path" : "/app/x-layouts/layout2",
+         "refs" : [
+            "layout2"
+         ],
+         "name" : "layout2",
+         "category" : "layouts",
+         "descriptor" : {
+            "name" : "layout2"
+         }
       }
    ],
    "widgets" : [
       {
          "path" : "/app/x-widgets/widget1",
-         "name" : "widget1",
-         "category" : "widgets",
-         "descriptor" : {
-            "styleSource" : "scss/widget1.scss",
-            "templateSource" : "widget1.haml",
-            "integration" : {
-               "technology" : "plain",
-               "type" : "widget"
-            },
-            "name" : "widget1",
-            "assetsForTheme" : [
-               "image.png"
-            ]
-         },
+         "schemas" : [
+            "widget"
+         ],
          "refs" : [
             "widget1"
-         ]
-      },
-      {
-         "name" : "widget2",
-         "path" : "/app/x-widgets/widget2",
-         "category" : "widgets",
-         "controls" : [
-            "control1"
          ],
-         "refs" : [
-            "widget2"
-         ],
+         "name" : "widget1",
          "descriptor" : {
+            "templateSource" : "widget1.haml",
+            "assetsForTheme" : [
+               "image.png"
+            ],
             "integration" : {
                "type" : "widget",
                "technology" : "plain"
+            },
+            "name" : "widget1",
+            "styleSource" : "scss/widget1.scss"
+         },
+         "category" : "widgets"
+      },
+      {
+         "refs" : [
+            "widget2"
+         ],
+         "name" : "widget2",
+         "descriptor" : {
+            "integration" : {
+               "technology" : "plain",
+               "type" : "widget"
             },
             "name" : "widget2",
             "controls" : [
                "control1"
             ]
-         }
+         },
+         "category" : "widgets",
+         "schemas" : [
+            "widget"
+         ],
+         "path" : "/app/x-widgets/widget2",
+         "controls" : [
+            "control1"
+         ]
       }
    ],
    "pages" : [
       {
-         "name" : "page1",
-         "category" : "pages",
-         "pages" : [],
+         "definition" : {
+            "areas" : {},
+            "layout" : "layout1"
+         },
+         "path" : "/app/x-pages/page1.json",
+         "schemas" : [
+            "page"
+         ],
          "descriptor" : {
             "name" : "page1"
          },
          "layouts" : [
             "layout1"
          ],
-         "path" : "/app/x-pages/page1.json",
-         "definition" : {
-            "layout" : "layout1",
-            "areas" : {}
-         },
          "widgets" : [],
+         "category" : "pages",
+         "name" : "page1",
          "refs" : [
             "page1"
-         ]
+         ],
+         "pages" : []
       },
       {
-         "refs" : [
-            "page2"
+         "descriptor" : {
+            "name" : "page2"
+         },
+         "schemas" : [
+            "page"
          ],
-         "widgets" : [
-            "widget1",
-            "widget2"
-         ],
+         "path" : "/app/x-pages/page2.json",
          "definition" : {
             "areas" : {
                "area1" : [
@@ -142,49 +191,68 @@
             },
             "layout" : "layout2"
          },
-         "path" : "/app/x-pages/page2.json",
+         "pages" : [],
+         "name" : "page2",
+         "refs" : [
+            "page2"
+         ],
+         "category" : "pages",
+         "widgets" : [
+            "widget1",
+            "widget2"
+         ],
          "layouts" : [
             "layout2"
-         ],
-         "descriptor" : {
-            "name" : "page2"
-         },
-         "pages" : [],
-         "category" : "pages",
-         "name" : "page2"
+         ]
       }
    ],
    "flows" : [
       {
+         "descriptor" : {
+            "name" : "flow4"
+         },
          "definition" : {
             "places" : {
                "entry" : {
                   "redirectTo" : "home"
                },
-               "other" : {
-                  "page" : "page2"
-               },
                "home" : {
+                  "page" : "page1",
                   "targets" : {
                      "next" : "other"
-                  },
-                  "page" : "page1"
+                  }
+               },
+               "other" : {
+                  "page" : "page2"
                }
             }
          },
+         "path" : "/app/x-flows/flow4.json",
+         "schemas" : [
+            "flow"
+         ],
          "category" : "flows",
          "name" : "flow4",
-         "path" : "/app/x-flows/flow4.json",
          "pages" : [
             "page1",
             "page2"
          ],
          "refs" : [
             "flow4"
-         ],
+         ]
+      }
+   ],
+   "themes" : [
+      {
+         "category" : "themes",
          "descriptor" : {
-            "name" : "flow4"
-         }
+            "name" : "default.theme"
+         },
+         "name" : "default.theme",
+         "refs" : [
+            "default"
+         ],
+         "path" : "/app/x-themes/default.theme"
       }
    ]
 }

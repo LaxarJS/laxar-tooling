@@ -27,8 +27,6 @@ export function wrap( fn ) {
    };
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Wrap the given function so that it is only called once for equal parameters.
  * Subsequent calls with the same first argument will return either the same promise, or a promise which

@@ -20,10 +20,12 @@ const DEFAULT_PATHS = {
    layouts: './layouts',
    widgets: './widgets',
    controls: './controls',
-   'default-theme': 'default.theme'
+   schemas: 'laxar/static/schemas',
+   'default-theme': 'laxar-uikit/themes/default.theme'
 };
 
 const DEFAULT_LOGGER = {
+   debug() {},
    error() {},
    warn() {}
 };
