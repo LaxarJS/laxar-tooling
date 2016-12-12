@@ -13,6 +13,24 @@ import { wrap } from './promise';
 import { flatten, merge } from './utils';
 import defaults from './defaults';
 
+function defaultAssets( { name, descriptor, category } ) {
+   switch( category ) {
+      case 'themes':
+         return {
+            assetUrls: descriptor.styleSource || `css/${name}.css`
+         };
+      case 'layouts':
+      case 'widgets':
+      case 'controls':
+         return {
+            assetsForTheme: descriptor.templateSource || `${name}.html`,
+            assetUrlsForTheme: descriptor.styleSource || `css/${name}.css`
+         };
+      default:
+         return {};
+   }
+}
+
 /**
  * Create an artifact listing instance.
  *
@@ -125,12 +143,7 @@ exports.create = function( options ) {
       return Promise.all( themes.map( theme =>
          Promise.all( [
             buildDescriptor( theme ),
-            buildDescriptor( theme )
-               .then( descriptor => buildAssets( theme, [], {
-                  assetUrls: [
-                     descriptor.styleSource || 'css/theme.css'
-                  ]
-               } ) )
+            buildAssets( theme )
          ] )
          .then( ( [ descriptor, assets ] ) => ( {
             descriptor,
@@ -154,15 +167,7 @@ exports.create = function( options ) {
       return Promise.all( layouts.map( layout =>
          Promise.all( [
             buildDescriptor( layout ),
-            buildDescriptor( layout )
-               .then( descriptor => buildAssets( layout, themes, {
-                  assetsForTheme: [
-                     descriptor.templateSource || `${layout.name}.html`
-                  ],
-                  assetUrlsForTheme: [
-                     descriptor.styleSource || `css/${layout.name}.css`
-                  ]
-               } ) )
+            buildAssets( layout, themes )
          ] )
          .then( ( [ descriptor, assets ] ) => ( {
             descriptor,
@@ -175,17 +180,7 @@ exports.create = function( options ) {
          Promise.all( [
             buildDescriptor( widget ),
             buildModule( widget ),
-            buildDescriptor( widget )
-               .then( descriptor => buildAssets( widget, themes, {
-                  assets: descriptor.assets,
-                  assetUrls: descriptor.assetUrls,
-                  assetsForTheme: [
-                     descriptor.templateSource || `${widget.name}.html`
-                  ].concat( descriptor.assetsForTheme || []),
-                  assetUrlsForTheme: [
-                     descriptor.styleSource || `css/${widget.name}.css`
-                  ].concat( descriptor.assetUrlsForTheme || [] )
-               } ) )
+            buildAssets( widget, themes )
          ] )
          .then( ( [ descriptor, module, assets ] ) => ( {
             descriptor,
@@ -199,17 +194,7 @@ exports.create = function( options ) {
          Promise.all( [
             buildDescriptor( control ),
             buildModule( control ),
-            buildDescriptor( control )
-               .then( descriptor => buildAssets( control, themes, {
-                  assets: descriptor.assets,
-                  assetUrls: descriptor.assetUrls,
-                  assetsForTheme: [
-                     descriptor.templateSource || `${control.name}.html`
-                  ].concat( descriptor.assetsForTheme || []),
-                  assetUrlsForTheme: [
-                     descriptor.styleSource || `css/${control.name}.css`
-                  ].concat( descriptor.assetUrlsForTheme || [] )
-               } ) )
+            buildAssets( control, themes )
          ] )
          .then( ( [ descriptor, module, assets ] ) => ( {
             descriptor,
@@ -238,59 +223,62 @@ exports.create = function( options ) {
     *    the artifact to generate the asset listing for
     * @param {Array<Object>} themes
     *    the themes to use for resolving themed artifacts
-    * @param {Object} descriptor
-    *    the (possibly incomplete) artifact descriptor
-    * @param {Array} [descriptor.assets]
-    *    assets to read and embed into the output using the `content` key
-    * @param {Array} [descriptor.assetUrls]
-    *    assets to resolve and list using the `url` key
-    * @param {Array} [descriptor.assetsForTheme]
-    *    themed assets to read and embed into the output using the `content` key
-    * @param {Array} [descriptor.assetUrlsForTheme]
-    *    themed assets to resolve and list using the `url` key
     * @return {Object}
     *    the asset listing, containing sub-listings for each theme and entries
     *    for each (available) asset, pointing either to a URL or including
     *    the asset's raw content
     */
-   function buildAssets( artifact, themes, {
-      assets = [],
-      assetUrls = [],
-      assetsForTheme = [],
-      assetUrlsForTheme = []
-   } ) {
+   function buildAssets( artifact, themes = [] ) {
+      const { descriptor } = artifact;
+      const {
+         assets,
+         assetUrls,
+         assetsForTheme,
+         assetUrlsForTheme
+      } = extendAssets( descriptor, defaultAssets( artifact ) );
 
       return Promise.all( [
          assetResolver
             .resolveAssets( artifact, [ ...assets, ...assetUrls ] )
-            .then( wrapAssets( assets, assetUrls ) )
-      ].concat( themes.map( theme =>
-         assetResolver
-            .resolveThemedAssets( artifact, theme, [ ...assetsForTheme, ...assetUrlsForTheme ] )
-            .then( wrapAssets( assetsForTheme, assetUrlsForTheme ) )
-            .then( assets => ( { [ theme.name ]: assets } ) ) )
-      ) ).then( merge );
+            .then( requireAssets( requireFile, assets, assetUrls ) ),
+         themes.length <= 0 ? {} : assetResolver
+            .resolveThemedAssets( artifact, themes, [ ...assetsForTheme, ...assetUrlsForTheme ] )
+            .then( requireAssets( requireFile, assetsForTheme, assetUrlsForTheme ) )
+            .then( assets => ( { [ themes[ 0 ].name ]: assets } ) )
+      ] ).then( merge );
    }
-
-   function wrapAssets( assetPaths, assetUrlPaths ) {
-      return function( assets ) {
-         return Promise.all( Object.keys( assets ).map( key => {
-            const asset = assets[ key ];
-
-            if( ( assetPaths || [] ).indexOf( key ) >= 0 ) {
-               return requireFile( asset, 'content' )
-                  .then( content => ( { [ key ]: { content } } ) );
-            }
-
-            if( ( assetUrlPaths || [] ).indexOf( key ) >= 0 ) {
-               return requireFile( asset, 'url' )
-                  .then( url => ( { [ key ]: { url } } ) );
-            }
-
-            return {};
-         } ) ).then( merge );
-      };
-   }
-
 };
 
+function extendAssets( {
+   assets = [],
+   assetUrls = [],
+   assetsForTheme = [],
+   assetUrlsForTheme = []
+} = {}, source ) {
+   return {
+      assets: assets.concat( source.assets ),
+      assetUrls: assetUrls.concat( source.assetUrls ),
+      assetsForTheme: assetsForTheme.concat( source.assetsForTheme ),
+      assetUrlsForTheme: assetUrlsForTheme.concat( source.assetUrlsForTheme )
+   };
+}
+
+function requireAssets( requireFile, assetPaths, assetUrlPaths ) {
+   return function( assets ) {
+      return Promise.all( Object.keys( assets ).map( key => {
+         const asset = assets[ key ];
+
+         if( ( assetPaths || [] ).indexOf( key ) >= 0 ) {
+            return requireFile( asset, 'content' )
+               .then( content => ( { [ key ]: { content } } ) );
+         }
+
+         if( ( assetUrlPaths || [] ).indexOf( key ) >= 0 ) {
+            return requireFile( asset, 'url' )
+               .then( url => ( { [ key ]: { url } } ) );
+         }
+
+         return {};
+      } ) ).then( merge );
+   };
+}

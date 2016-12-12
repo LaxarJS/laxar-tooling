@@ -71,7 +71,7 @@ describe( 'artifactResolver', () => {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( '.resolveThemedAssets( artifact, theme, assetPaths )', () => {
+   describe( '.resolveThemedAssets( artifact, themes, assetPaths )', () => {
 
       const resolver = assetResolver.create( {
          resolve
@@ -86,28 +86,28 @@ describe( 'artifactResolver', () => {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'returns a thenable', () => {
-         expect( resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes[ 0 ], data.assets ) )
+         expect( resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes, data.assets ) )
             .to.respondTo( 'then' );
       } );
 
       it( 'uses the resolve function supplied during creation to resolve paths', () => {
          resolve.called = false;
-         return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes[ 0 ], data.assets )
+         return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes, data.assets )
             .then( () => {
                expect( resolve.called ).to.eql( true );
             } );
       } );
 
       it( 'creates a map of resolved theme assets', () => {
-         return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes[ 0 ], data.assets )
+         return resolver.resolveThemedAssets( data.artifacts[ 0 ], [ data.themes[ 0 ] ], data.assets )
             .then( assets => {
                expect( assets ).to.be.an( 'object' );
                expect( assets ).to.eql( data.results[ 1 ] );
             } );
       } );
 
-      it( 'omits missing files from listing', () => {
-         return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes[ 1 ], data.assets )
+      it( 'gives precedence to the first theme', () => {
+         return resolver.resolveThemedAssets( data.artifacts[ 0 ], data.themes, data.assets )
             .then( assets => {
                expect( assets ).to.be.an( 'object' );
                expect( assets ).to.eql( data.results[ 2 ] );

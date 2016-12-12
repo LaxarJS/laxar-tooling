@@ -77,7 +77,7 @@ Example:
 | ---- | ----------- |
 | `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |
 
-#### <a name="AssetResolver.resolveThemedAssets"></a>AssetResolver.resolveThemedAssets( artifact, theme, assetPaths )
+#### <a name="AssetResolver.resolveThemedAssets"></a>AssetResolver.resolveThemedAssets( artifact, themes, assetPaths )
 
 Resolve themed assets for an artifact.
 
@@ -86,10 +86,10 @@ Example:
     resolver.resolveThemedAssets( {
        name: 'my-artifact',
        path: 'path/to/my-artifact'
-    }, {
+    }, [ {
        name: 'default.theme',
        path: 'path/to/default.theme'
-    }, [
+    } ], [
        'my-artifact.html',
        'css/my-artifact.css'
     ] ).then( assets => {
@@ -105,7 +105,7 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | artifact | `Object` |  an artifact as returned by [`ArtifactCollector`](artifact_collector.md). |
-| theme | `Array.<Object>` |  a theme artifact as returned by [`ArtifactCollector#collectThemes`](artifact_collector.md#collectThemes). |
+| themes | `Array.<Object>` |  a list of theme artifacts as returned by [`ArtifactCollector#collectThemes`](artifact_collector.md#collectThemes). |
 | assetPaths | `Array.<String>` |  the artifact assets to resolve |
 
 ##### Returns

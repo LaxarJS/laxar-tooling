@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#8](https://github.com/LaxarJS/laxar-tooling/issues/8): generate only one theme per artifact listing
+  + **BREAKING CHANGE:** see ticket for details
 - [#9](https://github.com/LaxarJS/laxar-tooling/issues/9): the `fileReader` and `jsonReader` utilities were removed
   + **BREAKING CHANGE:** see ticket for details
 

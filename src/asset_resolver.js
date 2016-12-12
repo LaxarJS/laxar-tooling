@@ -84,10 +84,10 @@ exports.create = function create( options ) {
     *     resolver.resolveThemedAssets( {
     *        name: 'my-artifact',
     *        path: 'path/to/my-artifact'
-    *     }, {
+    *     }, [ {
     *        name: 'default.theme',
     *        path: 'path/to/default.theme'
-    *     }, [
+    *     } ], [
     *        'my-artifact.html',
     *        'css/my-artifact.css'
     *     ] ).then( assets => {
@@ -101,19 +101,20 @@ exports.create = function create( options ) {
     * @memberOf AssetResolver
     * @param {Object} artifact
     *    an artifact as returned by {@link ArtifactCollector}.
-    * @param {Array<Object>} theme
-    *    a theme artifact as returned by {@link ArtifactCollector#collectThemes}.
+    * @param {Array<Object>} themes
+    *    a list of theme artifacts as returned by {@link ArtifactCollector#collectThemes}.
     * @param {Array<String>} assetPaths
     *    the artifact assets to resolve
     *
     * @return {Object}
     *    an object mapping paths (relative to the artifact) to URLs for existing files
     */
-   function resolveThemedAssets( artifact, theme, assetPaths ) {
-      const searchPaths = [
+   function resolveThemedAssets( artifact, themes, assetPaths ) {
+      const searchPaths = [].concat( ...themes.map( theme => [
          `${artifact.path}/${theme.name}`,
          `${theme.path}/${artifact.category}/${artifact.name}`
-      ];
+      ] ) );
+
       return lookupAssets( searchPaths, assetPaths );
    }
 
