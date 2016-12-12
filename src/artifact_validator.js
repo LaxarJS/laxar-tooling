@@ -89,11 +89,7 @@ exports.create = function() {
    }
 
    function validateFlows( flows, validators ) {
-      return Promise.all( flows.map( flow => validateFlow( flow, validators )
-         .then( definition => ( {
-            ...flow,
-            definition
-         } ) ) ) );
+      return Promise.all( flows.map( flow => validateFlow( flow, validators ) ) );
    }
 
    function validatePages( pages, validators ) {
