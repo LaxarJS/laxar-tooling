@@ -22,14 +22,6 @@ describe( 'laxar-tooling', () => {
       expect( laxarTooling.artifactListing ).to.respondTo( 'create' );
    } );
 
-   it( 'exports the jsonReader', () => {
-      expect( laxarTooling.jsonReader ).to.respondTo( 'create' );
-   } );
-
-   it( 'exports the fileReader', () => {
-      expect( laxarTooling.fileReader ).to.respondTo( 'create' );
-   } );
-
    it( 'exports the serialize function', () => {
       expect( laxarTooling ).to.respondTo( 'serialize' );
    } );

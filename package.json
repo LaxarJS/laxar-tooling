@@ -28,7 +28,6 @@
     "resources"
   ],
   "dependencies": {
-    "jsonlint": "^1.6.2",
     "source-map-support": "^0.4.2"
   },
   "devDependencies": {

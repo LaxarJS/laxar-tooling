@@ -1,109 +1,190 @@
 {
-   "layouts" : [
+   "themes" : [
       {
-         "name" : "layout1",
-         "path" : "/app/x-layouts/layout1",
-         "category" : "layouts",
+         "category" : "themes",
+         "name" : "default.theme",
+         "path" : "/app/x-themes/default.theme",
+         "descriptor" : {
+            "name" : "default.theme"
+         },
          "refs" : [
-            "layout1"
+            "default"
          ]
-      },
-      {
-         "name" : "layout2",
-         "path" : "/app/x-layouts/layout2",
-         "refs" : [
-            "layout2"
-         ],
-         "category" : "layouts"
       }
    ],
-   "pages" : [
+   "layouts" : [
       {
-         "widgets" : [],
-         "name" : "page1",
-         "layouts" : [
+         "descriptor" : {
+            "name" : "layout1"
+         },
+         "refs" : [
             "layout1"
          ],
-         "pages" : [],
-         "path" : "/app/x-pages/page1.json",
-         "refs" : [
-            "page1"
-         ],
-         "category" : "pages"
+         "name" : "layout1",
+         "path" : "/app/x-layouts/layout1",
+         "category" : "layouts"
       },
       {
          "refs" : [
-            "page2"
-         ],
-         "category" : "pages",
-         "layouts" : [
             "layout2"
          ],
-         "pages" : [],
-         "path" : "/app/x-pages/page2.json",
-         "widgets" : [
-            "widget1",
-            "widget2"
-         ],
-         "name" : "page2"
+         "descriptor" : {
+            "name" : "layout2"
+         },
+         "name" : "layout2",
+         "path" : "/app/x-layouts/layout2",
+         "category" : "layouts"
       }
    ],
    "controls" : [
       {
-         "name" : "control1",
-         "desc" : "/app/libs/control1/control.json",
          "path" : "/app/libs/control1",
+         "name" : "control1",
+         "category" : "controls",
+         "descriptor" : {
+            "name" : "control1",
+            "integration" : {
+               "type" : "control"
+            }
+         },
          "refs" : [
             "control1"
-         ],
-         "category" : "controls"
-      }
-   ],
-   "flows" : [
-      {
-         "name" : "flow4",
-         "refs" : [
-            "flow4"
-         ],
-         "category" : "flows",
-         "pages" : [
-            "page1",
-            "page2"
-         ],
-         "path" : "/app/x-flows/flow4.json"
+         ]
       }
    ],
    "widgets" : [
       {
-         "name" : "widget1",
-         "desc" : "/app/x-widgets/widget1/widget.json",
          "path" : "/app/x-widgets/widget1",
+         "name" : "widget1",
+         "category" : "widgets",
+         "descriptor" : {
+            "styleSource" : "scss/widget1.scss",
+            "templateSource" : "widget1.haml",
+            "integration" : {
+               "technology" : "plain",
+               "type" : "widget"
+            },
+            "name" : "widget1",
+            "assetsForTheme" : [
+               "image.png"
+            ]
+         },
          "refs" : [
             "widget1"
-         ],
-         "category" : "widgets"
+         ]
       },
       {
          "name" : "widget2",
-         "desc" : "/app/x-widgets/widget2/widget.json",
          "path" : "/app/x-widgets/widget2",
-         "refs" : [
-            "widget2"
-         ],
+         "category" : "widgets",
          "controls" : [
             "control1"
          ],
-         "category" : "widgets"
+         "refs" : [
+            "widget2"
+         ],
+         "descriptor" : {
+            "integration" : {
+               "type" : "widget",
+               "technology" : "plain"
+            },
+            "name" : "widget2",
+            "controls" : [
+               "control1"
+            ]
+         }
       }
    ],
-   "themes" : [
+   "pages" : [
       {
-         "name" : "default.theme",
-         "refs" : [
-            "default"
+         "name" : "page1",
+         "category" : "pages",
+         "pages" : [],
+         "descriptor" : {
+            "name" : "page1"
+         },
+         "layouts" : [
+            "layout1"
          ],
-         "category" : "themes",
-         "path" : "/app/x-themes/default.theme"
+         "path" : "/app/x-pages/page1.json",
+         "definition" : {
+            "layout" : "layout1",
+            "areas" : {}
+         },
+         "widgets" : [],
+         "refs" : [
+            "page1"
+         ]
+      },
+      {
+         "refs" : [
+            "page2"
+         ],
+         "widgets" : [
+            "widget1",
+            "widget2"
+         ],
+         "definition" : {
+            "areas" : {
+               "area1" : [
+                  {
+                     "widget" : "widget1"
+                  }
+               ],
+               "area2" : [
+                  {
+                     "widget" : "widget1"
+                  },
+                  {
+                     "widget" : "widget2"
+                  }
+               ]
+            },
+            "layout" : "layout2"
+         },
+         "path" : "/app/x-pages/page2.json",
+         "layouts" : [
+            "layout2"
+         ],
+         "descriptor" : {
+            "name" : "page2"
+         },
+         "pages" : [],
+         "category" : "pages",
+         "name" : "page2"
+      }
+   ],
+   "flows" : [
+      {
+         "definition" : {
+            "places" : {
+               "entry" : {
+                  "redirectTo" : "home"
+               },
+               "other" : {
+                  "page" : "page2"
+               },
+               "home" : {
+                  "targets" : {
+                     "next" : "other"
+                  },
+                  "page" : "page1"
+               }
+            }
+         },
+         "category" : "flows",
+         "name" : "flow4",
+         "path" : "/app/x-flows/flow4.json",
+         "pages" : [
+            "page1",
+            "page2"
+         ],
+         "refs" : [
+            "flow4"
+         ],
+         "descriptor" : {
+            "name" : "flow4"
+         }
       }
    ]
 }

@@ -38,13 +38,6 @@ import defaults from './defaults';
  * @param {Function} [options.resolve]
  *    a function resolving a given file path to something that can be read by
  *    the `readJson` function and either returning it as a `String` or asynchronously
- * @param {Object} [options.fileContents]
- *    an object mapping file paths (as returned by options.resolve) to
- *    promises that resolve to the parsed JSON contents of the file
- * @param {Function} [options.readJson]
- *    a function accepting a file path as an argument and returning a promise
- *    that resolves to the parsed JSON contents of the file
- *    as a `Promise`
  * @param {Function} [options.assetResolver]
  *    override the default asset resolver created with the `resolve` callback
  * @param {Function} [options.requireFile]
@@ -56,7 +49,6 @@ import defaults from './defaults';
 exports.create = function( options ) {
 
    const {
-      readJson,
       assetResolver
    } = defaults( options );
 
@@ -133,7 +125,7 @@ exports.create = function( options ) {
       return Promise.all( themes.map( theme =>
          Promise.all( [
             buildDescriptor( theme ),
-            readDescriptor( theme )
+            buildDescriptor( theme )
                .then( descriptor => buildAssets( theme, [], {
                   assetUrls: [
                      descriptor.styleSource || 'css/theme.css'
@@ -162,7 +154,7 @@ exports.create = function( options ) {
       return Promise.all( layouts.map( layout =>
          Promise.all( [
             buildDescriptor( layout ),
-            readDescriptor( layout )
+            buildDescriptor( layout )
                .then( descriptor => buildAssets( layout, themes, {
                   assetsForTheme: [
                      descriptor.templateSource || `${layout.name}.html`
@@ -183,7 +175,7 @@ exports.create = function( options ) {
          Promise.all( [
             buildDescriptor( widget ),
             buildModule( widget ),
-            readDescriptor( widget )
+            buildDescriptor( widget )
                .then( descriptor => buildAssets( widget, themes, {
                   assets: descriptor.assets,
                   assetUrls: descriptor.assetUrls,
@@ -207,7 +199,7 @@ exports.create = function( options ) {
          Promise.all( [
             buildDescriptor( control ),
             buildModule( control ),
-            readDescriptor( control )
+            buildDescriptor( control )
                .then( descriptor => buildAssets( control, themes, {
                   assets: descriptor.assets,
                   assetUrls: descriptor.assetUrls,
@@ -226,28 +218,16 @@ exports.create = function( options ) {
          } ) ) ) );
    }
 
-   function buildDefinition( { path } ) {
-      return requireFile( path, 'json' );
+   function buildDescriptor( { name, descriptor } ) {
+      return descriptor || { name };
+   }
+
+   function buildDefinition( { definition } ) {
+      return Promise.resolve( definition );
    }
 
    function buildModule( { path, name } ) {
       return requireFile( `${path}/${name}` );
-   }
-
-   function buildDescriptor( { name, desc } ) {
-      if( !desc ) {
-         return Promise.resolve( { name } );
-      }
-
-      return requireFile( desc, 'json' );
-   }
-
-   function readDescriptor( { name, desc } ) {
-      if( !desc ) {
-         return Promise.resolve( { name } );
-      }
-
-      return readJson( desc );
    }
 
    /**

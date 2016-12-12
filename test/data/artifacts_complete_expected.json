@@ -1,31 +1,153 @@
 {
+   "controls" : [
+      {
+         "refs" : [
+            "control1"
+         ],
+         "name" : "control1",
+         "category" : "controls",
+         "descriptor" : {
+            "integration" : {
+               "type" : "control"
+            },
+            "name" : "control1"
+         },
+         "path" : "/app/libs/control1"
+      }
+   ],
+   "layouts" : [
+      {
+         "refs" : [
+            "layout1"
+         ],
+         "name" : "layout1",
+         "category" : "layouts",
+         "descriptor" : {
+            "name" : "layout1"
+         },
+         "path" : "/app/x-layouts/layout1"
+      },
+      {
+         "name" : "layout2",
+         "refs" : [
+            "layout2"
+         ],
+         "path" : "/app/x-layouts/layout2",
+         "category" : "layouts",
+         "descriptor" : {
+            "name" : "layout2"
+         }
+      }
+   ],
    "flows" : [
       {
          "category" : "flows",
-         "name" : "flow4",
-         "refs" : [
-            "flow4"
-         ],
+         "descriptor" : {
+            "name" : "flow4"
+         },
+         "path" : "/app/x-flows/flow4.json",
          "pages" : [
             "page1",
             "page2"
          ],
-         "path" : "/app/x-flows/flow4.json"
+         "definition" : {
+            "places" : {
+               "home" : {
+                  "page" : "page1",
+                  "targets" : {
+                     "next" : "other"
+                  }
+               },
+               "other" : {
+                  "page" : "page2"
+               },
+               "entry" : {
+                  "redirectTo" : "home"
+               }
+            }
+         },
+         "refs" : [
+            "flow4"
+         ],
+         "name" : "flow4"
+      }
+   ],
+   "themes" : [
+      {
+         "name" : "default.theme",
+         "refs" : [
+            "default"
+         ],
+         "path" : "/app/x-themes/default.theme",
+         "category" : "themes",
+         "descriptor" : {
+            "name" : "default.theme"
+         }
+      }
+   ],
+   "widgets" : [
+      {
+         "category" : "widgets",
+         "descriptor" : {
+            "name" : "widget1",
+            "styleSource" : "scss/widget1.scss",
+            "templateSource" : "widget1.haml",
+            "assetsForTheme" : [
+               "image.png"
+            ],
+            "integration" : {
+               "technology" : "plain",
+               "type" : "widget"
+            }
+         },
+         "path" : "/app/x-widgets/widget1",
+         "refs" : [
+            "widget1"
+         ],
+         "name" : "widget1"
+      },
+      {
+         "name" : "widget2",
+         "refs" : [
+            "widget2"
+         ],
+         "path" : "/app/x-widgets/widget2",
+         "controls" : [
+            "control1"
+         ],
+         "category" : "widgets",
+         "descriptor" : {
+            "name" : "widget2",
+            "integration" : {
+               "type" : "widget",
+               "technology" : "plain"
+            },
+            "controls" : [
+               "control1"
+            ]
+         }
       }
    ],
    "pages" : [
       {
-         "name" : "page1",
-         "refs" : [
-            "page1"
-         ],
-         "category" : "pages",
-         "widgets" : [],
+         "path" : "/app/x-pages/page1.json",
          "layouts" : [
             "layout1"
          ],
+         "widgets" : [],
          "pages" : [],
-         "path" : "/app/x-pages/page1.json"
+         "category" : "pages",
+         "descriptor" : {
+            "name" : "page1"
+         },
+         "refs" : [
+            "page1"
+         ],
+         "definition" : {
+            "areas" : {},
+            "layout" : "layout1"
+         },
+         "name" : "page1"
       },
       {
          "path" : "/app/x-pages/page2.json",
@@ -37,72 +159,31 @@
             "widget1",
             "widget2"
          ],
+         "category" : "pages",
+         "descriptor" : {
+            "name" : "page2"
+         },
+         "name" : "page2",
+         "definition" : {
+            "layout" : "layout2",
+            "areas" : {
+               "area1" : [
+                  {
+                     "widget" : "widget1"
+                  }
+               ],
+               "area2" : [
+                  {
+                     "widget" : "widget1"
+                  },
+                  {
+                     "widget" : "widget2"
+                  }
+               ]
+            }
+         },
          "refs" : [
             "page2"
-         ],
-         "name" : "page2",
-         "category" : "pages"
-      }
-   ],
-   "layouts" : [
-      {
-         "path" : "/app/x-layouts/layout1",
-         "refs" : [
-            "layout1"
-         ],
-         "name" : "layout1",
-         "category" : "layouts"
-      },
-      {
-         "category" : "layouts",
-         "name" : "layout2",
-         "refs" : [
-            "layout2"
-         ],
-         "path" : "/app/x-layouts/layout2"
-      }
-   ],
-   "controls" : [
-      {
-         "category" : "controls",
-         "name" : "control1",
-         "desc" : "/app/libs/control1/control.json",
-         "refs" : [
-            "control1"
-         ],
-         "path" : "/app/libs/control1"
-      }
-   ],
-   "themes" : [
-      {
-         "name" : "default.theme",
-         "category" : "themes",
-         "refs" : [
-            "default"
-         ],
-         "path" : "/app/x-themes/default.theme"
-      }
-   ],
-   "widgets" : [
-      {
-         "path" : "/app/x-widgets/widget1",
-         "refs" : [
-            "widget1"
-         ],
-         "name" : "widget1",
-         "category" : "widgets",
-         "desc" : "/app/x-widgets/widget1/widget.json"
-      },
-      {
-         "path" : "/app/x-widgets/widget2",
-         "controls" : [
-            "control1"
-         ],
-         "desc" : "/app/x-widgets/widget2/widget.json",
-         "name" : "widget2",
-         "category" : "widgets",
-         "refs" : [
-            "widget2"
          ]
       }
    ]

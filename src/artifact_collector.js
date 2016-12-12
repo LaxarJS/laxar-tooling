@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import { posix as path } from 'path';
+import { basename, dirname, join } from './path';
 
 import { once } from './promise';
 import { flatten, values } from './utils';
@@ -63,7 +63,7 @@ exports.create = function( options ) {
    const lookup = {
       default: ( ...args ) => lookup.local( ...args )
          .catch( () => lookup.module( ...args ) ),
-      local: ( ref, lookupPath ) => resolve( path.join( lookupPath, ref ) ),
+      local: ( ref, lookupPath ) => resolve( join( lookupPath, ref ) ),
       module: resolve
    };
 
@@ -195,10 +195,10 @@ exports.create = function( options ) {
     * @return {Promise<Array>} a promise for an array with a single flow-meta object
     */
    function followFlow( flowRef ) {
-      const flowName = path.basename( flowRef );
+      const name = basename( flowRef );
 
       return resolveRef( flowRef + '.json', paths.flows )
-         .then( flowPath => readJson( flowPath ).then( flow => {
+         .then( path => readJson( path ).then( flow => {
             const pages = values( flow.places )
                .filter( hasField( 'page' ) )
                .map( getField( 'page' ) )
@@ -206,8 +206,10 @@ exports.create = function( options ) {
 
             return [ {
                refs: [ flowRef ],
-               name: flowName,
-               path: flowPath,
+               name,
+               path,
+               definition: flow,
+               descriptor: { name },
                category: 'flows',
 
                pages
@@ -266,25 +268,26 @@ exports.create = function( options ) {
    function followTheme( themeRef ) {
       const lookupRef = themeRef === 'default' ? paths[ 'default-theme' ] : `${themeRef}.theme`;
 
-      return resolveRef( path.join( lookupRef, 'theme.json' ), paths.themes )
+      return resolveRef( join( lookupRef, 'theme.json' ), paths.themes )
          .then( descriptorPath => readJson( descriptorPath ).then( theme => {
-            const themePath = path.dirname( descriptorPath );
-            const themeName = theme.name;
+            const path = dirname( descriptorPath );
+            const name = theme.name;
 
             return [ {
                refs: [ themeRef ],
-               name: themeName,
-               path: themePath,
-               desc: descriptorPath,
+               name,
+               path,
+               descriptor: theme,
                category: 'themes'
             } ];
-         } ), () => resolveRef( lookupRef, paths.themes ).then( themePath => {
-            const themeName = path.basename( themePath );
+         } ), () => resolveRef( lookupRef, paths.themes ).then( path => {
+            const name = basename( path );
 
             return [ {
                refs: [ themeRef ],
-               name: themeName,
-               path: themePath,
+               name,
+               path,
+               descriptor: { name },
                category: 'themes'
             } ];
          } ) );
@@ -356,10 +359,10 @@ exports.create = function( options ) {
     * @return {Promise<Array>} a promise for an array with a single page-meta object
     */
    function followPage( pageRef ) {
-      const pageName = path.basename( pageRef );
+      const name = basename( pageRef );
 
       return resolveRef( pageRef + '.json', paths.pages )
-         .then( pagePath => readJson( pagePath ).then( page => {
+         .then( path => readJson( path ).then( page => {
             const pages = flatten( values( page.areas ) )
                .filter( hasField( 'composition' ) )
                .map( getField( 'composition' ) )
@@ -378,8 +381,10 @@ exports.create = function( options ) {
 
             return [ {
                refs: [ pageRef ],
-               name: pageName,
-               path: pagePath,
+               path,
+               name,
+               definition: page,
+               descriptor: { name },
                category: 'pages',
 
                pages,
@@ -432,25 +437,26 @@ exports.create = function( options ) {
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single layout
     */
    function followLayout( layoutRef ) {
-      return resolveRef( path.join( layoutRef, 'layout.json' ), paths.layouts )
+      return resolveRef( join( layoutRef, 'layout.json' ), paths.layouts )
          .then( descriptorPath => readJson( descriptorPath ).then( layout => {
-            const layoutPath = path.dirname( descriptorPath );
-            const layoutName = layout.name;
+            const path = dirname( descriptorPath );
+            const name = layout.name;
 
             return [ {
                refs: [ layoutRef ],
-               name: layoutName,
-               path: layoutPath,
-               desc: descriptorPath,
+               name,
+               path,
+               descriptor: layout,
                category: 'layouts'
             } ];
-         } ), () => resolveRef( layoutRef, paths.layouts ).then( layoutPath => {
-            const layoutName = path.basename( layoutPath );
+         } ), () => resolveRef( layoutRef, paths.layouts ).then( path => {
+            const name = basename( path );
 
             return [ {
                refs: [ layoutRef ],
-               name: layoutName,
-               path: layoutPath,
+               name,
+               path,
+               descriptor: { name },
                category: 'layouts'
             } ];
          } ) );
@@ -500,17 +506,17 @@ exports.create = function( options ) {
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single widget
     */
    function followWidget( widgetRef ) {
-      return resolveRef( path.join( widgetRef, 'widget.json' ), paths.widgets )
+      return resolveRef( join( widgetRef, 'widget.json' ), paths.widgets )
          .then( descriptorPath => readJson( descriptorPath ).then( widget => {
-            const widgetPath = path.dirname( descriptorPath );
-            const widgetName = widget.name;
+            const path = dirname( descriptorPath );
+            const name = widget.name;
             const controls = widget.controls;
 
             return [ {
                refs: [ widgetRef ],
-               name: widgetName,
-               path: widgetPath,
-               desc: descriptorPath,
+               name,
+               path,
+               descriptor: widget,
                category: 'widgets',
 
                controls
@@ -582,17 +588,17 @@ exports.create = function( options ) {
     * @return {Promise<Array>} a promise for an array containing meta-formation about a single control
     */
    function followControl( controlRef ) {
-      return resolveRef( path.join( controlRef, 'control.json' ), paths.controls )
+      return resolveRef( join( controlRef, 'control.json' ), paths.controls )
          .then( descriptorPath => readJson( descriptorPath ).then( control => {
-            const controlPath = path.dirname( descriptorPath );
-            const controlName = control.name;
+            const path = dirname( descriptorPath );
+            const name = control.name;
             const controls = control.controls;
 
             return [ {
                refs: [ controlRef ],
-               name: controlName,
-               path: controlPath,
-               desc: descriptorPath,
+               name,
+               path,
+               descriptor: control,
                category: 'controls',
 
                controls

@@ -5,10 +5,7 @@
  */
 'use strict';
 
-import fs from 'fs';
-import path from 'path';
 import { expect } from 'chai';
-import * as promise from '../src/promise';
 import data from './data/assets.json';
 import assetResolver from '../src/asset_resolver';
 

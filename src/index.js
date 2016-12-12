@@ -25,16 +25,12 @@ import 'source-map-support/register';
 import artifactCollector from './artifact_collector';
 import assetResolver from './asset_resolver';
 import artifactListing from './artifact_listing';
-import jsonReader from './json_reader';
-import fileReader from './file_reader';
 import serialize from './serialize';
 
 export {
    artifactCollector,
    assetResolver,
    artifactListing,
-   jsonReader,
-   fileReader,
    serialize
 };
 
@@ -42,7 +38,5 @@ export default {
    artifactCollector,
    assetResolver,
    artifactListing,
-   jsonReader,
-   fileReader,
    serialize
 };

@@ -10,49 +10,6 @@
 'use strict';
 
 /**
- * Bind the given node-style function with the supplied arguments and return a function returning a promise.
- * @param {Function} fn the function to bind
- * @param {...*} args the arguments to pass to the function
- * @return {Function} a function that returns a Promise
- */
-export function nfbind( fn, ...args ) {
-   return function( ...cargs ) {
-      return nfapply( fn, [ ...args, ...cargs ] );
-   };
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Call the given node-style function with the supplied arguments and return a promise.
- * @param {Function} fn the function to call
- * @param {...*} args the arguments to pass to the function
- * @return {Promise}
- *    a promise that is either resolved or rejected depending on the result of the invoked function
- */
-export function nfcall( fn, ...args ) {
-   return nfapply( fn, args );
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Apply the given node-style function with the supplied arguments and return a promise.
- * @param {Function} fn the function to apply
- * @param {Array|Arguments} args the arguments to pass to the function
- * @return {Promise}
- *    a promise that is either resolved or rejected depending on the result of the invoked function
- */
-export function nfapply( fn, args ) {
-   return new Promise( ( resolve, reject ) => {
-      const callback = ( err, result ) => err ? reject( err ) : resolve( result );
-      return fn( ...args, callback );
-   } );
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
  * Wrap the given synchronous function so that it always returns a promise.
  * @param {Function} fn the function to wrap
  * @return {Function}

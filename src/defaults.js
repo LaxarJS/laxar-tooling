@@ -9,10 +9,6 @@
  */
 'use strict';
 
-import { posix as path } from 'path';
-
-import jsonReader from './json_reader';
-import fileReader from './file_reader';
 import assetResolver from './asset_resolver';
 
 import { wrap } from './promise';
@@ -55,42 +51,24 @@ export default function( options = {} ) {
       ...options.paths
    };
 
-   const resolve = wrap( options.resolve || path.resolve );
-   const fileContents = options.fileContents || {};
-
-   const getable = {};
-
    return {
       log,
       paths,
-      resolve,
-      fileContents,
-      get readJson() {
-         if( !getable.readJson ) {
-            getable.readJson = options.readJson ?
-               wrap( options.readJson ) :
-               jsonReader.create( this );
-         }
-
-         return getable.readJson;
+      get resolve() {
+         return wrap( options.resolve );
       },
-      get readFile() {
-         if( !getable.readFile ) {
-            getable.readFile = options.readFile ?
-               wrap( options.readFile ) :
-               fileReader.create( this );
+      get readJson() {
+         if( !options.readJson ) {
+            throw new Error( 'Required option "readJson" missing' );
          }
-
-         return getable.readFile;
+         return wrap( options.readJson );
       },
       get assetResolver() {
-         if( !getable.assetResolver ) {
-            getable.assetResolver = options.assetResolver ?
-               options.assetResolver :
-               assetResolver.create( this );
+         if( !options.assetResolver ) {
+            options.assetResolver = assetResolver.create( this );
          }
 
-         return getable.assetResolver;
+         return options.assetResolver;
       }
    };
 }

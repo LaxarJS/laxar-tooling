@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+- [#9](https://github.com/LaxarJS/laxar-tooling/issues/9): the `fileReader` and `jsonReader` utilities were removed
+  + **BREAKING CHANGE:** see ticket for details
+
 
 ## v0.4.1
 
@@ -20,7 +23,7 @@
 ## v0.3.0
 
 - [#3](https://github.com/LaxarJS/laxar-tooling/issues/3): added new `artifactListing` and `serialize` APIs to generate artifact listing code.
-  + **BREAKING CHANGE:** see ticket for details.
+  + **BREAKING CHANGE:** see ticket for details
 
 
 # v0.2.0

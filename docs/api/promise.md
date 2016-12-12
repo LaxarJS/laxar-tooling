@@ -7,64 +7,10 @@ Helpers for bridging the gap between nodejs APIs and promises.
 
 **Module Members**
 
-- [nfbind()](#nfbind)
-- [nfcall()](#nfcall)
-- [nfapply()](#nfapply)
 - [wrap()](#wrap)
 - [once()](#once)
 
 ## Module Members
-
-#### <a name="nfbind"></a>nfbind( fn, args )
-
-Bind the given node-style function with the supplied arguments and return a function returning a promise.
-
-##### Parameters
-
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| fn | `Function` |  the function to bind |
-| args... | `*` |  the arguments to pass to the function |
-
-##### Returns
-
-| Type | Description |
-| ---- | ----------- |
-| `Function` |  a function that returns a Promise |
-
-#### <a name="nfcall"></a>nfcall( fn, args )
-
-Call the given node-style function with the supplied arguments and return a promise.
-
-##### Parameters
-
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| fn | `Function` |  the function to call |
-| args... | `*` |  the arguments to pass to the function |
-
-##### Returns
-
-| Type | Description |
-| ---- | ----------- |
-| `Promise` |  a promise that is either resolved or rejected depending on the result of the invoked function |
-
-#### <a name="nfapply"></a>nfapply( fn, args )
-
-Apply the given node-style function with the supplied arguments and return a promise.
-
-##### Parameters
-
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| fn | `Function` |  the function to apply |
-| args | `Array`, `Arguments` |  the arguments to pass to the function |
-
-##### Returns
-
-| Type | Description |
-| ---- | ----------- |
-| `Promise` |  a promise that is either resolved or rejected depending on the result of the invoked function |
 
 #### <a name="wrap"></a>wrap( fn )
 

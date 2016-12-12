@@ -45,8 +45,6 @@ Example:
 | _options_ | `Object` |  additional options |
 | _options.log_ | `Object` |  a logger instance with at least a `log.error()` method |
 | _options.resolve_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
-| _options.fileContents_ | `Object` |  an object mapping file paths (as returned by options.resolve) to promises that resolve to the parsed JSON contents of the file |
-| _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file as a `Promise` |
 | _options.assetResolver_ | `Function` |  override the default asset resolver created with the `resolve` callback |
 | _options.requireFile_ | `Function` |  a callback that is called for descriptors, definitions, modules and assets, to inject content into the output |
 

@@ -8,7 +8,6 @@
 import fs from 'fs';
 import path from 'path';
 import { expect } from 'chai';
-import * as promise from '../src/promise';
 import data from './data/artifacts.json';
 import artifactCollector from '../src/artifact_collector';
 
@@ -18,7 +17,7 @@ describe( 'artifactCollector', () => {
 
    describe( '.create( options )', () => {
 
-      const collector = artifactCollector.create( {} );
+      const collector = artifactCollector.create( { readJson() {} } );
 
       it( 'returns an artifactCollector', () => {
          expect( collector ).to.be.an( 'object' );
@@ -107,6 +106,12 @@ describe( 'artifactCollector', () => {
 
       Object.keys( data.results ).forEach( entry => {
 
+         function writeFile( filename, data ) {
+            return new Promise( ( resolve, reject ) => {
+               fs.writeFile( filename, data, err => err ? reject( err ) : resolve( data ) );
+            } );
+         }
+
          describe( 'for ' + entry, () => {
             const expectedFile = path.join( __dirname, 'data', data.results[ entry ].expected );
             const actualFile = path.join( __dirname, 'data', data.results[ entry ].actual );
@@ -115,19 +120,16 @@ describe( 'artifactCollector', () => {
 
             const artifactsPromise = collector.collectArtifacts( data.entries[ entry ] )
                .then( JSON.stringify )
-               .then( data => promise.nfcall( fs.writeFile, actualFile, data ).then( () => data ) )
+               .then( data => writeFile( actualFile, data ) )
                .then( JSON.parse );
 
             Object.keys( expected ).forEach( type => {
-               const further = expected[ type ].length ? `further ${type}` : type;
-
-               expected[ type ].forEach( ( artifact, index ) => {
-                  it( `resolves ${artifact.name}`, () => artifactsPromise.then( artifacts => {
-                     expect( artifacts[ type ][ index ] ).to.deep.eql( artifact );
-                  } ) );
-               } );
-               it( `resolves no ${further}`, () => artifactsPromise.then( artifacts => {
+               it( `resolves ${expected[ type ].length} ${type}`, () => artifactsPromise.then( artifacts => {
                   expect( artifacts[ type ] ).to.have.a.lengthOf( expected[ type ].length );
+
+                  expected[ type ].forEach( ( artifact, index ) => {
+                     expect( artifacts[ type ][ index ] ).to.deep.eql( artifact );
+                  } );
                } ) );
             } );
 
