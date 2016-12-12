@@ -1,5 +1,5 @@
 
-# <a name="artifactCollector"></a>artifactCollector
+# <a id="artifactCollector"></a>artifactCollector
 
 Determine application artifacts by inspecting flow, pages and widgets.
 
@@ -8,22 +8,22 @@ Determine application artifacts by inspecting flow, pages and widgets.
 **Module Members**
 
 - [create()](#create)
+- [collectArtifacts()](#collectArtifacts)
+- [collectSchemas()](#collectSchemas)
+- [collectFlows()](#collectFlows)
+- [collectThemes()](#collectThemes)
+- [collectPages()](#collectPages)
+- [collectLayouts()](#collectLayouts)
+- [collectWidgets()](#collectWidgets)
+- [collectControls()](#collectControls)
 
 **Types**
 
 - [ArtifactCollector](#ArtifactCollector)
-  - [ArtifactCollector.collectArtifacts()](#ArtifactCollector.collectArtifacts)
-  - [ArtifactCollector.collectSchemas()](#ArtifactCollector.collectSchemas)
-  - [ArtifactCollector.collectFlows()](#ArtifactCollector.collectFlows)
-  - [ArtifactCollector.collectThemes()](#ArtifactCollector.collectThemes)
-  - [ArtifactCollector.collectPages()](#ArtifactCollector.collectPages)
-  - [ArtifactCollector.collectLayouts()](#ArtifactCollector.collectLayouts)
-  - [ArtifactCollector.collectWidgets()](#ArtifactCollector.collectWidgets)
-  - [ArtifactCollector.collectControls()](#ArtifactCollector.collectControls)
 
 ## Module Members
 
-#### <a name="create"></a>create( options )
+#### <a id="create"></a>create( options )
 
 Create an artifact collector instance.
 
@@ -61,11 +61,7 @@ Example:
 | ---- | ----------- |
 | [`ArtifactCollector`](#ArtifactCollector) |  the created artifact collector |
 
-## Types
-
-### <a name="ArtifactCollector"></a>ArtifactCollector
-
-#### <a name="ArtifactCollector.collectArtifacts"></a>ArtifactCollector.collectArtifacts( entries )
+#### <a id="collectArtifacts"></a>collectArtifacts( entries )
 
 Obtain artifact information asynchronously, starting from a set of flow definitions.
 
@@ -101,7 +97,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Object>` |  the artifact listing with the keys `flows`, `themes`, `pages`, `layouts`, `widgets` and `controls`, of which each is an array of artifact objects |
 
-#### <a name="ArtifactCollector.collectSchemas"></a>ArtifactCollector.collectSchemas( entries )
+#### <a id="collectSchemas"></a>collectSchemas( entries )
 
 Asynchronously collect all schemas corresponding to the given paths.
 
@@ -130,7 +126,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of schema-meta objects |
 
-#### <a name="ArtifactCollector.collectFlows"></a>ArtifactCollector.collectFlows( entries )
+#### <a id="collectFlows"></a>collectFlows( entries )
 
 Asynchronously collect all flows corresponding to the given refs.
 
@@ -159,7 +155,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of flow-meta objects |
 
-#### <a name="ArtifactCollector.collectThemes"></a>ArtifactCollector.collectThemes( entries )
+#### <a id="collectThemes"></a>collectThemes( entries )
 
 Collect meta information on the given themes.
 
@@ -191,7 +187,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all themes |
 
-#### <a name="ArtifactCollector.collectPages"></a>ArtifactCollector.collectPages( flows )
+#### <a id="collectPages"></a>collectPages( flows )
 
 Asynchronously collect all pages that are reachable from the given list of flows.
 
@@ -222,7 +218,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for a combined array of page meta information for these flows |
 
-#### <a name="ArtifactCollector.collectLayouts"></a>ArtifactCollector.collectLayouts( pages )
+#### <a id="collectLayouts"></a>collectLayouts( pages )
 
 Finds layouts based on them being referenced in page areas.
 
@@ -250,7 +246,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all layouts |
 
-#### <a name="ArtifactCollector.collectWidgets"></a>ArtifactCollector.collectWidgets( pages )
+#### <a id="collectWidgets"></a>collectWidgets( pages )
 
 Collect meta information on all widget that are referenced from the given pages.
 
@@ -279,7 +275,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable widgets |
 
-#### <a name="ArtifactCollector.collectControls"></a>ArtifactCollector.collectControls( widgets )
+#### <a id="collectControls"></a>collectControls( widgets )
 
 Collect meta information on all controls that are referenced by the given widgets.
 
@@ -307,3 +303,7 @@ Example:
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  a promise for an array of meta-information about all reachable controls |
+
+## Types
+
+### <a id="ArtifactCollector"></a>ArtifactCollector

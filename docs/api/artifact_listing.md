@@ -1,5 +1,5 @@
 
-# <a name="artifactListing"></a>artifactListing
+# <a id="artifactListing"></a>artifactListing
 
 Determine application artifacts by inspecting flow, pages and widgets.
 
@@ -8,16 +8,16 @@ Determine application artifacts by inspecting flow, pages and widgets.
 **Module Members**
 
 - [create()](#create)
+- [buildAliases()](#buildAliases)
+- [buildAssets()](#buildAssets)
 
 **Types**
 
 - [ArtifactListing](#ArtifactListing)
-  - [ArtifactListing.buildAliases()](#ArtifactListing.buildAliases)
-  - [ArtifactListing.buildAssets()](#ArtifactListing.buildAssets)
 
 ## Module Members
 
-#### <a name="create"></a>create( options )
+#### <a id="create"></a>create( options )
 
 Create an artifact listing instance.
 
@@ -54,11 +54,7 @@ Example:
 | ---- | ----------- |
 | [`ArtifactListing`](#ArtifactListing) |  the created artifact listing builder |
 
-## Types
-
-### <a name="ArtifactListing"></a>ArtifactListing
-
-#### <a name="ArtifactListing.buildAliases"></a>ArtifactListing.buildAliases( entries )
+#### <a id="buildAliases"></a>buildAliases( entries )
 
 Create a map from artifact refs to indices.
 
@@ -74,7 +70,7 @@ Create a map from artifact refs to indices.
 | ---- | ----------- |
 | `Promise.<Object>` |  the map from artifact refs to indices |
 
-#### <a name="ArtifactListing.buildAssets"></a>ArtifactListing.buildAssets( artifact, themes )
+#### <a id="buildAssets"></a>buildAssets( artifact, themes )
 
 Build the assets object for an artifact and the given themes.
 
@@ -90,3 +86,7 @@ Build the assets object for an artifact and the given themes.
 | Type | Description |
 | ---- | ----------- |
 | `Object` |  the asset listing, containing sub-listings for each theme and entries for each (available) asset, pointing either to a URL or including the asset's raw content |
+
+## Types
+
+### <a id="ArtifactListing"></a>ArtifactListing

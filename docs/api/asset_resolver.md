@@ -1,5 +1,5 @@
 
-# <a name="assetResolver"></a>assetResolver
+# <a id="assetResolver"></a>assetResolver
 
 Helpers for resolving artifact assets
 
@@ -8,16 +8,16 @@ Helpers for resolving artifact assets
 **Module Members**
 
 - [create()](#create)
+- [resolveAssets()](#resolveAssets)
+- [resolveThemedAssets()](#resolveThemedAssets)
 
 **Types**
 
 - [AssetResolver](#AssetResolver)
-  - [AssetResolver.resolveAssets()](#AssetResolver.resolveAssets)
-  - [AssetResolver.resolveThemedAssets()](#AssetResolver.resolveThemedAssets)
 
 ## Module Members
 
-#### <a name="create"></a>create( options )
+#### <a id="create"></a>create( options )
 
 Create an asset resolver instance.
 
@@ -41,11 +41,7 @@ Example:
 | ---- | ----------- |
 | [`AssetResolver`](#AssetResolver) |  the created asset resolver |
 
-## Types
-
-### <a name="AssetResolver"></a>AssetResolver
-
-#### <a name="AssetResolver.resolveAssets"></a>AssetResolver.resolveAssets( artifact, assetPaths )
+#### <a id="resolveAssets"></a>resolveAssets( artifact, assetPaths )
 
 Resolve assets for an artifact.
 
@@ -77,7 +73,7 @@ Example:
 | ---- | ----------- |
 | `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |
 
-#### <a name="AssetResolver.resolveThemedAssets"></a>AssetResolver.resolveThemedAssets( artifact, themes, assetPaths )
+#### <a id="resolveThemedAssets"></a>resolveThemedAssets( artifact, themes, assetPaths )
 
 Resolve themed assets for an artifact.
 
@@ -113,3 +109,7 @@ Example:
 | Type | Description |
 | ---- | ----------- |
 | `Object` |  an object mapping paths (relative to the artifact) to URLs for existing files |
+
+## Types
+
+### <a id="AssetResolver"></a>AssetResolver

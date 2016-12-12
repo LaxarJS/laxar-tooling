@@ -1,5 +1,5 @@
 
-# <a name="promise"></a>promise
+# <a id="promise"></a>promise
 
 Helpers for bridging the gap between nodejs APIs and promises.
 
@@ -12,7 +12,7 @@ Helpers for bridging the gap between nodejs APIs and promises.
 
 ## Module Members
 
-#### <a name="wrap"></a>wrap( fn )
+#### <a id="wrap"></a>wrap( fn )
 
 Wrap the given synchronous function so that it always returns a promise.
 
@@ -28,7 +28,7 @@ Wrap the given synchronous function so that it always returns a promise.
 | ---- | ----------- |
 | `Function` |  a function that returns a promise resolving to the value returned by `fn` or being rejected in case the wrapped function throws an exception |
 
-#### <a name="once"></a>once( fn, values, map )
+#### <a id="once"></a>once( fn, values, map )
 
 Wrap the given function so that it is only called once for equal parameters.
 Subsequent calls with the same first argument will return either the same promise, or a promise which

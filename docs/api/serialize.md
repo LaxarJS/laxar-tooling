@@ -1,5 +1,5 @@
 
-# <a name="serialize"></a>serialize
+# <a id="serialize"></a>serialize
 
 Serialize JavaScript objects.
 
@@ -11,7 +11,7 @@ Serialize JavaScript objects.
 
 ## Module Members
 
-#### <a name="serialize"></a>serialize( object, indent, pad, space )
+#### <a id="serialize"></a>serialize( object, indent, pad, space )
 
 Serialize the given object to valid, human-readable JavaScript.
 Mostly like JSON.stringify, this function drops quotes from object keys if possible,

@@ -1,5 +1,5 @@
 
-# <a name="utils"></a>utils
+# <a id="utils"></a>utils
 
 Commonly used functions.
 
@@ -14,7 +14,7 @@ Commonly used functions.
 
 ## Module Members
 
-#### <a name="merge"></a>merge( objects )
+#### <a id="merge"></a>merge( objects )
 
 ##### Parameters
 
@@ -28,7 +28,7 @@ Commonly used functions.
 | ---- | ----------- |
 | `Object` |  an object containing all the properties of the given objects |
 
-#### <a name="flatten"></a>flatten( arrays )
+#### <a id="flatten"></a>flatten( arrays )
 
 ##### Parameters
 
@@ -42,7 +42,7 @@ Commonly used functions.
 | ---- | ----------- |
 | `Array` |  an array containing all the elements of the given arrays in the order they were given |
 
-#### <a name="lookup"></a>lookup( object )
+#### <a id="lookup"></a>lookup( object )
 
 ##### Parameters
 
@@ -56,7 +56,7 @@ Commonly used functions.
 | ---- | ----------- |
 | `Function` |  a function that accepts a key and returns the corresponding property of `object` |
 
-#### <a name="values"></a>values( object )
+#### <a id="values"></a>values( object )
 
 ##### Parameters
 

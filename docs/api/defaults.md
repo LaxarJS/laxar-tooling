@@ -1,5 +1,5 @@
 
-# <a name="defaultLogger"></a>defaultLogger
+# <a id="defaultLogger"></a>defaultLogger
 
 Default paths and options
 
@@ -11,7 +11,7 @@ Default paths and options
 
 ## Module Members
 
-#### <a name="- unknown -"></a>- unknown -( options )
+#### <a id="- unknown -"></a>- unknown -( options )
 
 Provide defaults for interdependent options.
 Some `laxar-tooling` options occur in multiple modules and are expected to

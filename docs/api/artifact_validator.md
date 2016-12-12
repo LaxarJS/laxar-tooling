@@ -1,11 +1,20 @@
 
+# <a id="artifactValidator"></a>artifactValidator
+
+Validate application artifacts with JSON schema
 
 ## Contents
 
 **Module Members**
 
-- [- unknown -](#- unknown -)
+- [create()](#create)
 
 ## Module Members
 
-#### <a name="- unknown -"></a>- unknown - `undefined`
+#### <a id="create"></a>create()
+
+##### Returns
+
+| Type | Description |
+| ---- | ----------- |
+| `ArtifactValidator` |  the created artifact validator |

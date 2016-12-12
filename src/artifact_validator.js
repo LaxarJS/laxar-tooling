@@ -4,8 +4,8 @@
  * http://laxarjs.org/license
  */
 /**
- * Determine application artifacts by inspecting flow, pages and widgets.
- * @module artifactCollector
+ * Validate application artifacts with JSON schema
+ * @module artifactValidator
  */
 'use strict';
 
