@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+- [#12](https://github.com/LaxarJS/laxar-tooling/issues/12): fixed validation failures for widgets without features
+
+
 ## v0.5.0-alpha.0
 
 - [#11](https://github.com/LaxarJS/laxar-tooling/issues/11): the `log` option has been removed
