@@ -1,6 +1,6 @@
 {
   "name": "laxar-tooling",
-  "version": "0.5.0-pre",
+  "version": "0.5.0-alpha.0",
   "description": "Tool support for LaxarJS",
   "homepage": "http://laxarjs.org",
   "authors": [],
@@ -15,9 +15,10 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run lint && npm run build && npm run docs",
+    "prepublish": "npm run build && npm run docs",
     "build": "babel -d lib src",
-    "test": "mocha --compilers js:babel-register && npm run lint",
+    "test": "mocha --compilers js:babel-register",
+    "postTest": "npm run lint",
     "lint": "eslint src test",
     "docs": "laxar-dox -d docs/api src/*.js"
   },

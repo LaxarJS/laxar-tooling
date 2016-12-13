@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+## v0.5.0-alpha.0
+
 - [#11](https://github.com/LaxarJS/laxar-tooling/issues/11): the `log` option has been removed
 - [#10](https://github.com/LaxarJS/laxar-tooling/issues/10): provide `artifactValidator` to apply JSON schemas
   + NEW FEATURE: see ticket for details
