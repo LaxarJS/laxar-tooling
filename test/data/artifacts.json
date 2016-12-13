@@ -44,7 +44,10 @@
    "resolve": {
       "x-schemas/flow.json": "/app/x-schemas/flow.json",
       "x-schemas/page.json": "/app/x-schemas/page.json",
+      "x-schemas/theme.json": "/app/x-schemas/theme.json",
+      "x-schemas/layout.json": "/app/x-schemas/layout.json",
       "x-schemas/widget.json": "/app/x-schemas/widget.json",
+      "x-schemas/control.json": "/app/x-schemas/control.json",
       "x-flows/flow1.json": "/app/x-flows/flow1.json",
       "x-flows/flow2.json": "/app/x-flows/flow2.json",
       "x-flows/flow3.json": "/app/x-flows/flow3.json",
@@ -76,7 +79,22 @@
          "$schema": "http://json-schema.org/draft-04/schema#",
          "type": "object"
       },
+      "/app/x-schemas/theme.json": {
+         "$schema": "http://json-schema.org/draft-04/schema#",
+         "type": "object",
+         "required": [ "name" ]
+      },
+      "/app/x-schemas/layout.json": {
+         "$schema": "http://json-schema.org/draft-04/schema#",
+         "type": "object",
+         "required": [ "name" ]
+      },
       "/app/x-schemas/widget.json": {
+         "$schema": "http://json-schema.org/draft-04/schema#",
+         "type": "object",
+         "required": [ "name" ]
+      },
+      "/app/x-schemas/control.json": {
          "$schema": "http://json-schema.org/draft-04/schema#",
          "type": "object",
          "required": [ "name" ]
