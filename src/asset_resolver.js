@@ -12,6 +12,8 @@
 import { merge } from './utils';
 import defaults from './defaults';
 
+export default { create };
+
 /**
  * Create an asset resolver instance.
  *
@@ -29,7 +31,7 @@ import defaults from './defaults';
  *
  * @return {AssetResolver} the created asset resolver
  */
-exports.create = function create( options ) {
+export function create( options ) {
 
    const {
       resolve
@@ -43,6 +45,8 @@ exports.create = function create( options ) {
       resolveAssets,
       resolveThemedAssets
    };
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    /**
     * Resolve assets for an artifact.
@@ -75,6 +79,8 @@ exports.create = function create( options ) {
       const searchPaths = [ artifact.path ];
       return lookupAssets( searchPaths, assetPaths );
    }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    /**
     * Resolve themed assets for an artifact.
@@ -118,6 +124,8 @@ exports.create = function create( options ) {
       return lookupAssets( searchPaths, assetPaths );
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
    /**
     * Search for the assets at the given list of search paths.
     * @private
@@ -130,6 +138,8 @@ exports.create = function create( options ) {
       return Promise.all( assetPaths.map( assetPath => lookupAsset( searchPaths, assetPath ) ) )
          .then( merge );
    }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    /**
     * Search for one asset at the given list of search paths.
@@ -152,5 +162,5 @@ exports.create = function create( options ) {
       return resolve( `${searchPaths[ 0 ]}/${assetPath}` )
          .then( resolvedPath => ( { [ assetPath ]: resolvedPath } ), retry );
    }
-};
+}
 

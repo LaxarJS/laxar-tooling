@@ -9,62 +9,27 @@
  */
 'use strict';
 
-import Ajv from 'ajv';
+import { create as createAjv } from './ajv';
 
-// JSON schema formats:
-const TOPIC_IDENTIFIER = '([a-z][+a-zA-Z0-9]*|[A-Z][+A-Z0-9]*)';
-const SUB_TOPIC_FORMAT = new RegExp( `^${TOPIC_IDENTIFIER}$` );
-const TOPIC_FORMAT = new RegExp( `^(${TOPIC_IDENTIFIER}(-${TOPIC_IDENTIFIER})*)$` );
-const FLAG_TOPIC_FORMAT = new RegExp( `^[!]?(${TOPIC_IDENTIFIER}(-${TOPIC_IDENTIFIER})*)$` );
-// simplified RFC-5646 language-tag matcher with underscore/dash relaxation:
-// the parts are: language *("-"|"_" script|region|constiant) *("-"|"_" extension|privateuse)
-const LANGUAGE_TAG_FORMAT = /^[a-z]{2,8}([-_][a-z0-9]{2,8})*([-_][a-z0-9][-_][a-z0-9]{2,8})*$/i;
-
-const AJV_FORMATS = {
-   // allows 'mySubTopic0815', 'MY_SUB_TOPIC+OK' and variations:
-   'sub-topic': subTopic => {
-      return ( typeof subTopic !== 'string' ) || SUB_TOPIC_FORMAT.test( subTopic );
-   },
-
-   // allows 'myTopic', 'myTopic-mySubTopic-SUB_0815+OK' and variations:
-   'topic': topic => {
-      return ( typeof topic !== 'string' ) || TOPIC_FORMAT.test( topic );
-   },
-
-   // allows 'myTopic', '!myTopic-mySubTopic-SUB_0815+OK' and variations:
-   'flag-topic': flagTopic => {
-      return ( typeof flagTopic !== 'string' ) || FLAG_TOPIC_FORMAT.test( flagTopic );
-   },
-
-   // allows 'de_DE', 'en-x-laxarJS' and such:
-   'language-tag': languageTag => {
-      return ( typeof languageTag !== 'string' ) || LANGUAGE_TAG_FORMAT.test( languageTag );
-   },
-
-   // checks that object keys have the 'topic' format
-   'topic-map': topicMap => {
-      return ( typeof topicMap !== 'object' ) ||
-         Object.keys( topicMap ).every( topic => TOPIC_FORMAT.test( topic ) );
-   },
-
-   // checks that object keys have the 'language-tag' format
-   'localization': localization => {
-      return ( typeof localization !== 'object' ) ||
-         Object.keys( localization ).every( tag => LANGUAGE_TAG_FORMAT.test( tag ) );
-   }
-};
+export default { create };
 
 /**
+ * Create an artifact validator instance.
+ *
+ * Example:
+ *
+ *     const validator = laxarTooling.artifactValidator.create();
+ *
  * @return {ArtifactValidator} the created artifact validator
  */
-exports.create = function() {
+export function create() {
 
-   const ajv = new Ajv();
+   const ajv = createAjv();
 
-   Object.keys( AJV_FORMATS ).forEach( key => {
-      ajv.addFormat( key, AJV_FORMATS[ key ] );
-   } );
-
+   /**
+    * @name ArtifactValidator
+    * @constructor
+    */
    return {
       validateArtifacts,
       validateFlows,
@@ -73,6 +38,20 @@ exports.create = function() {
       buildValidators
    };
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * Validate artifacts returned by the {@link ArtifactCollector}.
+    *
+    * Example:
+    *
+    *     collector.collectArtifacts( { flows: 'main' } )
+    *        .then( validator.validateArtifacts );
+    *
+    * @memberOf ArtifactValidator
+    * @param {Object} artifacts artifacts returned by {@link ArtifactCollector#collectArtifacts}
+    * @return {Promise<Object>} the validated artifacts
+    */
    function validateArtifacts( { schemas, flows, pages, widgets, ...artifacts } ) {
       const validators = buildValidators( { schemas, pages, widgets } );
 
@@ -88,17 +67,43 @@ exports.create = function() {
       } ) );
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * @memberOf ArtifactValidator
+    * @param {Array<Object>} flows the flow artifacts to validate
+    * @param {Object} validators validators created by {@link #buildValidators}
+    * @return {Promise<Array>} the validated flows
+    */
    function validateFlows( flows, validators ) {
       return Promise.all( flows.map( flow => validateFlow( flow, validators ) ) );
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * @memberOf ArtifactValidator
+    * @param {Array<Object>} pages the page artifacts to validate
+    * @param {Object} validators validators created by {@link #buildValidators}
+    * @return {Promise<Array>} the validated pages
+    */
    function validatePages( pages, validators ) {
       return Promise.all( pages.map( page => validatePage( page, validators ) ) );
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * @memberOf ArtifactValidator
+    * @param {Array<Object>} widgets the widget artifacts to validate
+    * @param {Object} validators validators created by {@link #buildValidators}
+    * @return {Promise<Array>} the validated widgets
+    */
    function validateWidgets( widgets, validators ) {
       return Promise.all( widgets.map( widget => validateWidget( widget, validators ) ) );
    }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validateFlow( flow, validators ) {
       const { name, definition } = flow;
@@ -108,6 +113,8 @@ exports.create = function() {
          Promise.reject( validationError( 'flow', name, validate.errors ) );
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
    function validatePage( page, validators ) {
       const { name, definition } = page;
       const validate = validators.page;
@@ -115,6 +122,8 @@ exports.create = function() {
          validatePageFeatures( page, validators ) :
          Promise.reject( validationError( 'page', name, validate.errors ) );
    }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validatePageFeatures( page, validators ) {
       const { name, definition } = page;
@@ -147,6 +156,8 @@ exports.create = function() {
          Promise.reject( validationError( 'page', name, errors ) );
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
    function validateWidget( widget, validators ) {
       const { name, descriptor } = widget;
       const validate = validators.widget;
@@ -154,6 +165,8 @@ exports.create = function() {
          Promise.resolve( widget ) :
          Promise.reject( validationError( 'widget', name, validate.errors ) );
    }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validationError( type, name, errors ) {
       const message = `Validation failed for ${type} '${name}': ` +
@@ -164,6 +177,15 @@ exports.create = function() {
       return error;
    }
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
+    * object including schema descriptions in widget descriptors and page composition definitions.
+    *
+    * @memberOf ArtifactValidator
+    * @return {Object} an object containg validation functions.
+    */
    function buildValidators( { schemas, pages, widgets } ) {
       const validators = compileSchemas( ajv, schemas, ( { definition } ) => definition );
       const features = {};
@@ -181,7 +203,9 @@ exports.create = function() {
       };
    }
 
-};
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function compileSchemas( ajv, artifacts, get ) {
 
@@ -205,6 +229,8 @@ function compileSchemas( ajv, artifacts, get ) {
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function setAdditionalPropertiesDefault( schema, value = false ) {
    return applyToSchemas( schema, schema => {
       if( ( 'properties' in schema || 'patternProperties' in schema ) &&
@@ -213,6 +239,8 @@ function setAdditionalPropertiesDefault( schema, value = false ) {
       }
    } );
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function applyToSchemas( schema, callback ) {
 

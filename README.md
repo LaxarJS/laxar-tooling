@@ -9,6 +9,7 @@ Currently `laxar-tooling` serves four main purposes:
 
 - [`artifactCollector`][artifactCollector]: collect a list of artifacts (pages, layouts, themes, widgets,
   controls) plus meta-information starting from the application's flow(s)
+- [`artifactValidator`][artifactValidator]: validate the collected artifacts with JSON schema
 - [`assetResolver`][assetResolver]: for a single artifact from that list and the list of themes, resolve
   themed assets for that artifact
 - [`artifactListing`][artifactListing]: generate a JavaScript module to be used by LaxarJS'
@@ -35,6 +36,7 @@ Refer to the [API documentation](docs/api) and/or real-world usage in [laxar-loa
 [laxar-loader]: https://github.com/LaxarJS/laxar-loader
 [grunt-laxar]: https://github.com/LaxarJS/grunt-laxar
 [artifactCollector]: docs/api/artifact_collector.md
+[artifactValidator]: docs/api/artifact_validator.md
 [assetResolver]: docs/api/asset_resolver.md
 [artifactListing]: docs/api/artifact_listing.md
 [serialize]: docs/api/serialize.md

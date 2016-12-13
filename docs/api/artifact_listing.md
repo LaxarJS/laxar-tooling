@@ -7,7 +7,9 @@ Determine application artifacts by inspecting flow, pages and widgets.
 
 **Module Members**
 
+- [defaultAssets()](#defaultAssets)
 - [create()](#create)
+- [buildArtifacts()](#buildArtifacts)
 - [buildAliases()](#buildAliases)
 - [buildAssets()](#buildAssets)
 
@@ -16,6 +18,23 @@ Determine application artifacts by inspecting flow, pages and widgets.
 - [ArtifactListing](#ArtifactListing)
 
 ## Module Members
+
+#### <a id="defaultAssets"></a>defaultAssets( artifact )
+
+Return the default assets for the given artifact, determined by it's type
+and descriptor's `styleSource` and `templateSource` attributes.
+
+##### Parameters
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| artifact | `Object` |  an artifact created by the [`ArtifactCollector`](artifact_collector.md) |
+
+##### Returns
+
+| Type | Description |
+| ---- | ----------- |
+| `Object` |  a partial descriptor containing the artifact's default assets |
 
 #### <a id="create"></a>create( options )
 
@@ -53,6 +72,20 @@ Example:
 | Type | Description |
 | ---- | ----------- |
 | [`ArtifactListing`](#ArtifactListing) |  the created artifact listing builder |
+
+#### <a id="buildArtifacts"></a>buildArtifacts( artifacts )
+
+##### Parameters
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| artifacts | `Object` |  artifacts collected by the [`ArtifactCollector`](artifact_collector.md), optionally validated by the [`ArtifactValidator`](artifact_validator.md) |
+
+##### Returns
+
+| Type | Description |
+| ---- | ----------- |
+| `Promise.<Object>` |  the generated listing, ready to be serialized. |
 
 #### <a id="buildAliases"></a>buildAliases( entries )
 

@@ -13,23 +13,31 @@ import { wrap } from './promise';
 import { flatten, merge } from './utils';
 import defaults from './defaults';
 
-function defaultAssets( { name, descriptor, category } ) {
+/**
+ * Return the default assets for the given artifact, determined by it's type
+ * and descriptor's `styleSource` and `templateSource` attributes.
+ * @param {Object} artifact an artifact created by the {@link ArtifactCollector}
+ * @return {Object} a partial descriptor containing the artifact's default assets
+ */
+function defaultAssets( { name, category, descriptor } ) {
    switch( category ) {
       case 'themes':
          return {
-            assetUrls: descriptor.styleSource || `css/${name}.css`
+            assetUrls: [ descriptor.styleSource || `css/${name}.css` ]
          };
       case 'layouts':
       case 'widgets':
       case 'controls':
          return {
-            assetsForTheme: descriptor.templateSource || `${name}.html`,
-            assetUrlsForTheme: descriptor.styleSource || `css/${name}.css`
+            assetsForTheme: [ descriptor.templateSource || `${name}.html` ],
+            assetUrlsForTheme: [ descriptor.styleSource || `css/${name}.css` ]
          };
       default:
          return {};
    }
 }
+
+export default { create };
 
 /**
  * Create an artifact listing instance.
@@ -64,7 +72,7 @@ function defaultAssets( { name, descriptor, category } ) {
  *
  * @return {ArtifactListing} the created artifact listing builder
  */
-exports.create = function( options ) {
+export function create( options ) {
 
    const {
       assetResolver
@@ -90,6 +98,15 @@ exports.create = function( options ) {
       buildAssets
    };
 
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * @memberOf ArtifactListing
+    * @param {Object} artifacts
+    *    artifacts collected by the {@link ArtifactCollector}, optionally validated by the
+    *    {@link ArtifactValidator}
+    * @return {Promise<Object>} the generated listing, ready to be serialized.
+    */
    function buildArtifacts( artifacts ){
       return Promise.all( [
          Promise.all( Object.keys( artifacts )
@@ -121,10 +138,9 @@ exports.create = function( options ) {
     * @return {Promise<Object>} the map from artifact refs to indices
     */
    function buildAliases( entries ) {
-      return Promise.resolve( flatten( entries.map( ( { name, refs }, index ) => [ name ]
-         .concat( refs )
+      return Promise.all( entries.map( ( { name, refs }, index ) => [ name, ...refs ]
          .map( ref => ( { [ ref ]: index } ) )
-      ) ) ).then( merge );
+      ) ).then( flatten ).then( merge );
    }
 
    function buildFlows( flows ) {
@@ -247,7 +263,9 @@ exports.create = function( options ) {
             .then( assets => ( { [ themes[ 0 ].name ]: assets } ) )
       ] ).then( merge );
    }
-};
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function extendAssets( {
    assets = [],
@@ -262,6 +280,8 @@ function extendAssets( {
       assetUrlsForTheme: assetUrlsForTheme.concat( source.assetUrlsForTheme )
    };
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function requireAssets( requireFile, assetPaths, assetUrlPaths ) {
    return function( assets ) {

@@ -7,6 +7,7 @@ Determine application artifacts by inspecting flow, pages and widgets.
 
 **Module Members**
 
+- [- unknown -](#- unknown -)
 - [create()](#create)
 - [collectArtifacts()](#collectArtifacts)
 - [collectSchemas()](#collectSchemas)
@@ -22,6 +23,8 @@ Determine application artifacts by inspecting flow, pages and widgets.
 - [ArtifactCollector](#ArtifactCollector)
 
 ## Module Members
+
+#### <a id="- unknown -"></a>- unknown - `undefined`
 
 #### <a id="create"></a>create( options )
 

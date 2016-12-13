@@ -9,11 +9,19 @@
  */
 'use strict';
 
-import { basename, dirname, join } from './path';
+/**
+ * @external path
+ * @see {@link http://nodejs.org/api/path.html}
+ * @ignore
+ */
+import { posix } from 'path';
+const { basename, dirname, join } = posix;
 
 import { once } from './promise';
 import { flatten, values } from './utils';
 import defaults from './defaults';
+
+export default { create };
 
 /**
  * Create an artifact collector instance.
@@ -52,7 +60,7 @@ import defaults from './defaults';
  *
  * @return {ArtifactCollector} the created artifact collector
  */
-exports.create = function( options ) {
+export function create( options ) {
 
    const {
       paths,
@@ -676,7 +684,7 @@ exports.create = function( options ) {
          } ) );
    }
 
-};
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
