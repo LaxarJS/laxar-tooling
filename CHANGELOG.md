@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.5.0-alpha.1
+
 - [#12](https://github.com/LaxarJS/laxar-tooling/issues/12): fixed validation failures for widgets without features
 
 
