@@ -44,7 +44,6 @@ export default { create };
  *     } );
  *
  * @param {Object} [options] additional options
- * @param {Object} [options.log] a logger instance with at least a `log.error()` method
  * @param {Object} [options.paths]
  *    configuration where to look for flows, pages, etc.
  * @param {Function} [options.resolve]
@@ -354,7 +353,8 @@ export function create( options ) {
                name,
                path,
                descriptor: theme,
-               category: 'themes'
+               category: 'themes',
+               schemas: [ 'theme' ]
             } ];
          } ), () => resolveRef( lookupRef, paths.themes ).then( path => {
             const name = basename( path );
@@ -524,7 +524,8 @@ export function create( options ) {
                name,
                path,
                descriptor: layout,
-               category: 'layouts'
+               category: 'layouts',
+               schemas: [ 'layout' ]
             } ];
          } ), () => resolveRef( layoutRef, paths.layouts ).then( path => {
             const name = basename( path );
@@ -678,6 +679,7 @@ export function create( options ) {
                path,
                descriptor: control,
                category: 'controls',
+               schemas: [ 'control' ],
 
                controls
             } ];

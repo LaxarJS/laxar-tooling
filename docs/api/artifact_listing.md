@@ -62,7 +62,6 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | _options_ | `Object` |  additional options |
-| _options.log_ | `Object` |  a logger instance with at least a `log.error()` method |
 | _options.resolve_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
 | _options.assetResolver_ | `Function` |  override the default asset resolver created with the `resolve` callback |
 | _options.requireFile_ | `Function` |  a callback that is called for descriptors, definitions, modules and assets, to inject content into the output |

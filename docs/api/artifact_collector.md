@@ -52,7 +52,6 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | _options_ | `Object` |  additional options |
-| _options.log_ | `Object` |  a logger instance with at least a `log.error()` method |
 | _options.paths_ | `Object` |  configuration where to look for flows, pages, etc. |
 | _options.resolve_ | `Function` |  a function resolving a given file path to something that can be read by the `readJson` function and either returning it as a `String` or asynchronously |
 | _options.readJson_ | `Function` |  a function accepting a file path as an argument and returning a promise that resolves to the parsed JSON contents of the file as a `Promise` |

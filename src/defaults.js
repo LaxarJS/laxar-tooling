@@ -24,12 +24,6 @@ const DEFAULT_PATHS = {
    'default-theme': 'laxar-uikit/themes/default.theme'
 };
 
-const DEFAULT_LOGGER = {
-   debug() {},
-   error() {},
-   warn() {}
-};
-
 /**
  * Provide defaults for interdependent options.
  * Some `laxar-tooling` options occur in multiple modules and are expected to
@@ -44,17 +38,12 @@ const DEFAULT_LOGGER = {
  * @return {Object} options with defaults applied
  */
 export default function( options = {} ) {
-   const log = {
-      ...DEFAULT_LOGGER,
-      ...options.log
-   };
    const paths = {
       ...DEFAULT_PATHS,
       ...options.paths
    };
 
    return {
-      log,
       paths,
       get resolve() {
          return wrap( options.resolve );

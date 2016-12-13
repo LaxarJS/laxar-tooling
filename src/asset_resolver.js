@@ -24,7 +24,6 @@ export default { create };
  *     } );
  *
  * @param {Object} [options] additional options
- * @param {Object} [options.log] a logger instance with at least a `log.error()` method
  * @param {Function} [options.resolve]
  *    a function resolving a given file path, returning it as a `String` or asynchronously
  *    as a `Promise` and throwing or rejecting the promise if the file does not exist

@@ -60,7 +60,6 @@ export default { create };
  *     } );
  *
  * @param {Object} [options] additional options
- * @param {Object} [options.log] a logger instance with at least a `log.error()` method
  * @param {Function} [options.resolve]
  *    a function resolving a given file path to something that can be read by
  *    the `readJson` function and either returning it as a `String` or asynchronously
