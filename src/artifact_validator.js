@@ -144,7 +144,7 @@ export function create() {
                validate = validators.features.widgets[ name ];
             }
 
-            const valid = (!validate) || validate( features, `.areas.${area}[ ${index} ].features` );
+            const valid = validate( features, `.areas.${area}[ ${index} ].features` );
             if( !valid ) {
                errors.push.apply( errors, validate.errors );
             }
@@ -213,11 +213,16 @@ function compileSchemas( ajv, artifacts, get ) {
       const schema = get( artifact );
 
       if( schema && schema.$schema ) {
-         const validate = compileSchema( schema );
+         try {
+            const validate = compileSchema( schema );
 
-         refs.forEach( ref => {
-            schemas[ ref ] = validate;
-         } );
+            refs.forEach( ref => {
+               schemas[ ref ] = validate;
+            } );
+         }
+         catch( e ) {
+            throw new Error( `Failed to compile JSON schema for artifact ${refs.join(', ')}\n${e}` );
+         }
       }
 
       return schemas;
@@ -270,4 +275,3 @@ function applyToSchemas( schema, callback ) {
       return Object.keys( object ).forEach( key => callback( object[ key ], key, object ) );
    }
 }
-

@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#13](https://github.com/LaxarJS/laxar-tooling/issues/13): provide details if an artifact has an invalid schema
+
 
 ## v0.5.0-alpha.1
 
