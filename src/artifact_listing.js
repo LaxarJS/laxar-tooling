@@ -23,7 +23,7 @@ function defaultAssets( { name, category, descriptor } ) {
    switch( category ) {
       case 'themes':
          return {
-            assetUrls: [ descriptor.styleSource || `css/${name}.css` ]
+            assetUrls: [ descriptor.styleSource || 'css/theme.css' ]
          };
       case 'layouts':
       case 'widgets':
