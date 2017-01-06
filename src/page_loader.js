@@ -3,13 +3,13 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-import assert from '../utilities/assert';
-import * as object from '../utilities/object';
-import * as string from '../utilities/string';
-import { create as createJsonValidator } from '../utilities/json_validator';
-import * as featuresProvider from './features_provider';
-import pageSchema from 'json!../../static/schemas/page.json';
-import { FLAT, COMPACT } from '../tooling/pages';
+import assert from './utilities/assert';
+import * as object from './utilities/object';
+import * as string from './utilities/string';
+// import { create as createJsonValidator } from '../utilities/json_validator';
+// import * as featuresProvider from './features_provider';
+// import pageSchema from 'json!../../static/schemas/page.json';
+// import { FLAT, COMPACT } from '../tooling/pages';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
@@ -22,10 +22,10 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function PageLoader( artifactProvider, pageCollector ) {
-   this.artifactProvider_ = artifactProvider;
-   this.pageToolingCollector_ = pageCollector;
-   this.idCounter_ = 0;
+function PageLoader( validators, pagesByRef ) {
+   this.validators = validators;
+   this.pagesByRef = pagesByRef;
+   this.idCounter = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ function PageLoader( artifactProvider, pageCollector ) {
  * already asynchronous, this method is also asynchronous and thus returns a promise that is either
  * resolved with the constructed page or rejected with a JavaScript `Error` instance.
  *
- * @param {String} pageRef
+ * @param {String} page
  *    the page to load. Usually a path relative to the base url, with the `.json` suffix omitted
  *
  * @return {Promise}
@@ -44,48 +44,45 @@ function PageLoader( artifactProvider, pageCollector ) {
  *
  * @private
  */
-PageLoader.prototype.load = function( pageRef ) {
-   return loadPageRecursively( this, pageRef, [] );
+PageLoader.prototype.load = function( page ) {
+   console.log( 'NEW PAGE load', page.name ); // :TODO: MKU forgot to delete this, got tell him!
+   return loadPageRecursively( this, page, [] );
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function loadPageRecursively( self, pageRef, extensionChain ) {
-   let page;
+function loadPageRecursively( self, page, extensionChain ) {
 
-   if( extensionChain.includes( pageRef ) ) {
+   const { definition, name } = page;
+
+   if( extensionChain.includes( name ) ) {
       throwError(
-         { name: pageRef },
-         `Cycle in page extension detected: ${extensionChain.concat( [ pageRef ] ).join( ' -> ' )}`
+         page,
+         `Cycle in page extension detected: ${extensionChain.concat( [ name ] ).join( ' -> ' )}`
       );
    }
 
-   const { definition, descriptor } = self.artifactProvider_.forPage( pageRef );
+   // self.pagesByRef[ pageRef ];
+   // TODO: use validators
+   // validatePage( foundPage, pageRef );
 
-   return Promise.all( [ definition(), descriptor() ] )
-      .then( ([ foundPage, descriptor ]) => {
-         validatePage( foundPage, pageRef );
+   if( !definition.areas ) {
+      definition.areas = {};
+   }
 
-         page = foundPage;
-         page.name = descriptor.name;
-
-         if( !page.areas ) {
-            page.areas = {};
-         }
-      } )
-      .then( () => processExtends( self, page, extensionChain ) )
+   return processExtends( self, page, extensionChain )
       .then( () => {
          generateMissingIds( self, page );
          // we need to check ids before and after expanding compositions
          checkForDuplicateIds( self, page );
-         return processCompositions( self, page, pageRef );
+         return processCompositions( self, page, name );
       } )
       .then( () => {
          checkForDuplicateIds( self, page );
          removeDisabledWidgets( self, page );
       } )
       .then( () => {
-         self.pageToolingCollector_.collectPageDefinition( pageRef, page, FLAT );
+         // self.pageToolingCollector_.collectPageDefinition( pageRef, page, FLAT );
          return page;
       } );
 }
@@ -97,8 +94,10 @@ function loadPageRecursively( self, pageRef, extensionChain ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function processExtends( self, page, extensionChain ) {
-   if( has( page, 'extends' ) ) {
-      return loadPageRecursively( self, page[ 'extends' ], extensionChain.concat( [ page.name ] ) )
+   const { definition, name } = page;
+   if( has( definition, 'extends' ) ) {
+      const unprocessedBasePage = this.pagesByRef[ definition[ 'extends' ] ];
+      return loadPageRecursively( self, unprocessedBasePage, extensionChain.concat( [ name ] ) )
          .then( basePage => {
             mergePageWithBasePage( page, basePage );
          } );
@@ -109,13 +108,13 @@ function processExtends( self, page, extensionChain ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function mergePageWithBasePage( page, basePage ) {
-   const extendingAreas = page.areas;
-   const mergedPageAreas = object.deepClone( basePage.areas );
-   if( has( basePage, 'layout' ) ) {
-      if( has( page, 'layout' ) ) {
+   const extendingAreas = page.definition.areas;
+   const mergedPageAreas = object.deepClone( basePage.definition.areas );
+   if( has( basePage.definition, 'layout' ) ) {
+      if( has( page.definition, 'layout' ) ) {
          throwError( page, string.format( 'Page overwrites layout set by base page "[name]', basePage ) );
       }
-      page.layout = basePage.layout;
+      page.definition.layout = basePage.definition.layout;
    }
 
    object.forEach( extendingAreas, ( widgets, areaName ) => {
@@ -127,7 +126,7 @@ function mergePageWithBasePage( page, basePage ) {
       mergeWidgetLists( mergedPageAreas[ areaName ], widgets, page );
    } );
 
-   page.areas = mergedPageAreas;
+   page.definition.areas = mergedPageAreas;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +135,7 @@ function mergePageWithBasePage( page, basePage ) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processCompositions( self, topPage, topPageRef ) {
+function processCompositions( self, topPage ) {
 
    return processNestedCompositions( topPage, null, [] );
 
@@ -144,7 +143,7 @@ function processCompositions( self, topPage, topPageRef ) {
 
       let promise = Promise.resolve();
 
-      object.forEach( page.areas, widgets => {
+      object.forEach( page.definition.areas, widgets => {
          widgets.slice().reverse().forEach( widgetSpec => {
             if( widgetSpec.enabled === false ) {
                return;
@@ -164,12 +163,11 @@ function processCompositions( self, topPage, topPageRef ) {
             // Compositions must be loaded sequentially, because replacing the widgets in the page needs to
             // take place in order. Otherwise the order of widgets could be messed up.
             promise = promise
-               .then( () => self.artifactProvider_.forPage( compositionRef ).definition() )
-               .then( composition => prefixCompositionIds( composition, widgetSpec ) )
+               .then( () => prefixCompositionIds( self.pagesByRef[ compositionRef ], widgetSpec ) )
                .then( composition =>
                   processCompositionExpressions( composition, widgetSpec, message => {
                      throwError(
-                        { name: page.name },
+                        page,
                         `Error loading composition "${compositionRef}" (id: "${widgetSpec.id}"). ${message}`
                      );
                   } )
@@ -178,28 +176,28 @@ function processCompositions( self, topPage, topPageRef ) {
                   const chain = compositionChain.concat( compositionRef );
                   return processNestedCompositions( composition, widgetSpec.id, chain )
                      .then( () => {
-                        self.pageToolingCollector_.collectCompositionDefinition(
-                           topPageRef,
-                           widgetSpec.id,
-                           composition,
-                           FLAT
-                        );
+                        // self.pageToolingCollector_.collectCompositionDefinition(
+                        //    topPageRef,
+                        //    widgetSpec.id,
+                        //    composition,
+                        //    FLAT
+                        // );
                         return composition;
                      } );
                } )
                .then( composition => {
-                  mergeCompositionAreasWithPageAreas( composition, page, widgets, widgetSpec );
+                  mergeCompositionAreasWithPageAreas( composition, page.definition, widgets, widgetSpec );
                } );
          } );
       } );
 
-      // now that all IDs have been created, we can store a copy of the page prior to composition expansion
-      if( page === topPage ) {
-         self.pageToolingCollector_.collectPageDefinition( topPageRef, page, COMPACT );
-      }
-      else {
-         self.pageToolingCollector_.collectCompositionDefinition( topPageRef, instanceId, page, COMPACT );
-      }
+      // // now that all IDs have been created, we can store a copy of the page prior to composition expansion
+      // if( page === topPage ) {
+      //    self.pageToolingCollector_.collectPageDefinition( topPageRef, page, COMPACT );
+      // }
+      // else {
+      //    self.pageToolingCollector_.collectCompositionDefinition( topPageRef, instanceId, page, COMPACT );
+      // }
 
       return promise;
    }
@@ -207,19 +205,19 @@ function processCompositions( self, topPage, topPageRef ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function mergeCompositionAreasWithPageAreas( composition, page, widgets, compositionSpec ) {
+function mergeCompositionAreasWithPageAreas( composition, definition, widgets, compositionSpec ) {
    object.forEach( composition.areas, ( compositionAreaWidgets, areaName ) => {
       if( areaName === '.' ) {
          insertAfterEntry( widgets, compositionSpec, compositionAreaWidgets );
          return;
       }
 
-      if( !( areaName in page.areas ) ) {
-         page.areas[ areaName ] = compositionAreaWidgets;
+      if( !( areaName in definition.areas ) ) {
+         definition.areas[ areaName ] = compositionAreaWidgets;
          return;
       }
 
-      mergeWidgetLists( page.areas[ areaName ], compositionAreaWidgets, page );
+      mergeWidgetLists( definition.areas[ areaName ], compositionAreaWidgets, definition );
    } );
 
    removeEntry( widgets, compositionSpec );
@@ -260,13 +258,15 @@ function prefixCompositionIds( composition, widgetSpec ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processCompositionExpressions( composition, widgetSpec, throwPageError ) {
+function processCompositionExpressions( composition, widgetSpec ) {
    const expressionData = {};
 
    // feature definitions in compositions may contain generated topics for default resource names or action
    // topics. As such these are generated before instantiating the composition's features.
    composition.features = iterateOverExpressions( composition.features || {}, replaceExpression );
-   expressionData.features = featuresProvider.featuresForWidget( composition, widgetSpec, throwPageError );
+
+   // TODO: use validators!
+   // expressionData.features = featuresProvider.featuresForWidget( composition, widgetSpec, throwPageError );
 
    if( typeof composition.mergedFeatures === 'object' ) {
       const mergedFeatures = iterateOverExpressions( composition.mergedFeatures, replaceExpression );
@@ -346,8 +346,8 @@ function iterateOverExpressions( obj, replacer ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function removeDisabledWidgets( self, page ) {
-   object.forEach( page.areas, ( widgetList, index ) => {
-      page.areas[ index ] = widgetList.filter( widgetSpec => widgetSpec.enabled !== false );
+   object.forEach( page.definition.areas, ( widgetList, name ) => {
+      page.definition.areas[ name ] = widgetList.filter( widgetSpec => widgetSpec.enabled !== false );
    } );
 }
 
@@ -356,7 +356,7 @@ function removeDisabledWidgets( self, page ) {
 function checkForDuplicateIds( self, page ) {
    const idCount = {};
 
-   object.forEach( page.areas, widgetList => {
+   object.forEach( page.definition.areas, widgetList => {
       object.forEach( widgetList, widgetSpec => {
          idCount[ widgetSpec.id ] = idCount[ widgetSpec.id ] ? idCount[ widgetSpec.id ] + 1 : 1;
       } );
@@ -401,7 +401,7 @@ function ensureWidgetSpecHasId( self, widgetSpec ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function generateMissingIds( self, page ) {
-   object.forEach( page.areas, widgetList => {
+   object.forEach( page.definition.areas, widgetList => {
       object.forEach( widgetList, widgetSpec => {
          ensureWidgetSpecHasId( self, widgetSpec );
       } );
@@ -410,15 +410,15 @@ function generateMissingIds( self, page ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function validatePage( foundPage, pageName ) {
-   const errors = createJsonValidator( pageSchema ).validate( foundPage );
-   if( errors.length ) {
-      const errorString = errors
-         .reduce( ( errorString, errorItem ) => `${errorString}\n - ${errorItem.message}`, '' );
-
-      throwError( { name: pageName }, `Schema validation failed: ${errorString}` );
-   }
-}
+// function validatePage( foundPage, pageName ) {
+//    const errors = createJsonValidator( pageSchema ).validate( foundPage );
+//    if( errors.length ) {
+//       const errorString = errors
+//          .reduce( ( errorString, errorItem ) => `${errorString}\n - ${errorItem.message}`, '' );
+//
+//       throwError( { name: pageName }, `Schema validation failed: ${errorString}` );
+//    }
+// }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -436,7 +436,8 @@ function mergeWidgetLists( targetList, sourceList, page ) {
             }
          }
 
-         throwError( page,
+         throwError(
+            page,
             string.format(
                'No id found that matches insertBeforeId value "[insertBeforeId]"',
                widgetConfiguration
@@ -457,7 +458,7 @@ function has( object, what ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function nextId( self, prefix ) {
-   return `${prefix}${ID_SEPARATOR}id${self.idCounter_++}`;
+   return `${prefix}${ID_SEPARATOR}id${self.idCounter++}`;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -484,19 +485,19 @@ function throwError( page, message ) {
 /**
  * Creates and returns a new page loader instance.
  *
- * @param {ArtifactProvider} artifactProvider
- *    an ArtifactProvider to load application assets
- * @param {PagesCollector} pagesCollector
- *    a tooling collector to consume page and composition information
+ * @param {Object} validators
+ *    validators for artifacts/features
+ * @param {Object} pagesByRef
+ *    a mapping from pages to their definitions
  *
  * @return {PageLoader}
  *    a page loader instance
  *
  * @private
  */
-export function create( artifactProvider, pagesCollector ) {
-   assert( artifactProvider ).isNotNull();
-   assert( pagesCollector ).isNotNull();
+export function create( validators, pagesByRef ) {
+   assert( validators ).isNotNull();
+   assert( pagesByRef ).isNotNull();
 
-   return new PageLoader( artifactProvider, pagesCollector );
+   return new PageLoader( validators, pagesByRef );
 }

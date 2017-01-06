@@ -10,6 +10,7 @@
 'use strict';
 
 import { create as createAjv } from './ajv';
+import { create as createPageLoader } from './page_loader';
 
 export default { create };
 
@@ -88,7 +89,7 @@ export function create() {
     * @return {Promise<Array>} the validated pages
     */
    function validatePages( pages, validators ) {
-      return Promise.all( pages.map( page => validatePage( page, validators ) ) );
+      return Promise.all( pages.map( page => validatePage( page, validators, pages ) ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,46 +116,61 @@ export function create() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function validatePage( page, validators ) {
-      const { name, definition } = page;
-      const validate = validators.page;
-      return validate( definition ) ?
-         validatePageFeatures( page, validators ) :
-         Promise.reject( validationError( 'page', name, validate.errors ) );
+   function validatePage( page, validators, pages ) {
+      const pagesByRef = {};
+      pages.forEach( aPage => {
+         aPage.refs.forEach( ref => {
+            pagesByRef[ ref ] = aPage;
+         } );
+      } );
+
+      const pageLoader = createPageLoader( validators, pagesByRef );
+      return pageLoader.load( page )
+         .then( result => {
+            console.log( 'ESULT', page.name, result == null ); // :TODO: MKU forgot to delete this, got tell him!
+            return result;
+         }, err => {
+            console.log( 'ERR', page.name, err ); // :TODO: MKU forgot to delete this, got tell him!
+         } );
+
+      // const validate = validators.page;
+      // return validate( definition ) ?
+      //    validatePageFeatures( page, validators ) :
+      //    Promise.reject( validationError( 'page', name, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function validatePageFeatures( page, validators ) {
-      const { name, definition } = page;
-      const errors = [];
-
-      Object.keys( definition.areas ).forEach( area => {
-         definition.areas[ area ].forEach( ( item, index ) => {
-            const features = item.features;
-            let name;
-            let validate;
-
-            if( item.composition ) {
-               name = item.composition;
-               validate = validators.features.pages[ name ];
-            }
-            if( item.widget ) {
-               name = item.widget;
-               validate = validators.features.widgets[ name ];
-            }
-
-            const valid = !validate || validate( features, `.areas.${area}[ ${index} ].features` );
-            if( !valid ) {
-               errors.push.apply( errors, validate.errors );
-            }
-         } );
-      } );
-
-      return errors.length === 0 ?
-         Promise.resolve( page ) :
-         Promise.reject( validationError( 'page', name, errors ) );
-   }
+   // function validatePageFeatures( page, validators, pages ) {
+   //    const { name, definition } = page;
+   //    const errors = [];
+   //
+   //    Object.keys( definition.areas ).forEach( area => {
+   //       definition.areas[ area ].forEach( ( item, index ) => {
+   //          const features = item.features;
+   //          let name;
+   //          let validate;
+   //
+   //          if( item.composition ) {
+   //             name = item.composition;
+   //             validate = validators.features.pages[ name ];
+   //          }
+   //          if( item.widget ) {
+   //             name = item.widget;
+   //             validate = validators.features.widgets[ name ];
+   //          }
+   //
+   //          const valid = !validate || validate( features, `.areas.${area}[ ${index} ].features` );
+   //          if( !valid ) {
+   //             errors.push.apply( errors, validate.errors );
+   //          }
+   //       } );
+   //    } );
+   //
+   //    return errors.length === 0 ?
+   //       Promise.resolve( page ) :
+   //       Promise.reject( validationError( 'page', name, errors ) );
+   // }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
