@@ -3,13 +3,8 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-import assert from './utilities/assert';
 import * as object from './utilities/object';
 import * as string from './utilities/string';
-// import { create as createJsonValidator } from '../utilities/json_validator';
-// import * as featuresProvider from './features_provider';
-// import pageSchema from 'json!../../static/schemas/page.json';
-// import { FLAT, COMPACT } from '../tooling/pages';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
@@ -46,7 +41,6 @@ function PageLoader( validators, pagesByRef, validationError ) {
  * @private
  */
 PageLoader.prototype.load = function( page ) {
-   console.log( 'NEW PAGE load', page.name ); // :TODO: MKU forgot to delete this, got tell him!
    return loadPageRecursively( this, page, [] );
 };
 
@@ -81,8 +75,6 @@ function loadPageRecursively( self, page, extensionChain ) {
       .then( () => {
          checkForDuplicateIds( self, page );
          removeDisabledWidgets( self, page );
-      } )
-      .then( () => {
          return page;
       } );
 }
@@ -494,7 +486,6 @@ function topicFromId( id ) {
 
 function throwError( page, message ) {
    const text = string.format( 'Error loading page "[name]": [0]', [ message ], page );
-   console.log( 'THROW ERROR: ', text ); // :TODO: MKU forgot to delete this, got tell him!
    throw new Error( text );
 }
 
@@ -516,9 +507,5 @@ function throwError( page, message ) {
  * @private
  */
 export function create( validators, pagesByRef, validationError ) {
-   assert( validators ).isNotNull();
-   assert( pagesByRef ).isNotNull();
-   assert( validationError ).isNotNull();
-
    return new PageLoader( validators, pagesByRef, validationError );
 }
