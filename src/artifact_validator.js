@@ -144,7 +144,7 @@ export function create() {
                validate = validators.features.widgets[ name ];
             }
 
-            const valid = validate( features, `.areas.${area}[ ${index} ].features` );
+            const valid = !validate || validate( features, `.areas.${area}[ ${index} ].features` );
             if( !valid ) {
                errors.push.apply( errors, validate.errors );
             }
