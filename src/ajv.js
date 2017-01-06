@@ -44,7 +44,7 @@ const AJV_FORMATS = {
  * @return {Ajv} an Ajv instance
  */
 export function create() {
-   const ajv = new Ajv();
+   const ajv = new Ajv( { jsonPointers: true } );
 
    Object.keys( AJV_FORMATS ).forEach( key => {
       ajv.addFormat( key, AJV_FORMATS[ key ] );

@@ -90,13 +90,13 @@ export function create() {
     * @return {Promise<Array>} the validated pages
     */
    function validatePages( pages, validators, flows ) {
-
       const entryPageRefs = {};
       flows.forEach( flow => {
          flow.pages.forEach( ref => {
             entryPageRefs[ ref ] = true;
          } );
       } );
+
       const entryPages = pages.filter( page => page.refs.some( ref => entryPageRefs[ ref ] ) );
 
       return Promise.all(
@@ -123,7 +123,7 @@ export function create() {
       const validate = validators.flow;
       return validate( definition ) ?
          Promise.resolve( flow ) :
-         Promise.reject( validationError( 'flow', name, validate.errors ) );
+         Promise.reject( validationError( `Validation failed for flow "${name}"`, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,15 +147,15 @@ export function create() {
       const validate = validators.widget;
       return validate( descriptor ) ?
          Promise.resolve( widget ) :
-         Promise.reject( validationError( 'widget', name, validate.errors ) );
+         Promise.reject( validationError( `Validation failed for widget "${name}"`, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function validationError( type, name, errors ) {
-      const message = `Validation failed for ${type} '${name}': ` +
-                      `${ajv.errorsText(errors)} ${JSON.stringify(errors.map(e => e.params))}`;
-      const error = new Error(message);
+   function validationError( message, errors ) {
+      const error = new Error(
+         `${message}: ${ajv.errorsText(errors)} ${JSON.stringify(errors.map(e => e.params))}`
+      );
       error.name = 'ValidationError';
       error.errors = errors;
       return error;

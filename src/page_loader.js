@@ -62,7 +62,10 @@ function loadPageRecursively( self, page, extensionChain ) {
    }
 
    if( !self.validators.page( definition ) ) {
-      return Promise.reject( self.validationError( 'page', name, self.validators.page.errors ) );
+      return Promise.reject( self.validationError(
+         `Validation failed for page "${name}"`,
+         self.validators.page.errors
+      ) );
    }
 
    if( !definition.areas ) {
@@ -85,13 +88,15 @@ function loadPageRecursively( self, page, extensionChain ) {
 }
 
 function validateWidgetItems( self, page ) {
-   object.forEach( page.definition.areas, area => {
-      area.filter( _ => !!_.widget ).forEach( item => {
+   object.forEach( page.definition.areas, (area, areaName) => {
+      area.filter( _ => !!_.widget ).forEach( (item, index) => {
          const name = item.widget;
          const validate = self.validators.features.widgets[ name ];
-         if( validate && !validate( item.features || {} ) ) {
-            // TODO: path to widget instance, within page
-            throw self.validationError( 'page ' + page.name + ' widget features', name, validate.errors );
+         if( validate && !validate( item.features || {}, ` /areas/${areaName}[${index}]/features` ) ) {
+            throw self.validationError(
+               `Validation of page ${page.name} failed for ${name} features`,
+               validate.errors
+            );
          }
       } );
    } );
@@ -153,8 +158,6 @@ function processCompositions( self, topPage ) {
 
       let promise = Promise.resolve();
 
-      console.log( 'Process nested: ', topPage.name, page.name ); // :TODO: MKU forgot to delete this, got tell him!
-
       object.forEach( page.definition.areas, widgets => {
          widgets.slice().reverse().forEach( item => {
             if( item.enabled === false ) {
@@ -203,7 +206,6 @@ function processCompositions( self, topPage ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function mergeCompositionAreasWithPageAreas( composition, definition, widgets, compositionSpec ) {
-   console.log( 'MERGE: ', composition.name ); // :TODO: MKU forgot to delete this, got tell him!
    object.forEach( composition.definition.areas, ( compositionAreaWidgets, areaName ) => {
       if( areaName === '.' ) {
          insertAfterEntry( widgets, compositionSpec, compositionAreaWidgets );
@@ -264,12 +266,12 @@ function processCompositionExpressions( self, composition, item ) {
    // feature definitions in compositions may contain generated topics for default resource names or action
    // topics. As such these are generated before instantiating the composition's features.
    definition.features = iterateOverExpressions( definition.features || {}, replaceExpression );
+   expressionData.features = object.deepClone( item.features );
 
    const name = item.composition;
    const validate = self.validators.features.pages[ name ];
-
-   if( validate && !validate( item.features || {} ) ) {
-      throw self.validationError( 'composition', name, validate.errors );
+   if( validate && !validate( expressionData.features || {} ) ) {
+      throw self.validationError( `Validation failed for composition "${name}"`, validate.errors );
    }
 
    if( typeof definition.mergedFeatures === 'object' ) {
