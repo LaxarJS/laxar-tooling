@@ -124,53 +124,9 @@ export function create() {
          } );
       } );
 
-      const pageLoader = createPageLoader( validators, pagesByRef );
-      return pageLoader.load( page )
-         .then( result => {
-            console.log( 'ESULT', page.name, result == null ); // :TODO: MKU forgot to delete this, got tell him!
-            return result;
-         }, err => {
-            console.log( 'ERR', page.name, err ); // :TODO: MKU forgot to delete this, got tell him!
-         } );
-
-      // const validate = validators.page;
-      // return validate( definition ) ?
-      //    validatePageFeatures( page, validators ) :
-      //    Promise.reject( validationError( 'page', name, validate.errors ) );
+      const pageLoader = createPageLoader( validators, pagesByRef, validationError );
+      return pageLoader.load( page );
    }
-
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   // function validatePageFeatures( page, validators, pages ) {
-   //    const { name, definition } = page;
-   //    const errors = [];
-   //
-   //    Object.keys( definition.areas ).forEach( area => {
-   //       definition.areas[ area ].forEach( ( item, index ) => {
-   //          const features = item.features;
-   //          let name;
-   //          let validate;
-   //
-   //          if( item.composition ) {
-   //             name = item.composition;
-   //             validate = validators.features.pages[ name ];
-   //          }
-   //          if( item.widget ) {
-   //             name = item.widget;
-   //             validate = validators.features.widgets[ name ];
-   //          }
-   //
-   //          const valid = !validate || validate( features, `.areas.${area}[ ${index} ].features` );
-   //          if( !valid ) {
-   //             errors.push.apply( errors, validate.errors );
-   //          }
-   //       } );
-   //    } );
-   //
-   //    return errors.length === 0 ?
-   //       Promise.resolve( page ) :
-   //       Promise.reject( validationError( 'page', name, errors ) );
-   // }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 

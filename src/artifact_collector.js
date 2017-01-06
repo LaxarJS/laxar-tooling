@@ -150,6 +150,7 @@ export function create( options ) {
          widgetsPromise,
          controlsPromise
       ] ).then( artifacts => {
+
          const entries = add( flatten( artifacts ) );
 
          return collectSchemas( entries )
@@ -347,6 +348,9 @@ export function create( options ) {
          .then( descriptorPath => readJson( descriptorPath ).then( theme => {
             const path = dirname( descriptorPath );
             const name = theme.name;
+            if( !name ) {
+               return Promise.reject( 'Theme descriptor is missing name: ', path );
+            }
 
             return [ {
                refs: [ themeRef ],
@@ -588,6 +592,9 @@ export function create( options ) {
          .then( descriptorPath => readJson( descriptorPath ).then( widget => {
             const path = dirname( descriptorPath );
             const name = widget.name;
+            if( !name ) {
+               return Promise.reject( 'Widget descriptor is missing name: ', path );
+            }
             const controls = widget.controls;
 
             return [ {
@@ -672,6 +679,9 @@ export function create( options ) {
             const path = dirname( descriptorPath );
             const name = control.name;
             const controls = control.controls;
+            if( !name ) {
+               return Promise.reject( 'Control descriptor is missing name: ', path );
+            }
 
             return [ {
                refs: [ controlRef ],
@@ -763,5 +773,3 @@ function unique( field ) {
       return true;
    };
 }
-
-

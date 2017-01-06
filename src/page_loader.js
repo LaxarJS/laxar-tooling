@@ -22,9 +22,10 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function PageLoader( validators, pagesByRef ) {
+function PageLoader( validators, pagesByRef, validationError ) {
    this.validators = validators;
    this.pagesByRef = pagesByRef;
+   this.validationError = validationError;
    this.idCounter = 0;
 }
 
@@ -62,9 +63,9 @@ function loadPageRecursively( self, page, extensionChain ) {
       );
    }
 
-   // self.pagesByRef[ pageRef ];
-   // TODO: use validators
-   // validatePage( foundPage, pageRef );
+   if( !self.validators.page( definition ) ) {
+      return Promise.reject( self.validationError( 'page', name, self.validators.page.errors ) );
+   }
 
    if( !definition.areas ) {
       definition.areas = {};
@@ -82,7 +83,6 @@ function loadPageRecursively( self, page, extensionChain ) {
          removeDisabledWidgets( self, page );
       } )
       .then( () => {
-         // self.pageToolingCollector_.collectPageDefinition( pageRef, page, FLAT );
          return page;
       } );
 }
@@ -165,7 +165,7 @@ function processCompositions( self, topPage ) {
             promise = promise
                .then( () => prefixCompositionIds( self.pagesByRef[ compositionRef ], widgetSpec ) )
                .then( composition =>
-                  processCompositionExpressions( composition, widgetSpec, message => {
+                  processCompositionExpressions( self, composition, widgetSpec, message => {
                      throwError(
                         page,
                         `Error loading composition "${compositionRef}" (id: "${widgetSpec.id}"). ${message}`
@@ -258,15 +258,32 @@ function prefixCompositionIds( composition, widgetSpec ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processCompositionExpressions( composition, widgetSpec ) {
+function processCompositionExpressions( self, composition, item ) {
    const expressionData = {};
 
    // feature definitions in compositions may contain generated topics for default resource names or action
    // topics. As such these are generated before instantiating the composition's features.
    composition.features = iterateOverExpressions( composition.features || {}, replaceExpression );
 
-   // TODO: use validators!
-   // expressionData.features = featuresProvider.featuresForWidget( composition, widgetSpec, throwPageError );
+   let name;
+   let type;
+   let validate;
+   if( item.composition ) {
+      type = 'composition';
+      name = item.composition;
+      validate = self.validators.features.pages[ name ];
+   }
+   if( item.widget ) {
+      type = 'widget';
+      name = item.widget;
+      validate = self.validators.features.widgets[ name ];
+   }
+
+   if( validate && !validate( item.features || {} ) ) {
+      throw self.validationError( type, name, validate.errors );
+   }
+
+   // expressionData.features = featuresProvider.featuresForWidget( composition, item, throwPageError );
 
    if( typeof composition.mergedFeatures === 'object' ) {
       const mergedFeatures = iterateOverExpressions( composition.mergedFeatures, replaceExpression );
@@ -290,7 +307,7 @@ function processCompositionExpressions( composition, widgetSpec ) {
       const expression = matches[ 2 ];
       let result;
       if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
-         result = topicFromId( widgetSpec.id ) +
+         result = topicFromId( item.id ) +
             SUBTOPIC_SEPARATOR + expression.substr( COMPOSITION_TOPIC_PREFIX.length );
       }
       else {
@@ -477,6 +494,7 @@ function topicFromId( id ) {
 
 function throwError( page, message ) {
    const text = string.format( 'Error loading page "[name]": [0]', [ message ], page );
+   console.log( 'THROW ERROR: ', text ); // :TODO: MKU forgot to delete this, got tell him!
    throw new Error( text );
 }
 
@@ -489,15 +507,18 @@ function throwError( page, message ) {
  *    validators for artifacts/features
  * @param {Object} pagesByRef
  *    a mapping from pages to their definitions
+ * @param {Object} validationError
+ *    a function to generate error messages
  *
  * @return {PageLoader}
  *    a page loader instance
  *
  * @private
  */
-export function create( validators, pagesByRef ) {
+export function create( validators, pagesByRef, validationError ) {
    assert( validators ).isNotNull();
    assert( pagesByRef ).isNotNull();
+   assert( validationError ).isNotNull();
 
-   return new PageLoader( validators, pagesByRef );
+   return new PageLoader( validators, pagesByRef, validationError );
 }

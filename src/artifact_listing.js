@@ -106,7 +106,15 @@ export function create( options ) {
     *    {@link ArtifactValidator}
     * @return {Promise<Object>} the generated listing, ready to be serialized.
     */
-   function buildArtifacts( artifacts ){
+   function buildArtifacts( artifacts ) {
+      console.log( Object.keys( artifacts ) ); // :TODO: MKU forgot to delete this, got tell him!
+      // Object.keys( artifacts ).forEach( (list, i) => {
+      //    list.forEach( (entry, j) => {
+      //       if( !entry ) {
+      //          throw new Error( 'Missing entry ' + j + ' in list ' + i );
+      //       }
+      //    } );
+      // } );
       return Promise.all( [
          Promise.all( Object.keys( artifacts )
             .map( key => buildAliases( artifacts[ key ] ).then( aliases => ( { [ key ]: aliases } ) ) ) )

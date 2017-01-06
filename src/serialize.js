@@ -34,6 +34,11 @@ const SPACE = ' ';
  * @return {String} the serialized JavaScript code
  */
 export default function serialize( object, indent = INDENT, pad = 0, space = SPACE ) {
+
+   if( object === null ) {
+      return 'null';
+   }
+
    if( typeof object === 'function' ) {
       return leftpad( object(), pad, space );
    }
@@ -166,4 +171,3 @@ function spaces( number = 0, space = SPACE ) {
 function leftpad( string, pad, space ) {
    return string.split( '\n' ).join( `\n${spaces( pad, space )}` );
 }
-
