@@ -44,6 +44,10 @@ PageLoader.prototype.load = function( page ) {
    return loadPageRecursively( this, page, [] );
 };
 
+PageLoader.prototype.lookup = function( pageRef ) {
+   return object.deepClone( this.pagesByRef[ pageRef ] );
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function loadPageRecursively( self, page, extensionChain ) {
@@ -75,8 +79,22 @@ function loadPageRecursively( self, page, extensionChain ) {
       .then( () => {
          checkForDuplicateIds( self, page );
          removeDisabledWidgets( self, page );
+         validateWidgetItems( self, page );
          return page;
       } );
+}
+
+function validateWidgetItems( self, page ) {
+   object.forEach( page.definition.areas, area => {
+      area.filter( _ => !!_.widget ).forEach( item => {
+         const name = item.widget;
+         const validate = self.validators.features.widgets[ name ];
+         if( validate && !validate( item.features || {} ) ) {
+            // TODO: path to widget instance, within page
+            throw self.validationError( 'page ' + page.name + ' widget features', name, validate.errors );
+         }
+      } );
+   } );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +106,7 @@ function loadPageRecursively( self, page, extensionChain ) {
 function processExtends( self, page, extensionChain ) {
    const { definition, name } = page;
    if( has( definition, 'extends' ) ) {
-      const unprocessedBasePage = this.pagesByRef[ definition[ 'extends' ] ];
+      const unprocessedBasePage = self.lookup( definition[ 'extends' ] );
       return loadPageRecursively( self, unprocessedBasePage, extensionChain.concat( [ name ] ) )
          .then( basePage => {
             mergePageWithBasePage( page, basePage );
@@ -135,17 +153,19 @@ function processCompositions( self, topPage ) {
 
       let promise = Promise.resolve();
 
-      object.forEach( page.definition.areas, widgets => {
-         widgets.slice().reverse().forEach( widgetSpec => {
-            if( widgetSpec.enabled === false ) {
-               return;
-            }
-            ensureWidgetSpecHasId( self, widgetSpec );
+      console.log( 'Process nested: ', topPage.name, page.name ); // :TODO: MKU forgot to delete this, got tell him!
 
-            if( !has( widgetSpec, 'composition' ) ) {
+      object.forEach( page.definition.areas, widgets => {
+         widgets.slice().reverse().forEach( item => {
+            if( item.enabled === false ) {
                return;
             }
-            const compositionRef = widgetSpec.composition;
+            ensureWidgetSpecHasId( self, item );
+            if( !has( item, 'composition' ) ) {
+               return;
+            }
+
+            const compositionRef = item.composition;
             if( compositionChain.includes( compositionRef ) ) {
                const chainString = compositionChain.concat( [ compositionRef ] ).join( ' -> ' );
                const message = `Cycle in compositions detected: ${chainString}`;
@@ -155,41 +175,26 @@ function processCompositions( self, topPage ) {
             // Compositions must be loaded sequentially, because replacing the widgets in the page needs to
             // take place in order. Otherwise the order of widgets could be messed up.
             promise = promise
-               .then( () => prefixCompositionIds( self.pagesByRef[ compositionRef ], widgetSpec ) )
+               .then( () => prefixCompositionIds( self.lookup( compositionRef ), item ) )
                .then( composition =>
-                  processCompositionExpressions( self, composition, widgetSpec, message => {
+                  processCompositionExpressions( self, composition, item, message => {
                      throwError(
                         page,
-                        `Error loading composition "${compositionRef}" (id: "${widgetSpec.id}"). ${message}`
+                        `Error loading composition "${compositionRef}" (id: "${item.id}"). ${message}`
                      );
                   } )
                )
                .then( composition => {
                   const chain = compositionChain.concat( compositionRef );
-                  return processNestedCompositions( composition, widgetSpec.id, chain )
-                     .then( () => {
-                        // self.pageToolingCollector_.collectCompositionDefinition(
-                        //    topPageRef,
-                        //    widgetSpec.id,
-                        //    composition,
-                        //    FLAT
-                        // );
-                        return composition;
-                     } );
+                  return processNestedCompositions( composition, item.id, chain )
+                     .then( () => composition );
                } )
                .then( composition => {
-                  mergeCompositionAreasWithPageAreas( composition, page.definition, widgets, widgetSpec );
+                  mergeCompositionAreasWithPageAreas( composition, page.definition, widgets, item );
+                  validateWidgetItems( self, composition );
                } );
          } );
       } );
-
-      // // now that all IDs have been created, we can store a copy of the page prior to composition expansion
-      // if( page === topPage ) {
-      //    self.pageToolingCollector_.collectPageDefinition( topPageRef, page, COMPACT );
-      // }
-      // else {
-      //    self.pageToolingCollector_.collectCompositionDefinition( topPageRef, instanceId, page, COMPACT );
-      // }
 
       return promise;
    }
@@ -198,7 +203,8 @@ function processCompositions( self, topPage ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function mergeCompositionAreasWithPageAreas( composition, definition, widgets, compositionSpec ) {
-   object.forEach( composition.areas, ( compositionAreaWidgets, areaName ) => {
+   console.log( 'MERGE: ', composition.name ); // :TODO: MKU forgot to delete this, got tell him!
+   object.forEach( composition.definition.areas, ( compositionAreaWidgets, areaName ) => {
       if( areaName === '.' ) {
          insertAfterEntry( widgets, compositionSpec, compositionAreaWidgets );
          return;
@@ -229,7 +235,7 @@ function mergeCompositionAreasWithPageAreas( composition, definition, widgets, c
 
 function prefixCompositionIds( composition, widgetSpec ) {
    const prefixedAreas = {};
-   object.forEach( composition.areas, ( widgets, areaName ) => {
+   object.forEach( composition.definition.areas, ( widgets, areaName ) => {
       widgets.forEach( widget => {
          if( has( widget, 'id' ) ) {
             widget.id = widgetSpec.id + ID_SEPARATOR + widget.id;
@@ -244,7 +250,7 @@ function prefixCompositionIds( composition, widgetSpec ) {
 
       prefixedAreas[ areaName ] = widgets;
    } );
-   composition.areas = prefixedAreas;
+   composition.definition.areas = prefixedAreas;
    return composition;
 }
 
@@ -253,32 +259,21 @@ function prefixCompositionIds( composition, widgetSpec ) {
 function processCompositionExpressions( self, composition, item ) {
    const expressionData = {};
 
+   const { definition } = composition;
+
    // feature definitions in compositions may contain generated topics for default resource names or action
    // topics. As such these are generated before instantiating the composition's features.
-   composition.features = iterateOverExpressions( composition.features || {}, replaceExpression );
+   definition.features = iterateOverExpressions( definition.features || {}, replaceExpression );
 
-   let name;
-   let type;
-   let validate;
-   if( item.composition ) {
-      type = 'composition';
-      name = item.composition;
-      validate = self.validators.features.pages[ name ];
-   }
-   if( item.widget ) {
-      type = 'widget';
-      name = item.widget;
-      validate = self.validators.features.widgets[ name ];
-   }
+   const name = item.composition;
+   const validate = self.validators.features.pages[ name ];
 
    if( validate && !validate( item.features || {} ) ) {
-      throw self.validationError( type, name, validate.errors );
+      throw self.validationError( 'composition', name, validate.errors );
    }
 
-   // expressionData.features = featuresProvider.featuresForWidget( composition, item, throwPageError );
-
-   if( typeof composition.mergedFeatures === 'object' ) {
-      const mergedFeatures = iterateOverExpressions( composition.mergedFeatures, replaceExpression );
+   if( typeof definition.mergedFeatures === 'object' ) {
+      const mergedFeatures = iterateOverExpressions( definition.mergedFeatures, replaceExpression );
 
       Object.keys( mergedFeatures ).forEach( featurePath => {
          const currentValue = object.path( expressionData.features, featurePath, [] );
@@ -287,7 +282,11 @@ function processCompositionExpressions( self, composition, item ) {
       } );
    }
 
-   composition.areas = iterateOverExpressions( composition.areas, replaceExpression );
+   definition.areas = iterateOverExpressions( definition.areas, replaceExpression );
+
+   return composition;
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function replaceExpression( subject ) {
       const matches = subject.match( COMPOSITION_EXPRESSION_MATCHER );
@@ -308,8 +307,6 @@ function processCompositionExpressions( self, composition, item ) {
 
       return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;
    }
-
-   return composition;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

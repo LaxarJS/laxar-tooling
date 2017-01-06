@@ -58,7 +58,7 @@ export function create() {
 
       return Promise.all( [
          validateFlows( flows, validators ),
-         validatePages( pages, validators ),
+         validatePages( pages, validators, flows ),
          validateWidgets( widgets, validators )
       ] ).then( ( [ flows, pages, widgets ] ) => ( {
          ...artifacts,
@@ -86,10 +86,22 @@ export function create() {
     * @memberOf ArtifactValidator
     * @param {Array<Object>} pages the page artifacts to validate
     * @param {Object} validators validators created by {@link #buildValidators}
+    * @param {Array<Object>} flows the flows telling us which pages are entry-pages
     * @return {Promise<Array>} the validated pages
     */
-   function validatePages( pages, validators ) {
-      return Promise.all( pages.map( page => validatePage( page, validators, pages ) ) );
+   function validatePages( pages, validators, flows ) {
+
+      const entryPageRefs = {};
+      flows.forEach( flow => {
+         flow.pages.forEach( ref => {
+            entryPageRefs[ ref ] = true;
+         } );
+      } );
+      const entryPages = pages.filter( page => page.refs.some( ref => entryPageRefs[ ref ] ) );
+
+      return Promise.all(
+         entryPages.map( page => validatePage( page, validators, pages ) )
+      );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
