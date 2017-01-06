@@ -106,7 +106,7 @@ export function create( options ) {
     *    {@link ArtifactValidator}
     * @return {Promise<Object>} the generated listing, ready to be serialized.
     */
-   function buildArtifacts( artifacts ){
+   function buildArtifacts( artifacts ) {
       return Promise.all( [
          Promise.all( Object.keys( artifacts )
             .map( key => buildAliases( artifacts[ key ] ).then( aliases => ( { [ key ]: aliases } ) ) ) )
