@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import { create as createAjv, compileSchema } from './ajv';
+import { create as createAjv, compileSchema, validationError } from './ajv';
 import { create as createPageLoader } from './page_loader';
 
 export default { create };
@@ -123,7 +123,7 @@ export function create() {
       const validate = validators.flow;
       return validate( definition ) ?
          Promise.resolve( flow ) :
-         Promise.reject( validationError( `Validation failed for flow "${name}"`, validate.errors ) );
+         Promise.reject( validationError( ajv, `Validation failed for flow "${name}"`, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ export function create() {
          } );
       } );
 
-      const pageLoader = createPageLoader( validators, pagesByRef, validationError );
+      const pageLoader = createPageLoader( validators, pagesByRef );
       return pageLoader.load( page );
    }
 
@@ -147,19 +147,7 @@ export function create() {
       const validate = validators.widget;
       return validate( descriptor ) ?
          Promise.resolve( widget ) :
-         Promise.reject( validationError( `Validation failed for widget "${name}"`, validate.errors ) );
-   }
-
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   function validationError( message, errors ) {
-      const ajvMessage = ajv.errorsText( errors, { dataVar: '' } );
-      const error = new Error(
-         `${message}: ${ajvMessage} ${JSON.stringify(errors.map(e => e.params))}`
-      );
-      error.name = 'ValidationError';
-      error.errors = errors;
-      return error;
+         Promise.reject( validationError( ajv, `Validation failed for widget "${name}"`, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////

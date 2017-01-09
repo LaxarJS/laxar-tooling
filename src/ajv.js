@@ -53,18 +53,67 @@ export function create() {
    return ajv;
 }
 
+export function compileSchema( ajv, schema, sourceString, options = {} ) {
+   const {
+      prohibitAdditionalProperties = true,
+      expandFirstLevelDefaults = true
+   } = options;
 
-export function compileSchema( ajv, schema, sourceString ) {
    if( !schema.$schema ) {
-      throw new Error( `JSON schema for artifact ${sourceString} is missing "$schema" property` );
+      throw new Error( `JSON schema for artifact "${sourceString}" is missing "$schema" property` );
    }
    try {
-      setAdditionalPropertiesDefault( schema );
-      return ajv.compile( schema );
+      if( prohibitAdditionalProperties ) {
+         setAdditionalPropertiesDefault( schema );
+      }
+      const validate = ajv.compile( schema );
+      return expandFirstLevelDefaults ?
+         decorateValidate( validate, schema, setFirstLevelDefaults ) :
+         validate;
    }
    catch( e ) {
-      throw new Error( `Failed to compile JSON schema for artifact ${sourceString}\n${e}` );
+      throw new Error( `Failed to compile JSON schema for artifact "${sourceString}":\n${e}` );
    }
+
+}
+
+export function validationError( ajv, message, errors ) {
+   const trim = _ => _.replace( /^\s+/, '' ).replace( /\s+$/, '' );
+   const ajvMessage = ajv.errorsText( errors, { dataVar: '' } );
+   const error = new Error(
+      `${message}: ${trim(ajvMessage)} ${JSON.stringify(errors.map(e => e.params))}`
+   );
+   error.name = 'ValidationError';
+   error.errors = errors;
+   return error;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function decorateValidate( validate, schema, decorator ) {
+   const f = (object, rootPointer) => {
+      decorator( schema, object );
+      const result = validate( object, rootPointer );
+      if( !result ) {
+         f.errors = validate.errors;
+      }
+      return result;
+   };
+   return f;
+}
+
+function setFirstLevelDefaults( schema, object ) {
+   Object.keys( schema.properties || {} ).forEach( key => {
+      if( object[ key ] !== undefined ) {
+         return;
+      }
+      if( schema.properties[ key ].type === 'object' ) {
+         object[ key ] = {};
+      }
+      else if( schema.properties[ key ].type === 'array' ) {
+         object[ key ] = [];
+      }
+   } );
 }
 
 function setAdditionalPropertiesDefault( schema, value = false ) {

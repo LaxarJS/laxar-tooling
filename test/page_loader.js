@@ -3,12 +3,27 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
+import { create as createAjv } from '../src/ajv';
 import { create as createPageLoader } from '../src/page_loader';
 import pagesData from './data/pages.json';
-import * as object from '../src/utilities/object';
+import { forEach, deepClone } from '../src/utilities/object';
 import { expect } from 'chai';
 
-const fail = () => Promise.reject();
+const mockPageSchema = {
+   $schema: 'http://json-schema.org/draft-04/schema#',
+   type: 'object',
+   properties: {
+      areas: { type: 'object' },
+      layout: { type: 'string' },
+      extends: { type: 'string' }
+   },
+   additionalProperties: false
+};
+
+const pass = () => {};
+const unreachable = _ => Promise.reject( new Error(
+   `Promise should have been rejected, but was resolved with\n${JSON.stringify( _, null, 3 )}`
+) );
 
 describe( 'A PageLoader', () => {
 
@@ -16,46 +31,29 @@ describe( 'A PageLoader', () => {
    let validators;
    let pagesByRef;
 
-   let validationError;
-   let validationErrorCall;
-
-   let validationCalls;
-
-   function mockValidator( key ) {
-      return function validate( data ) {
-         validationCalls[ key ] = validationCalls[ key ] || [];
-         validationCalls[ key ].push( object.deepClone( data ) );
-         return !validate.errors;
-      };
-   }
-
    // TODO: test topic-format stuff
+   // TODO: test defaults stuff
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    beforeEach( () => {
-      validationCalls = {};
-      validationErrorCall = null;
-      validationError = function( ...args ) {
-         validationErrorCall = args;
-         return new Error( args.join( ', ' ) );
-      };
-      pagesByRef = object.deepClone( pagesData );
+      pagesByRef = deepClone( pagesData );
 
+      const ajv = createAjv();
       validators = {
-         page: mockValidator( 'page' ),
+         page: ajv.compile( mockPageSchema ),
          features: {
             widgets: {}
          }
       };
 
-      pageLoader = createPageLoader( validators, pagesByRef, validationError );
+      pageLoader = createPageLoader( validators, pagesByRef );
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    it( 'does not throw if it is created with the correct requirements', () => {
-      expect( () => { createPageLoader( validators, pagesByRef, validationError ); } ).not.to.throw();
+      expect( () => { createPageLoader( validators, pagesByRef ); } ).not.to.throw();
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,23 +79,23 @@ describe( 'A PageLoader', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'generates widget ids where they are missing', () => {
+      it( 'generates widget IDs where they are missing', () => {
          return pageLoader.load( pagesByRef.pageWithMissingWidgetIds )
             .then( expectUniqueWidgetIds );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'checks that widget ids are unique', () => {
+      it( 'checks that widget IDs are unique', () => {
          return pageLoader.load( pagesByRef.pageWithIdConflict )
-            .then( fail, () => {} );
+            .then( unreachable, pass );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'detects duplicate widget ids in the same area', () => {
+      it( 'detects duplicate widget IDs in the same area', () => {
          return pageLoader.load( pagesByRef.pageWithDuplicateWidgetIdsInSameArea )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.equal(
                   'Error loading page "pageWithDuplicateWidgetIdsInSameArea": ' +
                   'Duplicate widget/composition ID(s): id1'
@@ -107,9 +105,9 @@ describe( 'A PageLoader', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'detects duplicate widget ids in different areas', () => {
+      it( 'detects duplicate widget IDs in different areas', () => {
          return pageLoader.load( pagesByRef.pageWithDuplicateWidgetIdsInDifferentAreas )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.equal(
                   'Error loading page "pageWithDuplicateWidgetIdsInDifferentAreas": ' +
                   'Duplicate widget/composition ID(s): id1, id2'
@@ -148,7 +146,7 @@ describe( 'A PageLoader', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'generates widget ids where they are missing', () => {
+      it( 'generates widget IDs where they are missing', () => {
          return pageLoader.load( pagesByRef.pageWithMissingWidgetIdsAndInheritance )
             .then( ({ definition }) => {
                expect( definition.areas.area1.length ).to.eql( 6 );
@@ -162,7 +160,7 @@ describe( 'A PageLoader', () => {
 
       it( 'detects if both pages define a layout', () => {
          return pageLoader.load( pagesByRef.pageWithLayoutExtendingOtherPageWithLayout )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.eql(
                   'Error loading page "pageWithLayoutExtendingOtherPageWithLayout": ' +
                   'Page overwrites layout set by base page "pageWithLayout'
@@ -174,7 +172,7 @@ describe( 'A PageLoader', () => {
 
       it( 'detects direct cycles during extension', () => {
          return pageLoader.load( pagesByRef.pageThatExtendsItself )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.eql(
                   'Error loading page "pageThatExtendsItself": ' +
                   'Cycle in page extension detected: pageThatExtendsItself -> pageThatExtendsItself'
@@ -186,7 +184,7 @@ describe( 'A PageLoader', () => {
 
       it( 'detects indirect cycles during extension', () => {
          return pageLoader.load( pagesByRef.cyclicPage3 )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.eql(
                   'Error loading page "cyclicPage3": ' +
                   'Cycle in page extension detected: cyclicPage3 -> cyclicPage2 -> cyclicPage1 -> cyclicPage3'
@@ -196,9 +194,9 @@ describe( 'A PageLoader', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'detects duplicate widget ids', () => {
+      it( 'detects duplicate widget IDs', () => {
          return pageLoader.load( pagesByRef.derivedPageWithDuplicateIds )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.eql(
                   'Error loading page "derivedPageWithDuplicateIds": ' +
                   'Duplicate widget/composition ID(s): id1, id3'
@@ -226,7 +224,7 @@ describe( 'A PageLoader', () => {
 
       it( 'detects if no widget with id matching insertBeforeId exists', () => {
          return pageLoader.load( pagesByRef.derivedPageWithNonExistingInsertBeforeId )
-            .then( fail, ({ message }) => {
+            .then( unreachable, ({ message }) => {
                expect( message ).to.eql(
                   'Error loading page "derivedPageWithNonExistingInsertBeforeId": ' +
                   'No id found that matches insertBeforeId value "idXXX"'
@@ -260,7 +258,7 @@ describe( 'A PageLoader', () => {
 
    describe( 'when a page uses compositions', () => {
 
-      it( 'loads simple compositions into its parent area, prefixing ids used in the composition', () => {
+      it( 'loads simple compositions into its parent area, prefixing IDs used in the composition', () => {
          return pageLoader.load( pagesByRef.pageWithSimpleComposition )
             .then( ({ definition }) => {
                expect( definition.areas.area1.length ).to.eql( 5 );
@@ -368,257 +366,251 @@ describe( 'A PageLoader', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'compositions within compositions are resolved', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithEmbeddedComposition )
-         //    .then( page => {
-         //       expect( definition.areas.area1.length ).to.equal( 2 );
-         //       expect( definition.areas.area1[ 0 ] ).to.eql( {
-         //          widget: 'laxarjs/test_widget1',
-         //          id: 'compositionWithEmbeddedComposition-id0-myComposition-idx1',
-         //          features: {
-         //             open: { onActions: [ 'openAction' ] },
-         //             close: { onActions: [ 'shutdownAction' ] }
-         //          }
-         //       } );
-         //       expect( definition.areas.area1[ 1 ] ).to.eql( {
-         //          widget: 'laxarjs/test_widget2',
-         //          id: 'testWidget2-id1'
-         //       } );
-         //
-         //       expect( definition.areas.areaX.length ).to.equal( 1 );
-         //       expect( definition.areas.areaX[ 0 ] ).to.eql( {
-         //          widget: 'laxarjs/test_widget2',
-         //          id: 'testWidget2-id2',
-         //          features: {
-         //             importantFeature: {
-         //                resource: 'plane',
-         //                attribute: 'entries'
-         //             }
-         //          }
-         //       } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'compositions within compositions are resolved', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithEmbeddedComposition )
+            .then( ({ definition }) => {
+               expect( definition.areas.area1.length ).to.equal( 2 );
+               expect( definition.areas.area1[ 0 ] ).to.eql( {
+                  widget: 'laxarjs/test_widget1',
+                  id: 'compositionWithEmbeddedComposition-id0-myComposition-idx1',
+                  features: {
+                     open: { onActions: [ 'openAction' ] },
+                     close: { onActions: [ 'shutdownAction' ] }
+                  }
+               } );
+               expect( definition.areas.area1[ 1 ] ).to.eql( {
+                  widget: 'laxarjs/test_widget2',
+                  id: 'testWidget2-id1'
+               } );
+
+               expect( definition.areas.areaX.length ).to.equal( 1 );
+               expect( definition.areas.areaX[ 0 ] ).to.eql( {
+                  widget: 'laxarjs/test_widget2',
+                  id: 'testWidget2-id2',
+                  features: {
+                     importantFeature: {
+                        resource: 'plane',
+                        attribute: 'entries'
+                     }
+                  }
+               } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'merges configured features of type array with internal predefined items', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithMergedFeatures )
-         //    .then( page => {
-         //       expect( definition.areas.area1[ 0 ].features ).to.eql( {
-         //          close: {
-         //             onActions: [
-         //                'closeIt',
-         //                'myComposition+internalClose',
-         //                'closeAgain',
-         //                'needMoreCloseActions'
-         //             ]
-         //          }
-         //       } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'merges configured features of type array with internal predefined items', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithMergedFeatures )
+            .then( ({ definition }) => {
+               expect( definition.areas.area1[ 0 ].features ).to.eql( {
+                  close: {
+                     onActions: [
+                        'closeIt',
+                        'myComposition+internalClose',
+                        'closeAgain',
+                        'needMoreCloseActions'
+                     ]
+                  }
+               } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'detects direct cycles in compositions', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithDirectCycle )
-         //    .then( done.fail, err => {
-         //       expect( err ).to.eql( new Error(
-         //          'Error loading page "pageWithCompositionWithDirectCycle": ' +
-         //          'Cycle in compositions detected: compositionWithDirectCycle -> compositionWithDirectCycle'
-         //       ) );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'detects direct cycles in compositions', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithDirectCycle )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Error loading page "pageWithCompositionWithDirectCycle": ' +
+                  'Cycle in compositions detected: compositionWithDirectCycle -> compositionWithDirectCycle'
+               );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'detects indirect cycles in compositions', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithCycle )
-         //    .then( done.fail, err => {
-         //       expect( err ).to.eql( new Error(
-         //          'Error loading page "pageWithCompositionWithCycle": ' +
-         //          'Cycle in compositions detected: ' +
-         //          'compositionWithCycle -> compositionWithCycle2 -> compositionWithCycle'
-         //       ) );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'detects indirect cycles in compositions', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithCycle )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Error loading page "pageWithCompositionWithCycle": ' +
+                  'Cycle in compositions detected: ' +
+                  'compositionWithCycle -> compositionWithCycle2 -> compositionWithCycle'
+               );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'escapes topics and ids generated from compositions in subfolder correctly', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionInSubFolder )
-         //    .then( page => {
-         //       const widget = definition.areas.area1[ 0 ];
-         //       expect( widget.id ).to.eql( 'compositionInSubfolder-id0-myWidget3' );
-         //       expect( widget.features.xy.resource ).to.eql( 'compositionInSubfolder+id0+myResource' );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'escapes topics and IDs generated from compositions in subfolder correctly', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionInSubFolder )
+            .then( ({ definition }) => {
+               const widget = definition.areas.area1[ 0 ];
+               expect( widget.id ).to.eql( 'compositionInSubfolder-id0-myWidget3' );
+               expect( widget.features.xy.resource ).to.eql( 'compositionInSubfolder+id0+myResource' );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'replaces replacements in keys for widget features', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithReplacementsInKeys )
-         //    .then( page => {
-         //       const widget1 = definition.areas.area1[ 0 ];
-         //       const widget2 = definition.areas.area2[ 0 ];
-         //
-         //       expect( widget1.features ).to.eql( {
-         //          childResources: {
-         //             something: 'efficientFrontier'
-         //          }
-         //       } );
-         //       expect( widget2.features ).to.eql( {
-         //          actions: {
-         //             'myComposition+applyAction': [ 'first', 'myComposition+second' ]
-         //          }
-         //       } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'replaces replacements in keys for widget features', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithReplacementsInKeys )
+            .then( ({ definition }) => {
+               const widget1 = definition.areas.area1[ 0 ];
+               const widget2 = definition.areas.area2[ 0 ];
+
+               expect( widget1.features ).to.eql( {
+                  childResources: {
+                     something: 'efficientFrontier'
+                  }
+               } );
+               expect( widget2.features ).to.eql( {
+                  actions: {
+                     'myComposition+applyAction': [ 'first', 'myComposition+second' ]
+                  }
+               } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'allows generation of negated flags', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithNegatedGeneratedFlagName )
-         //    .then( page => {
-         //       const widget = definition.areas.area1[ 0 ];
-         //
-         //       expect( widget.features ).to.eql( {
-         //          buttons: [
-         //             {
-         //                action: 'one',
-         //                hideOn: [ 'myComposition+contentsShowing' ]
-         //             },
-         //             {
-         //                action: 'two',
-         //                hideOn: [ '!myComposition+contentsShowing' ]
-         //             }
-         //          ]
-         //       } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'allows generation of negated flags', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithNegatedGeneratedFlagName )
+            .then( ({ definition }) => {
+               const widget = definition.areas.area1[ 0 ];
+
+               expect( widget.features ).to.eql( {
+                  buttons: [
+                     {
+                        action: 'one',
+                        hideOn: [ 'myComposition+contentsShowing' ]
+                     },
+                     {
+                        action: 'two',
+                        hideOn: [ '!myComposition+contentsShowing' ]
+                     }
+                  ]
+               } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'omits compositions that are disabled (#24)', () => {
-         // return pageLoader.load( pagesByRef.pageWithDisabledComposition )
-         //    .then( page => {
-         //       expect( definition.areas.area1.length ).to.equal( 2 );
-         //       expect( definition.areas.area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );
-         //       expect( definition.areas.area1[ 1 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id2' } );
-         //
-         //       expect( definition.areas.area2.length ).to.equal( 1 );
-         //       expect( definition.areas.area2[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id3' } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'omits compositions that are disabled (#24)', () => {
+         return pageLoader.load( pagesByRef.pageWithDisabledComposition )
+            .then( ({ definition }) => {
+               expect( definition.areas.area1.length ).to.equal( 2 );
+               expect( definition.areas.area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );
+               expect( definition.areas.area1[ 1 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id2' } );
+
+               expect( definition.areas.area2.length ).to.equal( 1 );
+               expect( definition.areas.area2[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id3' } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'omits widgets that are disabled within compositions (#24)', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithDisabledWidgets )
-         //    .then( page => {
-         //       const { area1, area2 } = definition.areas;
-         //       expect( area1.length ).to.equal( 3 );
-         //       expect( area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );
-         //       expect( area1[ 1 ] ).to.eql( { widget: 'laxarjs/test_widget2', id: 'testWidget2-id1' } );
-         //       expect( area1[ 2 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id2' } );
-         //
-         //       expect( area2.length ).to.equal( 1 );
-         //       expect( area2[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id3' } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'omits widgets that are disabled within compositions (#24)', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithDisabledWidgets )
+            .then( ({ definition }) => {
+               const { area1, area2 } = definition.areas;
+               expect( area1.length ).to.equal( 3 );
+               expect( area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );
+               expect( area1[ 1 ] ).to.eql( { widget: 'laxarjs/test_widget2', id: 'testWidget2-id1' } );
+               expect( area1[ 2 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id2' } );
+
+               expect( area2.length ).to.equal( 1 );
+               expect( area2[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id3' } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       describe( 'when features are missing from the composition configuration (#29)', () => {
 
-         xit( 'removes undefined values in widget features', () => {
-            // return pageLoader.load( pagesByRef.pageWithFeaturesOfCompositionNotConfigured )
-            //    .then( page => {
-            //       expect( Object.keys( definition.areas.area1[ 0 ].features.anything ) ).to.eql( [] );
-            //       expect( definition.areas.area1[ 0 ].features.open.onActions ).to.eql( [] );
-            //    } )
-            //    .then( done, done.fail );
+         it( 'removes undefined values in widget features', () => {
+            return pageLoader.load( pagesByRef.pageWithFeaturesOfCompositionNotConfigured )
+               .then( ({ definition }) => {
+                  expect( Object.keys( definition.areas.area1[ 0 ].features.anything ) ).to.eql( [] );
+                  expect( definition.areas.area1[ 0 ].features.open.onActions ).to.eql( [] );
+               } );
          } );
 
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'keeps null values of widget feature configuration inside of compositions (#28)', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithNullFeatures )
-         //    .then( page => {
-         //       expect( definition.areas.area1[ 0 ].features.anything.resource ).to.equal( null );
-         //       expect( definition.areas.area1[ 0 ].features.open.onActions[ 0 ] ).to.equal( null );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'keeps null values of widget feature configuration inside of compositions (#28)', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithNullFeatures )
+            .then( ({ definition }) => {
+               expect( definition.areas.area1[ 0 ].features.anything.resource ).to.equal( null );
+               expect( definition.areas.area1[ 0 ].features.open.onActions[ 0 ] ).to.equal( null );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'throws an error for duplicate composition ids (#30)', () => {
-         // return pageLoader.load( pagesByRef.pageWithDuplicateIdForCompositions )
-         //    .then( done.fail, err => {
-         //       expect( err ).to.eql( new Error(
-         //          'Error loading page "pageWithDuplicateIdForCompositions": ' +
-         //          'Duplicate widget/composition ID(s): broken'
-         //       ) );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'throws an error for duplicate composition IDs (#30)', () => {
+         return pageLoader.load( pagesByRef.pageWithDuplicateIdForCompositions )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Error loading page "pageWithDuplicateIdForCompositions": ' +
+                  'Duplicate widget/composition ID(s): broken'
+               );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'accepts compositions without "." entry', () => {
-         // return pageLoader.load( pagesByRef.pageWithDotlessComposition )
-         //    .then( page => {
-         //       forEach( definition.areas, area => {
-         //          expect( area.length ).to.eql( 0 );
-         //       } );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'demands that compositions specify their schema version', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithoutSchemaVersion )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'JSON schema for artifact "compositionWithoutSchemaVersion" is missing "$schema" property'
+               );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'accepts insertBeforeId in compositions', () => {
-         // return pageLoader.load( pagesByRef.pageWithCompositionWithInsertBeforeId )
-         //    .then( ({ areas }) => {
-         //       expect( areas.test.length ).to.equal( 2 );
-         //       expect( areas.test[ 0 ].widget.indexOf( 'before' ) ).to.equal( 0 );
-         //       expect( areas.test[ 1 ].widget.indexOf( 'after' ) ).to.equal( 0 );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'accepts compositions without "." entry', () => {
+         return pageLoader.load( pagesByRef.pageWithDotlessComposition )
+            .then( ({ definition }) => {
+               forEach( definition.areas, area => {
+                  expect( area.length ).to.eql( 0 );
+               } );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'resolves ids correctly', () => {
-         // return pageLoader.load( pagesByRef.pageWithBrokenCompositionWithInsertBeforeId )
-         //    .then( ({ areas }) => {
-         //       expect( areas.test.length ).to.equal(4);
-         //       expect( areas.test[ 0 ].widget ).to.equal( 'before' );
-         //       expect( areas.test[ 1 ].widget ).to.equal( 'after' );
-         //       expect( areas.test[ 2 ].widget ).to.equal( 'before2' );
-         //       expect( areas.test[ 3 ].widget ).to.equal( 'after2' );
-         //    } )
-         //    .then( done, done.fail );
+      it( 'accepts insertBeforeId in compositions', () => {
+         return pageLoader.load( pagesByRef.pageWithCompositionWithInsertBeforeId )
+            .then( ({ definition: { areas } }) => {
+               expect( areas.test.length ).to.equal( 2 );
+               expect( areas.test[ 0 ].widget.indexOf( 'before' ) ).to.equal( 0 );
+               expect( areas.test[ 1 ].widget.indexOf( 'after' ) ).to.equal( 0 );
+            } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'checks widget and composition ids for uniqueness', () => {
-         // // jasmine demands at least one expectation
-         // expect( true ).to.equal( true );
-         // return pageLoader.load( pagesByRef.pageWithIdConflictWidgetVsComposition )
-         //    .then( done.fail, done );
+      it( 'resolves IDs correctly', () => {
+         return pageLoader.load( pagesByRef.pageWithBrokenCompositionWithInsertBeforeId )
+            .then( ({ definition: { areas } }) => {
+               expect( areas.test.length ).to.equal(4);
+               expect( areas.test[ 0 ].widget ).to.equal( 'before' );
+               expect( areas.test[ 1 ].widget ).to.equal( 'after' );
+               expect( areas.test[ 2 ].widget ).to.equal( 'before2' );
+               expect( areas.test[ 3 ].widget ).to.equal( 'after2' );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'checks widget and composition IDs for uniqueness', () => {
+         return pageLoader.load( pagesByRef.pageWithIdConflictWidgetVsComposition )
+            .then( unreachable, pass );
       } );
 
    } );
@@ -627,25 +619,21 @@ describe( 'A PageLoader', () => {
 
    describe( 'when loading an invalid page', () => {
 
-      // let rejectedSpy;
-      //
-      // beforeEach( () => {
-      //    rejectedSpy = jasmine.createSpy( 'rejectedSpy' ).and.callFake( done );
-      //    return pageLoader.load( pagesByRef.invalidPage ).then( done, rejectedSpy );
-      // } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      xit( 'rejects the load-promise', () => {
-         // expect( rejectedSpy ).toHaveBeenCalled();
+      it( 'rejects the load-promise', () => {
+         return pageLoader.load( pagesByRef.invalidPage )
+            .then( unreachable, pass );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'provides a useful error message', () => {
-         // expect( rejectedSpy.calls.argsFor(0)[ 0 ].message ).to.eql(
-         //    'Error loading page "invalidPage": Schema validation failed: ' +
-         //    '\n - String does not match pattern: ^[a-z][a-zA-Z0-9_]*$. Path: "$.areas.testArea[0].id".' );
+      it( 'provides a useful error message', () => {
+         return pageLoader.load( pagesByRef.invalidPage )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Validation failed for page "invalidPage": ' +
+                  'should NOT have additional properties [{"additionalProperty":"invalidKey"}]'
+               );
+            } );
       } );
 
    } );
@@ -654,28 +642,22 @@ describe( 'A PageLoader', () => {
 
    describe( 'when loading a page with invalid composition feature configureation', () => {
 
-      // let rejectedSpy;
-      //
-      // beforeEach( () => {
-      //    rejectedSpy = jasmine.createSpy( 'rejectedSpy' ).and.callFake( done );
-      //    return pageLoader.load( pagesByRef.pageWithFeaturesOfCompositionBadlyConfigured ).then( done, rejectedSpy );
-      // } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      xit( 'rejects the load-promise', () => {
-         // expect( rejectedSpy ).toHaveBeenCalled();
+      it( 'rejects the load-promise', () => {
+         return pageLoader.load( pagesByRef.pageWithFeaturesOfCompositionBadlyConfigured )
+            .then( unreachable, pass );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      xit( 'provides a useful error message', () => {
-         // expect( rejectedSpy.calls.argsFor(0)[ 0 ].message ).to.eql(
-         //    'Error loading page "pageWithFeaturesOfCompositionBadlyConfigured":' +
-         //    ' Error loading composition "compositionWithFeaturesWithoutDefaults"' +
-         //    ' (id: "compositionWithFeaturesWithoutDefaults-id0").' +
-         //    ' Validation of feature-configuration failed. Errors: \n' +
-         //    ' - Invalid type: integer should be string. Path: "$.something.resource".' );
+      it( 'provides a useful error message', () => {
+         return pageLoader.load( pagesByRef.pageWithFeaturesOfCompositionBadlyConfigured )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Validation of page pageWithFeaturesOfCompositionBadlyConfigured failed for ' +
+                  'compositionWithFeaturesWithoutDefaults features: ' +
+                  '/areas/area1/0/features/something/resource should be string [{"type":"string"}]'
+               );
+            } );
       } );
 
    } );
@@ -684,7 +666,7 @@ describe( 'A PageLoader', () => {
 
    function expectUniqueWidgetIds( page ) {
       const seenIds = {};
-      object.forEach( page.areas, widgetList => {
+      forEach( page.areas, widgetList => {
          widgetList.forEach( widgetSpec => {
             if( widgetSpec.hasOwnProperty( 'widget' ) ) {
                expect( widgetSpec ).to.have.property( 'id' );

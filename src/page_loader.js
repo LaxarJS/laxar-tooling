@@ -5,7 +5,7 @@
  */
 import * as object from './utilities/object';
 import * as string from './utilities/string';
-import { create as createAjv, compileSchema } from './ajv';
+import { create as createAjv, compileSchema, validationError } from './ajv';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
@@ -18,11 +18,10 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function PageLoader( validators, pagesByRef, validationError ) {
+function PageLoader( validators, pagesByRef ) {
    this.ajv = createAjv();
    this.validators = validators;
    this.pagesByRef = pagesByRef;
-   this.validationError = validationError;
    this.idCounter = 0;
 }
 
@@ -72,7 +71,8 @@ function loadPageRecursively( self, page, pageRef, extensionChain ) {
    }
 
    if( !self.validators.page( definition ) ) {
-      return Promise.reject( self.validationError(
+      return Promise.reject( validationError(
+         self.ajv,
          `Validation failed for page "${pageRef}"`,
          self.validators.page.errors
       ) );
@@ -87,7 +87,7 @@ function loadPageRecursively( self, page, pageRef, extensionChain ) {
          generateMissingIds( self, page );
          // we need to check ids before and after expanding compositions
          checkForDuplicateIds( self, page );
-         return processCompositions( self, page, name );
+         return processCompositions( self, page, pageRef );
       } )
       .then( () => {
          checkForDuplicateIds( self, page );
@@ -103,7 +103,8 @@ function validateWidgetItems( self, page, pageRef ) {
          const name = item.widget;
          const validate = self.validators.features.widgets[ name ];
          if( validate && !validate( item.features || {}, `/areas/${areaName}/${index}/features` ) ) {
-            throw self.validationError(
+            throw validationError(
+               self.ajv,
                `Validation of page ${pageRef} failed for ${name} features`,
                validate.errors
             );
@@ -193,7 +194,7 @@ function processCompositions( self, topPage, pageRef ) {
             promise = promise
                .then( () => prefixCompositionIds( self.lookup( compositionRef ), item ) )
                .then( composition =>
-                  processCompositionExpressions( self, composition, item, page, itemPointer )
+                  processCompositionExpressions( self, composition, item, itemPointer, pageRef )
                )
                .then( composition => {
                   const chain = compositionChain.concat( composition.name );
@@ -266,25 +267,24 @@ function prefixCompositionIds( composition, widgetSpec ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processCompositionExpressions( self, composition, item, containingPage, itemPointer ) {
+function processCompositionExpressions( self, composition, item, itemPointer, containingPageRef ) {
 
    const { definition } = composition;
 
-   // feature definitions in compositions may contain generated topics for default resource names or action
+   // Feature definitions in compositions may contain generated topics for default resource names or action
    // topics. As such these are generated before instantiating the composition's features.
    const compositionInstanceSchema = iterateOverExpressions( definition.features || {}, replaceExpression );
-   // console.log( '\n\ncompositionInstanceSchema: ', JSON.stringify( compositionInstanceSchema, null, 3 ) ); // :TODO: MKU forgot to delete this, got tell him!
    const ref = item.composition;
    const validate = definition.features && compileSchema( self.ajv, compositionInstanceSchema, ref );
 
    const itemFeatures = object.deepClone( item.features ) || {};
    if( validate && !validate( itemFeatures, `${itemPointer}/features` ) ) {
-      throw self.validationError(
-         `Validation of page ${containingPage.ref} failed for ${ref} features`,
+      throw validationError(
+         self.ajv,
+         `Validation of page ${containingPageRef} failed for ${ref} features`,
          validate.errors
       );
    }
-   // console.log( '\n\n... itemFeatures: ', JSON.stringify( itemFeatures, null, 3 ) ); // :TODO: MKU forgot to delete this, got tell him!
 
    if( typeof definition.mergedFeatures === 'object' ) {
       const mergedFeatures = iterateOverExpressions( definition.mergedFeatures, replaceExpression );
@@ -297,7 +297,6 @@ function processCompositionExpressions( self, composition, item, containingPage,
    }
 
    definition.areas = iterateOverExpressions( definition.areas, replaceExpression );
-   // console.log( '\n\n... definition.areas: ', JSON.stringify( definition.areas, null, 3 ) ); // :TODO: MKU forgot to delete this, got tell him!
 
    return composition;
 
@@ -315,16 +314,18 @@ function processCompositionExpressions( self, composition, item, containingPage,
       if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
          result = topicFromId( item.id ) +
             SUBTOPIC_SEPARATOR + expression.slice( COMPOSITION_TOPIC_PREFIX.length );
-         console.log( 'sub ', expression, ' to ', result ); // :TODO: MKU forgot to delete this, got tell him!
+         // TODO: remove
+         // console.log( 'sub ', expression, ' to ', result );
       }
       else if( itemFeatures ) {
          result = object.path( itemFeatures, expression.slice( 'features.'.length ) );
-         console.log( 'sub ', expression, ' to ', result, ' with ', itemFeatures ); // :TODO: MKU forgot to delete this, got tell him!
+         // TODO: remove
+         // console.log( 'sub ', expression, ' to ', result, ' with ', itemFeatures );
       }
       else {
          throw new Error(
-            `Validation of page ${containingPage.ref} failed: "${expression}" cannot be expanded here`
-         )
+            `Validation of page ${containingPageRef} failed: "${expression}" cannot be expanded here`
+         );
       }
 
       return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;
@@ -437,18 +438,6 @@ function generateMissingIds( self, page ) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// function validatePage( foundPage, pageName ) {
-//    const errors = createJsonValidator( pageSchema ).validate( foundPage );
-//    if( errors.length ) {
-//       const errorString = errors
-//          .reduce( ( errorString, errorItem ) => `${errorString}\n - ${errorItem.message}`, '' );
-//
-//       throwError( { name: pageName }, `Schema validation failed: ${errorString}` );
-//    }
-// }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Common functionality and utility functions
 //
@@ -517,14 +506,12 @@ function throwError( page, message ) {
  *    validators for artifacts/features
  * @param {Object} pagesByRef
  *    a mapping from pages to their definitions
- * @param {Object} validationError
- *    a function to generate error messages
  *
  * @return {PageLoader}
  *    a page loader instance
  *
  * @private
  */
-export function create( validators, pagesByRef, validationError ) {
-   return new PageLoader( validators, pagesByRef, validationError );
+export function create( validators, pagesByRef ) {
+   return new PageLoader( validators, pagesByRef );
 }
