@@ -3,8 +3,6 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-'use strict';
-
 import fs from 'fs';
 import path from 'path';
 import { expect } from 'chai';
@@ -142,4 +140,3 @@ describe( 'artifactCollector', () => {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 } );
-

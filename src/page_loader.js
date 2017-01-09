@@ -41,7 +41,15 @@ function PageLoader( validators, pagesByRef, validationError ) {
  * @private
  */
 PageLoader.prototype.load = function( page ) {
-   return loadPageRecursively( this, page, [] );
+   if( typeof page !== 'object' ) {
+      return Promise.reject( new Error( 'PageLoader.load must be called with a page artifact (object)' ) );
+   }
+   try {
+      return loadPageRecursively( this, page, page.name, [] );
+   }
+   catch( error ) {
+      return Promise.reject( error );
+   }
 };
 
 PageLoader.prototype.lookup = function( pageRef ) {
@@ -50,7 +58,7 @@ PageLoader.prototype.lookup = function( pageRef ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function loadPageRecursively( self, page, extensionChain ) {
+function loadPageRecursively( self, page, pageRef, extensionChain ) {
 
    const { definition, name } = page;
 
@@ -63,7 +71,7 @@ function loadPageRecursively( self, page, extensionChain ) {
 
    if( !self.validators.page( definition ) ) {
       return Promise.reject( self.validationError(
-         `Validation failed for page "${name}"`,
+         `Validation failed for page "${pageRef}"`,
          self.validators.page.errors
       ) );
    }
@@ -82,19 +90,19 @@ function loadPageRecursively( self, page, extensionChain ) {
       .then( () => {
          checkForDuplicateIds( self, page );
          removeDisabledWidgets( self, page );
-         validateWidgetItems( self, page );
+         validateWidgetItems( self, page, pageRef );
          return page;
       } );
 }
 
-function validateWidgetItems( self, page ) {
+function validateWidgetItems( self, page, pageRef ) {
    object.forEach( page.definition.areas, (area, areaName) => {
       area.filter( _ => !!_.widget ).forEach( (item, index) => {
          const name = item.widget;
          const validate = self.validators.features.widgets[ name ];
-         if( validate && !validate( item.features || {}, ` /areas/${areaName}[${index}]/features` ) ) {
+         if( validate && !validate( item.features || {}, `/areas/${areaName}/${index}/features` ) ) {
             throw self.validationError(
-               `Validation of page ${page.name} failed for ${name} features`,
+               `Validation of page ${pageRef} failed for ${name} features`,
                validate.errors
             );
          }
@@ -111,8 +119,9 @@ function validateWidgetItems( self, page ) {
 function processExtends( self, page, extensionChain ) {
    const { definition, name } = page;
    if( has( definition, 'extends' ) ) {
-      const unprocessedBasePage = self.lookup( definition[ 'extends' ] );
-      return loadPageRecursively( self, unprocessedBasePage, extensionChain.concat( [ name ] ) )
+      const pageRef = definition.extends;
+      const unprocessedBasePage = self.lookup( pageRef );
+      return loadPageRecursively( self, unprocessedBasePage, pageRef, extensionChain.concat( [ name ] ) )
          .then( basePage => {
             mergePageWithBasePage( page, basePage );
          } );
@@ -150,16 +159,16 @@ function mergePageWithBasePage( page, basePage ) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processCompositions( self, topPage ) {
+function processCompositions( self, topPage, pageRef ) {
 
-   return processNestedCompositions( topPage, null, [] );
+   return processNestedCompositions( topPage, pageRef, null, [] );
 
-   function processNestedCompositions( page, instanceId, compositionChain ) {
+   function processNestedCompositions( page, pageRef, instanceId, compositionChain ) {
 
       let promise = Promise.resolve();
 
-      object.forEach( page.definition.areas, widgets => {
-         widgets.slice().reverse().forEach( item => {
+      object.forEach( page.definition.areas, (widgets, areaName) => {
+         widgets.slice().reverse().forEach( (item, index) => {
             if( item.enabled === false ) {
                return;
             }
@@ -175,26 +184,23 @@ function processCompositions( self, topPage ) {
                throwError( topPage, message );
             }
 
+            const itemPointer = `/areas/${areaName}/${widgets.length - index - 1}`;
+
             // Compositions must be loaded sequentially, because replacing the widgets in the page needs to
             // take place in order. Otherwise the order of widgets could be messed up.
             promise = promise
                .then( () => prefixCompositionIds( self.lookup( compositionRef ), item ) )
                .then( composition =>
-                  processCompositionExpressions( self, composition, item, message => {
-                     throwError(
-                        page,
-                        `Error loading composition "${compositionRef}" (id: "${item.id}"). ${message}`
-                     );
-                  } )
+                  processCompositionExpressions( self, composition, item, page, itemPointer )
                )
                .then( composition => {
-                  const chain = compositionChain.concat( compositionRef );
-                  return processNestedCompositions( composition, item.id, chain )
+                  const chain = compositionChain.concat( composition.name );
+                  return processNestedCompositions( composition, compositionRef, item.id, chain )
                      .then( () => composition );
                } )
                .then( composition => {
                   mergeCompositionAreasWithPageAreas( composition, page.definition, widgets, item );
-                  validateWidgetItems( self, composition );
+                  validateWidgetItems( self, composition, compositionRef );
                } );
          } );
       } );
@@ -258,7 +264,7 @@ function prefixCompositionIds( composition, widgetSpec ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processCompositionExpressions( self, composition, item ) {
+function processCompositionExpressions( self, composition, item, containingPage, itemPointer ) {
    const expressionData = {};
 
    const { definition } = composition;
@@ -270,8 +276,11 @@ function processCompositionExpressions( self, composition, item ) {
 
    const name = item.composition;
    const validate = self.validators.features.pages[ name ];
-   if( validate && !validate( expressionData.features || {} ) ) {
-      throw self.validationError( `Validation failed for composition "${name}"`, validate.errors );
+   if( validate && !validate( expressionData.features || {}, `${itemPointer}/features` ) ) {
+      throw self.validationError(
+         `Validation of page ${containingPage.name} failed for ${name} features`,
+         validate.errors
+      );
    }
 
    if( typeof definition.mergedFeatures === 'object' ) {

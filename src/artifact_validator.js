@@ -153,8 +153,9 @@ export function create() {
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validationError( message, errors ) {
+      const ajvMessage = ajv.errorsText( errors, { dataVar: '' } );
       const error = new Error(
-         `${message}: ${ajv.errorsText(errors)} ${JSON.stringify(errors.map(e => e.params))}`
+         `${message}: ${ajvMessage} ${JSON.stringify(errors.map(e => e.params))}`
       );
       error.name = 'ValidationError';
       error.errors = errors;
@@ -196,7 +197,10 @@ function compileSchemas( ajv, artifacts, get ) {
    return artifacts.reduce( ( schemas, { refs, ...artifact } ) => {
       const schema = get( artifact );
 
-      if( schema && schema.$schema ) {
+      if( schema ) {
+         if( !schema.$schema ) {
+            throw new Error( `JSON schema for artifact ${refs.join(', ')} is missing "$schema" property` );
+         }
          try {
             const validate = compileSchema( schema );
 
