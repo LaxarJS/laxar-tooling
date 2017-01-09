@@ -44,13 +44,65 @@ const AJV_FORMATS = {
  * @return {Ajv} an Ajv instance
  */
 export function create() {
-   const ajv = new Ajv( { jsonPointers: true } );
+   const ajv = new Ajv( { jsonPointers: true, useDefaults: true } );
 
    Object.keys( AJV_FORMATS ).forEach( key => {
       ajv.addFormat( key, AJV_FORMATS[ key ] );
    } );
 
    return ajv;
+}
+
+
+export function compileSchema( ajv, schema, sourceString ) {
+   if( !schema.$schema ) {
+      throw new Error( `JSON schema for artifact ${sourceString} is missing "$schema" property` );
+   }
+   try {
+      setAdditionalPropertiesDefault( schema );
+      return ajv.compile( schema );
+   }
+   catch( e ) {
+      throw new Error( `Failed to compile JSON schema for artifact ${sourceString}\n${e}` );
+   }
+}
+
+function setAdditionalPropertiesDefault( schema, value = false ) {
+   return applyToSchemas( schema, schema => {
+      if( ( 'properties' in schema || 'patternProperties' in schema ) &&
+         !( 'additionalProperties' in schema ) ) {
+         schema.additionalProperties = value;
+      }
+   } );
+}
+
+function applyToSchemas( schema, callback ) {
+
+   return applyRecursively( schema );
+
+   function applyRecursively( schema ) {
+      if( typeof schema === 'object' ) {
+         callback( schema );
+
+         if( schema.items ) {
+            applyRecursively( schema.items );
+         }
+         if( schema.properties ) {
+            forEachValue( schema.properties, applyRecursively );
+         }
+         if( schema.patternProperties ) {
+            forEachValue( schema.patternProperties, applyRecursively );
+         }
+         if( schema.additionalProperties ) {
+            applyRecursively( schema.additionalProperties );
+         }
+      }
+      return schema;
+   }
+
+   function forEachValue( object, callback ) {
+      return Object.keys( object ).forEach( key => callback( object[ key ], key, object ) );
+   }
 }
 
 function stringTest( format ) {

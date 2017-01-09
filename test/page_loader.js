@@ -45,13 +45,9 @@ describe( 'A PageLoader', () => {
       validators = {
          page: mockValidator( 'page' ),
          features: {
-            widgets: {},
-            pages: {}
+            widgets: {}
          }
       };
-      Object.keys( pagesByRef ).forEach( ref => {
-         validators.features.pages[ ref ] = mockValidator( ref );
-      } );
 
       pageLoader = createPageLoader( validators, pagesByRef, validationError );
    } );
@@ -344,12 +340,6 @@ describe( 'A PageLoader', () => {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'replaces feature expressions with provided features and omitted defaults', () => {
-
-         validators.features.pages.compositionWithFeaturesDefined = function( object ) {
-            object.something = { resource: '${topic:myResource}' };
-            return true;
-         };
-
          return pageLoader.load( pagesByRef.pageWithCompositionWithFeaturesOmittingDefaults )
             .then( ({ definition }) => {
                expect( definition.areas.area1.length ).to.equal( 1 );

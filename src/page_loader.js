@@ -5,6 +5,7 @@
  */
 import * as object from './utilities/object';
 import * as string from './utilities/string';
+import { create as createAjv, compileSchema } from './ajv';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
@@ -18,6 +19,7 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function PageLoader( validators, pagesByRef, validationError ) {
+   this.ajv = createAjv();
    this.validators = validators;
    this.pagesByRef = pagesByRef;
    this.validationError = validationError;
@@ -265,35 +267,37 @@ function prefixCompositionIds( composition, widgetSpec ) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function processCompositionExpressions( self, composition, item, containingPage, itemPointer ) {
-   const expressionData = {};
 
    const { definition } = composition;
 
    // feature definitions in compositions may contain generated topics for default resource names or action
    // topics. As such these are generated before instantiating the composition's features.
-   definition.features = iterateOverExpressions( definition.features || {}, replaceExpression );
-   expressionData.features = object.deepClone( item.features );
+   const compositionInstanceSchema = iterateOverExpressions( definition.features || {}, replaceExpression );
+   // console.log( '\n\ncompositionInstanceSchema: ', JSON.stringify( compositionInstanceSchema, null, 3 ) ); // :TODO: MKU forgot to delete this, got tell him!
+   const ref = item.composition;
+   const validate = definition.features && compileSchema( self.ajv, compositionInstanceSchema, ref );
 
-   const name = item.composition;
-   const validate = self.validators.features.pages[ name ];
-   if( validate && !validate( expressionData.features || {}, `${itemPointer}/features` ) ) {
+   const itemFeatures = object.deepClone( item.features ) || {};
+   if( validate && !validate( itemFeatures, `${itemPointer}/features` ) ) {
       throw self.validationError(
-         `Validation of page ${containingPage.name} failed for ${name} features`,
+         `Validation of page ${containingPage.ref} failed for ${ref} features`,
          validate.errors
       );
    }
+   // console.log( '\n\n... itemFeatures: ', JSON.stringify( itemFeatures, null, 3 ) ); // :TODO: MKU forgot to delete this, got tell him!
 
    if( typeof definition.mergedFeatures === 'object' ) {
       const mergedFeatures = iterateOverExpressions( definition.mergedFeatures, replaceExpression );
 
       Object.keys( mergedFeatures ).forEach( featurePath => {
-         const currentValue = object.path( expressionData.features, featurePath, [] );
+         const currentValue = object.path( itemFeatures, featurePath, [] );
          const values = mergedFeatures[ featurePath ];
-         object.setPath( expressionData.features, featurePath, values.concat( currentValue ) );
+         object.setPath( itemFeatures, featurePath, values.concat( currentValue ) );
       } );
    }
 
    definition.areas = iterateOverExpressions( definition.areas, replaceExpression );
+   // console.log( '\n\n... definition.areas: ', JSON.stringify( definition.areas, null, 3 ) ); // :TODO: MKU forgot to delete this, got tell him!
 
    return composition;
 
@@ -310,10 +314,17 @@ function processCompositionExpressions( self, composition, item, containingPage,
       let result;
       if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
          result = topicFromId( item.id ) +
-            SUBTOPIC_SEPARATOR + expression.substr( COMPOSITION_TOPIC_PREFIX.length );
+            SUBTOPIC_SEPARATOR + expression.slice( COMPOSITION_TOPIC_PREFIX.length );
+         console.log( 'sub ', expression, ' to ', result ); // :TODO: MKU forgot to delete this, got tell him!
+      }
+      else if( itemFeatures ) {
+         result = object.path( itemFeatures, expression.slice( 'features.'.length ) );
+         console.log( 'sub ', expression, ' to ', result, ' with ', itemFeatures ); // :TODO: MKU forgot to delete this, got tell him!
       }
       else {
-         result = object.path( expressionData, expression );
+         throw new Error(
+            `Validation of page ${containingPage.ref} failed: "${expression}" cannot be expanded here`
+         )
       }
 
       return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;

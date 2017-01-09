@@ -704,6 +704,9 @@
                                "type": "string",
                                "default": "${topic:myResource}"
                            }
+                       },
+                       "default": {
+                          "resource": "${topic:myResource}"
                        }
                    }
                }
@@ -714,7 +717,7 @@
                    "id": "idx1",
                    "features": {
                        "open": {
-                           "onActions": ["openAction"]
+                           "onActions": [ "openAction" ]
                        },
                        "close": {
                            "onActions": "${features.close.onActions}"

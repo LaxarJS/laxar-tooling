@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import { create as createAjv } from './ajv';
+import { create as createAjv, compileSchema } from './ajv';
 import { create as createPageLoader } from './page_loader';
 
 export default { create };
@@ -54,7 +54,7 @@ export function create() {
     * @return {Promise<Object>} the validated artifacts
     */
    function validateArtifacts( { schemas, flows, pages, widgets, ...artifacts } ) {
-      const validators = buildValidators( { schemas, pages, widgets } );
+      const validators = buildValidators( { schemas, widgets } );
 
       return Promise.all( [
          validateFlows( flows, validators ),
@@ -171,13 +171,10 @@ export function create() {
     * @memberOf ArtifactValidator
     * @return {Object} an object containg validation functions.
     */
-   function buildValidators( { schemas, pages, widgets } ) {
+   function buildValidators( { schemas, widgets } ) {
       const validators = compileSchemas( ajv, schemas, ( { definition } ) => definition );
       const features = {};
 
-      if( pages && pages.length ) {
-         features.pages = compileSchemas( ajv, pages, ( { definition } ) => definition.features );
-      }
       if( widgets && widgets.length ) {
          features.widgets = compileSchemas( ajv, widgets, ( { descriptor } ) => descriptor.features );
       }
@@ -196,70 +193,13 @@ function compileSchemas( ajv, artifacts, get ) {
 
    return artifacts.reduce( ( schemas, { refs, ...artifact } ) => {
       const schema = get( artifact );
-
       if( schema ) {
-         if( !schema.$schema ) {
-            throw new Error( `JSON schema for artifact ${refs.join(', ')} is missing "$schema" property` );
-         }
-         try {
-            const validate = compileSchema( schema );
-
-            refs.forEach( ref => {
-               schemas[ ref ] = validate;
-            } );
-         }
-         catch( e ) {
-            throw new Error( `Failed to compile JSON schema for artifact ${refs.join(', ')}\n${e}` );
-         }
+         const validate = compileSchema( ajv, schema, refs.join( ', ' ) );
+         refs.forEach( ref => {
+            schemas[ ref ] = validate;
+         } );
       }
-
       return schemas;
    }, {} );
 
-   function compileSchema( schema ) {
-      setAdditionalPropertiesDefault( schema );
-      return ajv.compile( schema );
-   }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function setAdditionalPropertiesDefault( schema, value = false ) {
-   return applyToSchemas( schema, schema => {
-      if( ( 'properties' in schema || 'patternProperties' in schema ) &&
-         !( 'additionalProperties' in schema ) ) {
-         schema.additionalProperties = value;
-      }
-   } );
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function applyToSchemas( schema, callback ) {
-
-   return applyRecursively( schema );
-
-   function applyRecursively( schema ) {
-      if( typeof schema === 'object' ) {
-         callback( schema );
-
-         if( schema.items ) {
-            applyRecursively( schema.items );
-         }
-         if( schema.properties ) {
-            forEachValue( schema.properties, applyRecursively );
-         }
-         if( schema.patternProperties ) {
-            forEachValue( schema.patternProperties, applyRecursively );
-         }
-         if( schema.additionalProperties ) {
-            applyRecursively( schema.additionalProperties );
-         }
-      }
-      return schema;
-   }
-
-   function forEachValue( object, callback ) {
-      return Object.keys( object ).forEach( key => callback( object[ key ], key, object ) );
-   }
 }
