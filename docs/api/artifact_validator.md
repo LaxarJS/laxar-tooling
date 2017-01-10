@@ -1,7 +1,7 @@
 
 # <a id="artifactValidator"></a>artifactValidator
 
-Validate application artifacts with JSON schema
+Assemble and validate application artifacts using JSON schema
 
 ## Contents
 
@@ -70,7 +70,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated flows |
 
-#### <a id="validatePages"></a>validatePages( pages, validators )
+#### <a id="validatePages"></a>validatePages( pages, validators, flows )
 
 ##### Parameters
 
@@ -78,6 +78,7 @@ Example:
 | -------- | ---- | ----------- |
 | pages | `Array.<Object>` |  the page artifacts to validate |
 | validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
+| flows | `Array.<Object>` |  the flows telling us which pages are entry-pages |
 
 ##### Returns
 

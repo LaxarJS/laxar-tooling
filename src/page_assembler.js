@@ -3,6 +3,12 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
+ /**
+  * Assemble pages by expanding "extends" and "composition" entries.
+  * Also performs JSON schema validation for pages and for instances of compositions/widgets.
+  *
+  * @module page_assembler
+  */
 import { deepClone, path, setPath } from './utils';
 import { create as createAjv } from './ajv';
 
@@ -74,7 +80,7 @@ export function create( validators, pagesByRef ) {
 
       const { definition, name } = page;
 
-      if( extensionChain.includes( name ) ) {
+      if( extensionChain.indexOf( name ) !== -1 ) {
          throwError(
             page,
             `Cycle in page extension detected: ${extensionChain.concat( [ name ] ).join( ' -> ' )}`
@@ -193,7 +199,7 @@ export function create( validators, pagesByRef ) {
                }
 
                const compositionRef = item.composition;
-               if( compositionChain.includes( compositionRef ) ) {
+               if( compositionChain.indexOf( compositionRef ) !== -1 ) {
                   const chainString = compositionChain.concat( [ compositionRef ] ).join( ' -> ' );
                   const message = `Cycle in compositions detected: ${chainString}`;
                   throwError( topPage, message );

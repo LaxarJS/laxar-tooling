@@ -78,8 +78,8 @@ export function create() {
       }
       if( isFeaturesValidator ) {
          setAdditionalPropertiesDefault( schema );
-         translateCustomKeywordFormats( schema );
       }
+      translateCustomKeywordFormats( schema );
 
       try {
          const validate = ajv.compile( schema );

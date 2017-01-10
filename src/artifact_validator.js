@@ -137,7 +137,7 @@ export function create() {
       } );
 
       const pageAssembler = createPageAssembler( validators, pagesByRef );
-      return pageAssembler.assemle( page );
+      return pageAssembler.assemble( page );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
