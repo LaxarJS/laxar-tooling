@@ -1157,5 +1157,142 @@
             ]
          }
       }
+   },
+   "pageWithWidgetToValidateWithoutSchema": {
+      "name": "pageWithWidgetToValidateWithoutSchema",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetWithoutSchema"
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateWithDefaultsOmitted": {
+      "name": "pageWithWidgetToValidateWithDefaultsOmitted",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetWithSchema",
+                  "features": {
+                     "button": {
+                        "action": "punch"
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateWithDefaultsOverwritten": {
+      "name": "pageWithWidgetToValidateWithDefaultsOverwritten",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetWithSchema",
+                  "features": {
+                     "button": {
+                        "label": "push the button",
+                        "action": "panic"
+                     },
+                     "headline": {
+                        "enabled": true
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateWithRequiredValuesMissing": {
+      "name": "pageWithWidgetToValidateWithRequiredValuesMissing",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetWithSchema"
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateWithWrongPropertyType": {
+      "name": "pageWithWidgetToValidateWithWrongPropertyType",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetWithSchema",
+                  "features": {
+                     "button": {
+                        "action": 7
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateWithWrongPropertyFormat": {
+      "name": "pageWithWidgetToValidateWithWrongPropertyType",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetWithSchema",
+                  "features": {
+                     "button": {
+                        "action": "this_is_not_allowed"
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateWithMissingTopLevelValues": {
+      "name": "pageWithWidgetToValidateWithMissingTopLevelValues",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "otherWidgetWithSchema",
+                  "features": {
+                  }
+               }
+            ]
+         }
+      }
+   },
+   "pageWithWidgetToValidateUsingFormats": {
+      "name": "pageWithWidgetToValidateUsingFormats",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "widgetUsingFormats",
+                  "features": {
+                     "testFeature": {
+                        "i18nLabel": {
+                           "de": "test",
+                           "en_US": "more test"
+                        },
+                        "someLanguageTag": "de_AT-x-laxar",
+                        "resourceByAction": {
+                           "myAction": "myResource",
+                           "myAction-ok": "myResource+stuff"
+                        },
+                        "someSubTopic": "a+sub+topic",
+                        "onSomeFlags": [ "positive", "!oh-so-negated" ]
+                     }
+                  }
+               }
+            ]
+         }
+      }
    }
 }

@@ -3,7 +3,7 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-import { create as createAjv } from '../src/ajv';
+import { create as createAjv, compileSchema } from '../src/ajv';
 import { create as createPageLoader } from '../src/page_loader';
 import pagesData from './data/pages.json';
 import { forEach, deepClone } from '../src/utilities/object';
@@ -27,27 +27,245 @@ const unreachable = _ => Promise.reject( new Error(
 
 describe( 'A PageLoader', () => {
 
+   let ajv;
    let pageLoader;
    let validators;
    let pagesByRef;
-
-   // TODO: test topic-format stuff
-   // TODO: test defaults stuff
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    beforeEach( () => {
       pagesByRef = deepClone( pagesData );
-
-      const ajv = createAjv();
+      ajv = createAjv();
       validators = {
          page: ajv.compile( mockPageSchema ),
          features: {
             widgets: {}
          }
       };
-
       pageLoader = createPageLoader( validators, pagesByRef );
+   } );
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   // TODO: test topic-format stuff
+
+   describe( 'when instantiating a widget', () => {
+
+      beforeEach( () => {
+         const widgetSchema = {
+            '$schema': 'http://json-schema.org/draft-04/schema#',
+            type: 'object',
+            properties: {
+               button: {
+                  type: 'object',
+                  required: [ 'action' ],
+                  properties: {
+                     label: {
+                        type: [ 'string', 'null' ],
+                        default: 'hit me'
+                     },
+                     action: {
+                        type: 'string',
+                        format: 'topic'
+                     }
+                  }
+               },
+               headline: {
+                  type: 'object',
+                  properties: {
+                     enabled: {
+                        type: 'boolean',
+                        'default': false
+                     }
+                  }
+               }
+            }
+         };
+
+         const otherWidgetSchema = {
+            $schema: 'http://json-schema.org/draft-04/schema#',
+            type: 'object',
+            properties: {
+               featureOne: {
+                  type: 'object',
+                  properties: {
+                     x: {
+                        type: 'string',
+                        'default': 'hey'
+                     }
+                  }
+               },
+               featureTwo: {
+                  type: 'object'
+               },
+               featureThree: {
+                  type: 'array'
+               }
+            }
+         };
+
+         const schemaUsingFormats = {
+            $schema: 'http://json-schema.org/draft-04/schema#',
+            type: 'object',
+            properties: {
+               testFeature: {
+                  type: 'object',
+                  properties: {
+                     i18nLabel: {
+                        type: [ 'string', 'object' ],
+                        format: 'localization'
+                     },
+                     someLanguageTag: {
+                        type: 'string',
+                        format: 'language-tag'
+                     },
+                     resourceByAction: {
+                        type: 'object',
+                        format: 'topic-map',
+                        additionalProperties: {
+                           type: 'string',
+                           format: 'topic'
+                        }
+                     },
+                     someSubTopic: {
+                        type: 'string',
+                        format: 'sub-topic'
+                     },
+                     onSomeFlags: {
+                        type: 'array',
+                        items: {
+                           type: 'string',
+                           format: 'flag-topic'
+                        }
+                     }
+                  }
+               }
+            }
+         };
+
+         validators.features.widgets.widgetWithoutSchema = null;
+         validators.features.widgets.widgetWithSchema = compileSchema( ajv, widgetSchema );
+         validators.features.widgets.otherWidgetWithSchema = compileSchema( ajv, otherWidgetSchema );
+         validators.features.widgets.widgetUsingFormats = compileSchema( ajv, schemaUsingFormats );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'uses defaults to fill missing widget configuration values', () => {
+         return pageLoader.load( pagesByRef.pageWithWidgetToValidateWithDefaultsOmitted )
+            .then( ({ definition }) => {
+               expect( definition.areas.content.length ).to.eql( 1 );
+               expect( definition.areas.content[ 0 ].features ).to.eql( {
+                  button: {
+                     label: 'hit me',
+                     action: 'punch'
+                  },
+                  headline: {
+                     enabled: false
+                  }
+               } );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'uses overwritten values if specified, rather than defaults', () => {
+         return pageLoader.load( pagesByRef.pageWithWidgetToValidateWithDefaultsOverwritten )
+            .then( ({ definition }) => {
+               expect( definition.areas.content.length ).to.eql( 1 );
+               expect( definition.areas.content[ 0 ].features ).to.eql( {
+                  button: {
+                     label: 'push the button',
+                     action: 'panic'
+                  },
+                  headline: {
+                     enabled: true
+                  }
+               } );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'reports when missing required features lead to an error', () => {
+         return pageLoader.load( pagesByRef.pageWithWidgetToValidateWithRequiredValuesMissing )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Validation of page pageWithWidgetToValidateWithRequiredValuesMissing failed for ' +
+                  'widgetWithSchema features: /areas/content/0/features/button should have required ' +
+                  'property \'action\' [{"missingProperty":"action"}]'
+               );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'reports when using the wrong property type leads to an error', () => {
+         return pageLoader.load( pagesByRef.pageWithWidgetToValidateWithWrongPropertyType )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Validation of page pageWithWidgetToValidateWithWrongPropertyType failed for ' +
+                  'widgetWithSchema features: /areas/content/0/features/button/action should be string ' +
+                  '[{"type":"string"}]'
+               );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'reports when using the wrong property format leads to an error', () => {
+         return pageLoader.load( pagesByRef.pageWithWidgetToValidateWithWrongPropertyFormat )
+            .then( unreachable, ({ message }) => {
+               expect( message ).to.eql(
+                  'Validation of page pageWithWidgetToValidateWithWrongPropertyType failed for ' +
+                  'widgetWithSchema features: /areas/content/0/features/button/action should match format ' +
+                  '"topic" [{"format":"topic"}]'
+               );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'infers top-level defaults', () => {
+         return pageLoader.load( pagesByRef.pageWithWidgetToValidateWithMissingTopLevelValues )
+            .then( ({ definition: { areas } }) => {
+               expect( areas.content[ 0 ].features ).to.eql( {
+                  featureOne: { x: 'hey' },
+                  featureTwo: {},
+                  featureThree: []
+               } );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      describe( 'when a page configuration violates the "localication" format', () => {
+
+         let page;
+
+         beforeEach( () => {
+            page = pagesByRef.pageWithWidgetToValidateUsingFormats;
+            console.log( 'PAGE', JSON.stringify( page ) ); // :TODO: MKU forgot to delete this, got tell him!
+            const { features } = page.definition.areas.content[ 0 ];
+            features.testFeature.i18nLabel[ 'bad tag' ] = 'bad tag';
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'fails with a helpful error message', () => {
+            return pageLoader.load( page )
+               .then( unreachable, ({ message }) => {
+                  expect( message ).to.eql(
+                     'Validation of page pageWithWidgetToValidateWithWrongPropertyType failed for ' +
+                     'widgetWithSchema features: /areas/content/0/features/button/action should match ' +
+                     'format "topic" [{"format":"topic"}]'
+                  );
+               } );
+         } );
+
+      } );
+
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,13 +284,7 @@ describe( 'A PageLoader', () => {
 
    describe( 'when loading a simple page', () => {
 
-      beforeEach( () => {
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
       it( 'resolves with the loaded page', () => {
-         // TODO: make sure validation is tested
          return pageLoader.load( pagesByRef.basePage )
             .then( page => expect( page ).eql( pagesByRef.basePage ) );
       } );
