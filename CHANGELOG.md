@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.5.0-alpha.4
+
 - [#17](https://github.com/LaxarJS/laxar-tooling/issues/17): fixed page-assembler integration
 
 
