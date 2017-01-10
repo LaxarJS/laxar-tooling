@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+- [#15](https://github.com/LaxarJS/laxar-tooling/issues/15): assemble pages during build
+
+
 ## v0.5.0-alpha.2
 
 - [#16](https://github.com/LaxarJS/laxar-tooling/issues/16): fix incorrect `theme.css` path
