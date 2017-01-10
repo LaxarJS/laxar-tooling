@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.5.0-alpha.3
+
 - [#15](https://github.com/LaxarJS/laxar-tooling/issues/15): assemble pages during build
 
 
