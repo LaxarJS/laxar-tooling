@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.5.0-alpha.5
+
 - [#19](https://github.com/LaxarJS/laxar-tooling/issues/19): page assembler: use names for IDs, not refs
 
 
