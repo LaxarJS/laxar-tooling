@@ -1,0 +1,157 @@
+{
+   "someWidgetPath1": {
+      "name": "someWidgetPath1",
+      "definition": {}
+   },
+   "someWidgetPath1": {
+      "name": "someWidgetPath1",
+      "definition": {}
+   },
+   "someWidgetPath1": {
+      "name": "someWidgetPath1",
+      "definition": {}
+   },
+   "someWidgetPath1": {
+      "name": "someWidgetPath1",
+      "definition": {}
+   },
+   "category/widget1": {
+      "name": "c-widget-1",
+      "definition": {}
+   },
+   "category/widget2": {
+      "name": "c-widget-2",
+      "definition": {}
+   },
+   "category/widget3": {
+      "name": "c-widget-3",
+      "definition": {}
+   },
+   "laxarjs/test_widget": {
+      "name": "ax-test-widget",
+      "definition": {}
+   },
+   "laxarjs/test_widget1": {
+      "name": "ax-test-widget1",
+      "definition": {}
+   },
+   "laxarjs/test_widget2": {
+      "name": "ax-test-widget2",
+      "definition": {}
+   },
+   "laxarjs/headline_widget": {
+      "name": "ax-headline-widget",
+      "definition": {}
+   },
+   "before": {
+      "name": "before-widget",
+      "definition": {}
+   },
+   "before2": {
+      "name": "before-widget2",
+      "definition": {}
+   },
+   "widgetWithSchema": {
+      "name": "widgetWithSchema",
+      "definition": {
+         "features": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "type": "object",
+            "properties": {
+               "button": {
+                  "type": "object",
+                  "required": ["action"],
+                  "properties": {
+                     "label": {
+                        "type": ["string", "null"],
+                        "default": "hit me"
+                     },
+                     "action": {
+                        "type": "string",
+                        "format": "topic"
+                     }
+                  }
+               },
+               "headline": {
+                  "type": "object",
+                  "properties": {
+                     "enabled": {
+                        "type": "boolean",
+                        "default": false
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+   "otherWidgetWithSchema": {
+      "name": "otherWidgetWithSchema",
+      "definition": {
+         "features": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "type": "object",
+            "properties": {
+               "featureOne": {
+                  "type": "object",
+                  "properties": {
+                     "x": {
+                        "type": "string",
+                        "default": "hey"
+                     }
+                  }
+               },
+               "featureTwo": {
+                  "type": "object"
+               },
+               "featureThree": {
+                  "type": "array"
+               }
+            }
+         }
+      }
+   },
+   "widgetUsingFormats": {
+      "name": "widgetUsingFormats",
+      "definition": {
+         "features": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "type": "object",
+            "properties": {
+               "testFeature": {
+                  "type": "object",
+                  "properties": {
+                     "i18nLabel": {
+                        "type": ["string", "object"],
+                        "format": "localization"
+                     },
+                     "someLanguageTag": {
+                        "type": "string",
+                        "format": "language-tag"
+                     },
+                     "resourceByAction": {
+                        "type": "object",
+                        "format": "topic-map",
+                        "additionalProperties": {
+                           "type": "string",
+                           "format": "topic"
+                        }
+                     },
+                     "someSubTopic": {
+                        "type": "string",
+                        "format": "sub-topic"
+                     },
+                     "onSomeFlags": {
+                        "type": "array",
+                        "items": {
+                           "type": "string",
+                           "format": "flag-topic"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}

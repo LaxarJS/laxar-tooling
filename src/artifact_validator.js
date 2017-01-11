@@ -53,15 +53,16 @@ export function create() {
     * @param {Object} artifacts artifacts returned by {@link ArtifactCollector#collectArtifacts}
     * @return {Promise<Object>} the validated artifacts
     */
-   function validateArtifacts( { schemas, flows, pages, widgets, ...artifacts } ) {
+   function validateArtifacts( { schemas, flows, pages, widgets, layouts, ...artifacts } ) {
       const validators = buildValidators( { schemas, widgets } );
 
       return Promise.all( [
          validateFlows( flows, validators ),
-         validatePages( pages, validators, flows ),
+         validatePages( pages, validators, flows, widgets, layouts ),
          validateWidgets( widgets, validators )
       ] ).then( ( [ flows, pages, widgets ] ) => ( {
          ...artifacts,
+         layouts,
          flows,
          pages,
          widgets
@@ -87,21 +88,39 @@ export function create() {
     * @param {Array<Object>} pages the page artifacts to validate
     * @param {Object} validators validators created by {@link #buildValidators}
     * @param {Array<Object>} flows the flows telling us which pages are entry-pages
+    * @param {Array<Object>} widgets the widgets, used to perform name lookups
+    * @param {Array<Object>} layouts the layouts, used to perform name lookups
     * @return {Promise<Array>} the validated pages
     */
-   function validatePages( pages, validators, flows ) {
+   function validatePages( pages, validators, flows, widgets, layouts ) {
       const entryPageRefs = {};
       flows.forEach( flow => {
          flow.pages.forEach( ref => {
             entryPageRefs[ ref ] = true;
          } );
       } );
+      const entryPages = pages.filter( _ => _.refs.some( _ => entryPageRefs[ _ ] ) );
 
-      const entryPages = pages.filter( page => page.refs.some( ref => entryPageRefs[ ref ] ) );
+      const artifactsByRef = {
+         pages: byRef( pages ),
+         widgets: byRef( widgets ),
+         layouts: byRef( layouts )
+      };
+      const pageAssembler = createPageAssembler( validators, artifactsByRef );
 
       return Promise.all(
-         entryPages.map( page => validatePage( page, validators, pages ) )
+         entryPages.map( page => pageAssembler.assemble( page ) )
       );
+
+      function byRef( artifacts ) {
+         const artifactsByRef = {};
+         artifacts.forEach( _ => {
+            _.refs.forEach( ref => {
+               artifactsByRef[ ref ] = _;
+            } );
+         } );
+         return artifactsByRef;
+      }
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,20 +143,6 @@ export function create() {
       return validate( definition ) ?
          Promise.resolve( flow ) :
          Promise.reject( jsonSchema.error( `Validation failed for flow "${name}"`, validate.errors ) );
-   }
-
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   function validatePage( page, validators, pages ) {
-      const pagesByRef = {};
-      pages.forEach( aPage => {
-         aPage.refs.forEach( ref => {
-            pagesByRef[ ref ] = aPage;
-         } );
-      } );
-
-      const pageAssembler = createPageAssembler( validators, pagesByRef );
-      return pageAssembler.assemble( page );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////

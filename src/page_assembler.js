@@ -26,16 +26,19 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
  *
  * @param {Object} validators
  *    validators for artifacts/features
- * @param {Object} pagesByRef
- *    a mapping from pages to their definitions
+ * @param {Object} artifactsByRef
+ *    for pages, widgets and layout, a mapping from refs to their artifact objects.
+ *    Pages are needed to lookup compositions and process inheritance. All are needed to lookup the real
+ *    names when generating IDs.
  *
  * @return {PageAssembler}
  *    a page assembler instance
  *
  * @private
  */
-export function create( validators, pagesByRef ) {
+export function create( validators, artifactsByRef ) {
 
+   const pagesByRef = artifactsByRef.pages;
    const jsonSchema = createAjv();
    let idCounter = 0;
 
@@ -383,21 +386,16 @@ export function create( validators, pagesByRef ) {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function itemName( item ) {
-      return artifactName().replace( SEGMENTS_MATCHER, dashToCamelcase );
-
-      function artifactName() {
-         if( item.hasOwnProperty( 'widget' ) ) {
-            return item.widget.split( '/' ).pop();
-         }
-         if( item.hasOwnProperty( 'composition' ) ) {
-            return item.composition;
-         }
-         if( item.hasOwnProperty( 'layout' ) ) {
-            return item.layout;
-         }
-         // Assume that non-standard items do not require a specific name.
-         return '';
-      }
+      const tables = {
+         composition: pagesByRef,
+         widget: artifactsByRef.widgets,
+         layout: artifactsByRef.layouts
+      };
+      const name = [ 'widget', 'composition', 'layout' ]
+         .filter( category => item.hasOwnProperty( category ) )
+         .map( category => tables[ category ][ item[ category ] ].name )
+         .concat( [ '' ] )[ 0 ];
+      return name.replace( SEGMENTS_MATCHER, dashToCamelcase );
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
