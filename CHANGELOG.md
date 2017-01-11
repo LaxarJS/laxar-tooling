@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.5.0
+
 - [#20](https://github.com/LaxarJS/laxar-tooling/issues/20): stop including multiple theme assets in artifact listing
 
 
