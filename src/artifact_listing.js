@@ -155,15 +155,22 @@ export function create( options ) {
    }
 
    function buildThemes( themes ) {
-      return Promise.all( themes.map( theme =>
+      return Promise.all( [
          Promise.all( [
-            buildDescriptor( theme ),
-            buildAssets( theme )
+            buildDescriptor( theme[ 0 ] ),
+            buildAssets( theme[ 0 ] )
          ] )
          .then( ( [ descriptor, assets ] ) => ( {
             descriptor,
             assets
-         } ) ) ) );
+         } ) )
+      ].concat( themes.slice( 1 ).map( theme =>
+         buildDescriptor( theme )
+            .then( descriptor => ( {
+               descriptor,
+               assets: {}
+            } ) )
+      ) ) );
    }
 
    function buildPages( pages ) {
