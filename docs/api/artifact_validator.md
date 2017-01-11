@@ -70,7 +70,7 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated flows |
 
-#### <a id="validatePages"></a>validatePages( pages, validators, flows )
+#### <a id="validatePages"></a>validatePages( pages, validators, flows, widgets, layouts )
 
 ##### Parameters
 
@@ -79,6 +79,8 @@ Example:
 | pages | `Array.<Object>` |  the page artifacts to validate |
 | validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
 | flows | `Array.<Object>` |  the flows telling us which pages are entry-pages |
+| widgets | `Array.<Object>` |  the widgets, used to perform name lookups |
+| layouts | `Array.<Object>` |  the layouts, used to perform name lookups |
 
 ##### Returns
 

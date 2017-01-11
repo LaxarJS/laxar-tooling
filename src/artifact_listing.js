@@ -157,20 +157,17 @@ export function create( options ) {
    function buildThemes( themes ) {
       return Promise.all( [
          Promise.all( [
-            buildDescriptor( theme[ 0 ] ),
-            buildAssets( theme[ 0 ] )
+            buildDescriptor( themes[ 0 ] ),
+            buildAssets( themes[ 0 ] )
          ] )
          .then( ( [ descriptor, assets ] ) => ( {
             descriptor,
             assets
          } ) )
-      ].concat( themes.slice( 1 ).map( theme =>
-         buildDescriptor( theme )
-            .then( descriptor => ( {
-               descriptor,
-               assets: {}
-            } ) )
-      ) ) );
+      ].concat( themes.slice( 1 ).map( theme => ({
+         descriptor: buildDescriptor( theme ),
+         assets: {}
+      }) ) ) );
    }
 
    function buildPages( pages ) {
