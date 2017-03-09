@@ -231,7 +231,7 @@ export function create( options ) {
    }
 
    function buildModule( { path, name } ) {
-      return requireFile( `${path}/${name}` );
+      return requireFile( path, 'module', name );
    }
 
    /**
