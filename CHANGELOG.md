@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.6.0-alpha.0
+
 - [#22](https://github.com/LaxarJS/laxar-tooling/issues/22): extend API to allow requiring module entry points differently
 
 
