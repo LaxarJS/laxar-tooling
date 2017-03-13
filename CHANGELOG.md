@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.6.0
+
 - [#23](https://github.com/LaxarJS/laxar-tooling/issues/23): page assembler: apply feature defaults even if widget instances do not have feature configuration
 
 
