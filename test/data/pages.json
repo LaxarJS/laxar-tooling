@@ -1268,6 +1268,18 @@
          }
       }
    },
+   "pageWithWidgetToValidateWithMissingConfiguration": {
+      "name": "pageWithWidgetToValidateWithMissingConfiguration",
+      "definition": {
+         "areas": {
+            "content": [
+               {
+                  "widget": "otherWidgetWithSchema"
+               }
+            ]
+         }
+      }
+   },
    "pageWithWidgetToValidateUsingFormats": {
       "name": "pageWithWidgetToValidateUsingFormats",
       "definition": {

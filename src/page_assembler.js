@@ -123,11 +123,17 @@ export function create( validators, artifactsByRef ) {
             .forEach( (item, index) => {
                const name = item.widget;
                const validate = validators.features.widgets[ name ];
-               if( validate && !validate( item.features || {}, `/areas/${areaName}/${index}/features` ) ) {
+               if( !item.features ) {
+                  item.features = {};
+               }
+               if( validate && !validate( item.features, `/areas/${areaName}/${index}/features` ) ) {
                   throw jsonSchema.error(
                      `Validation of page ${pageRef} failed for ${name} features`,
                      validate.errors
                   );
+               }
+               if( Object.keys( item.features ).length === 0 ) {
+                  delete item.features;
                }
             } );
       } );

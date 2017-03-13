@@ -772,6 +772,19 @@ describe( 'A PageAssembler', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+      it( 'applies defaults even if no feature configuration was given', () => {
+         return pageAssembler.assemble( pagesByRef.pageWithWidgetToValidateWithMissingConfiguration )
+            .then( ({ definition: { areas } }) => {
+               expect( areas.content[ 0 ].features ).to.eql( {
+                  featureOne: { x: 'hey' },
+                  featureTwo: {},
+                  featureThree: []
+               } );
+            } );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
       describe( 'asked to perform custom format validation', () => {
 
          let page;
