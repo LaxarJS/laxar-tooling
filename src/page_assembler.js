@@ -10,16 +10,11 @@
   * @module page_assembler
   */
 import { deepClone, path, setPath } from './utils';
-import { create as createAjv } from './ajv';
+import { create as createInterpolator } from './expression_interpolator';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
 const ID_SEPARATOR = '-';
-const ID_SEPARATOR_MATCHER = /-/g;
-const SUBTOPIC_SEPARATOR = '+';
-
-const COMPOSITION_EXPRESSION_MATCHER = /^(!?)\$\{([^}]+)\}$/;
-const COMPOSITION_TOPIC_PREFIX = 'topic:';
 
 /**
  * Creates and returns a new page assembler instance.
@@ -38,8 +33,8 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
  */
 export function create( validators, artifactsByRef ) {
 
-   const pagesByRef = artifactsByRef.pages;
-   const jsonSchema = createAjv();
+   const interpolator = createInterpolator();
+
    let idCounter = 0;
 
    return {
@@ -63,18 +58,13 @@ export function create( validators, artifactsByRef ) {
             'PageAssembler.assemble must be called with a page artifact (object)'
          ) );
       }
-      try {
-         return loadPageRecursively( page, page.name, [] );
-      }
-      catch( error ) {
-         return Promise.reject( error );
-      }
+      return loadPageRecursively( page, page.name, [] );
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function lookup( pageRef ) {
-      return deepClone( pagesByRef[ pageRef ] );
+      return deepClone( artifactsByRef.pages[ pageRef ] );
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,14 +74,14 @@ export function create( validators, artifactsByRef ) {
       const { definition, name } = page;
 
       if( extensionChain.indexOf( name ) !== -1 ) {
-         throwError(
+         return Promise.reject( formatError(
             page,
             `Cycle in page extension detected: ${extensionChain.concat( [ name ] ).join( ' -> ' )}`
-         );
+         ) );
       }
 
       if( !validators.page( definition ) ) {
-         return Promise.reject( jsonSchema.error(
+         return Promise.reject( validators.error(
             `Validation failed for page "${pageRef}"`,
             validators.page.errors
          ) );
@@ -126,8 +116,8 @@ export function create( validators, artifactsByRef ) {
                if( !item.features ) {
                   item.features = {};
                }
-               if( validate && !validate( item.features, `/areas/${areaName}/${index}/features` ) ) {
-                  throw jsonSchema.error(
+               if( validate && !validate( item, `/areas/${areaName}/${index}` ) ) {
+                  throw validators.error(
                      `Validation of page ${pageRef} failed for ${name} features`,
                      validate.errors
                   );
@@ -165,7 +155,7 @@ export function create( validators, artifactsByRef ) {
       const mergedPageAreas = deepClone( basePage.definition.areas );
       if( has( basePage.definition, 'layout' ) ) {
          if( has( page.definition, 'layout' ) ) {
-            throwError( page, `Page overwrites layout set by base page "${basePage.name}"` );
+            throw formatError( page, `Page overwrites layout set by base page "${basePage.name}"` );
          }
          page.definition.layout = basePage.definition.layout;
       }
@@ -195,6 +185,16 @@ export function create( validators, artifactsByRef ) {
 
       function processNestedCompositions( page, pageRef, instanceId, compositionChain ) {
 
+         page.debugInfo = {
+            id: instanceId,
+            name: page.name,
+            path: page.path,
+            FLAT: page.definition,
+            COMPACT: deepClone( page.definition ),
+            compositions: [],
+            //validate: validators.features.pages[ page.name ]
+         };
+
          let promise = Promise.resolve();
 
          forEachArea( page, (items, areaName) => {
@@ -211,7 +211,7 @@ export function create( validators, artifactsByRef ) {
                if( compositionChain.indexOf( compositionRef ) !== -1 ) {
                   const chainString = compositionChain.concat( [ compositionRef ] ).join( ' -> ' );
                   const message = `Cycle in compositions detected: ${chainString}`;
-                  throwError( topPage, message );
+                  throw formatError( topPage, message );
                }
 
                const itemPointer = `/areas/${areaName}/${items.length - index - 1}`;
@@ -225,17 +225,18 @@ export function create( validators, artifactsByRef ) {
                   )
                   .then( composition => {
                      const chain = compositionChain.concat( composition.name );
-                     return processNestedCompositions( composition, compositionRef, item.id, chain )
-                        .then( () => composition );
+                     return processNestedCompositions( composition, compositionRef, item.id, chain );
                   } )
                   .then( composition => {
+                     page.debugInfo.compositions.push( composition.debugInfo );
                      mergeCompositionAreasWithPageAreas( composition, page.definition, items, item );
                      validateWidgetItems( composition, compositionRef );
                   } );
             } );
          } );
 
-         return promise;
+         return promise
+            .then( () => page );
       }
    }
 
@@ -296,69 +297,33 @@ export function create( validators, artifactsByRef ) {
 
    function processCompositionExpressions( composition, item, itemPointer, containingPageRef ) {
 
-      const { definition } = composition;
+      const { name, definition } = composition;
 
       // Feature definitions in compositions may contain generated topics for default resource names or action
       // topics. As such these are generated before instantiating the composition's features.
-      const compositionInstanceSchema = replaceExpressions( definition.features || {} );
       const ref = item.composition;
-      const validate = definition.features && jsonSchema.compile( compositionInstanceSchema, ref, {
-         isFeaturesValidator: true
-      } );
+      const validate = validators.features.pages[ name ];
 
-      const itemFeatures = deepClone( item.features ) || {};
-      if( validate && !validate( itemFeatures, `${itemPointer}/features` ) ) {
-         throw jsonSchema.error(
+      if( validate && !validate( item, `${itemPointer}` ) ) {
+         throw validators.error(
             `Validation of page ${containingPageRef} failed for ${ref} features`,
             validate.errors
          );
       }
 
       if( typeof definition.mergedFeatures === 'object' ) {
-         const mergedFeatures = replaceExpressions( definition.mergedFeatures );
+         const mergedFeatures = interpolator.interpolate( item, definition.mergedFeatures );
          Object.keys( mergedFeatures ).forEach( featurePath => {
-            const currentValue = path( itemFeatures, featurePath, [] );
+            const currentValue = path( item.features, featurePath, [] );
             const values = mergedFeatures[ featurePath ];
-            setPath( itemFeatures, featurePath, values.concat( currentValue ) );
+            setPath( item.features, featurePath, values.concat( currentValue ) );
          } );
       }
 
-      definition.areas = replaceExpressions( definition.areas );
+      definition.areas = interpolator.interpolate( item, definition.areas );
 
       return composition;
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function replaceExpressions( obj ) {
-         return visitExpressions( obj, replaceExpression );
-      }
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function replaceExpression( sourceExpression ) {
-         const matches = sourceExpression.match( COMPOSITION_EXPRESSION_MATCHER );
-         if( !matches ) {
-            return sourceExpression;
-         }
-
-         const possibleNegation = matches[ 1 ];
-         const expression = matches[ 2 ];
-         let result;
-         if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
-            result = topicFromId( item.id ) +
-               SUBTOPIC_SEPARATOR + expression.slice( COMPOSITION_TOPIC_PREFIX.length );
-         }
-         else if( itemFeatures ) {
-            result = path( itemFeatures, expression.slice( 'features.'.length ) );
-         }
-         else {
-            throw new Error(
-               `Validation of page ${containingPageRef} failed: "${expression}" cannot be expanded here`
-            );
-         }
-
-         return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;
-      }
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -385,7 +350,7 @@ export function create( validators, artifactsByRef ) {
 
       const duplicates = Object.keys( idCount ).filter( id => idCount[ id ] > 1 );
       if( duplicates.length ) {
-         throwError( page, `Duplicate widget/composition/layout ID(s): ${duplicates.join( ', ' )}` );
+         throw formatError( page, `Duplicate widget/composition/layout ID(s): ${duplicates.join( ', ' )}` );
       }
    }
 
@@ -393,7 +358,7 @@ export function create( validators, artifactsByRef ) {
 
    function itemName( item ) {
       const tables = {
-         composition: pagesByRef,
+         composition: artifactsByRef.pages,
          widget: artifactsByRef.widgets,
          layout: artifactsByRef.layouts
       };
@@ -435,41 +400,6 @@ export function create( validators, artifactsByRef ) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function visitExpressions( obj, f ) {
-   if( obj === null ) {
-      return obj;
-   }
-
-   if( Array.isArray( obj ) ) {
-      return obj
-         .map( value => {
-            if( typeof value === 'object' ) {
-               return visitExpressions( value, f );
-            }
-
-            return typeof value === 'string' ? f( value ) : value;
-         } )
-         .filter( _ => _ !== undefined );
-   }
-
-   const result = {};
-   Object.keys( obj ).forEach( key => {
-      const value = obj[ key ];
-      const replacedKey = f( key );
-      if( typeof value === 'object' ) {
-         result[ replacedKey ] = visitExpressions( value, f );
-         return;
-      }
-
-      const replacedValue = typeof value === 'string' ? f( value ) : value;
-      if( typeof replacedValue !== 'undefined' ) {
-         result[ replacedKey ] = replacedValue;
-      }
-   } );
-
-   return result;
-}
-
 function mergeItemLists( targetList, sourceList, page ) {
    sourceList.forEach( item => {
       if( item.insertBeforeId ) {
@@ -480,7 +410,7 @@ function mergeItemLists( targetList, sourceList, page ) {
             }
          }
 
-         throwError( page, `No id found that matches insertBeforeId value "${item.insertBeforeId}"` );
+         throw formatError( page, `No id found that matches insertBeforeId value "${item.insertBeforeId}"` );
       }
       targetList.push( item );
    } );
@@ -511,13 +441,7 @@ function dashToCamelcase( segmentStart ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function topicFromId( id ) {
-   return id.replace( ID_SEPARATOR_MATCHER, SUBTOPIC_SEPARATOR ).replace( SEGMENTS_MATCHER, dashToCamelcase );
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function throwError( page, message ) {
+function formatError( page, message ) {
    const text = `Error loading page "${page.name}": ${message}`;
-   throw new Error( text );
+   return new Error( text );
 }

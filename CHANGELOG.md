@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#25](https://github.com/LaxarJS/laxar-tooling/issues/25): debug information: it is now possible to gather debug information while collecting artifacts
+   + NEW FEATURE: see ticket for details
 - [#21](https://github.com/LaxarJS/laxar-tooling/issues/21): artifact collector: don't include widgets/layouts/compositions which are not enabled
   + **BREAKING CHANGE:** see ticket for details
 - [#24](https://github.com/LaxarJS/laxar-tooling/issues/24): defaults: changed artifact directories to sub-folders of `application/`

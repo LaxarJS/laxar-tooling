@@ -22,6 +22,7 @@ import artifactCollector from './artifact_collector';
 import artifactValidator from './artifact_validator';
 import assetResolver from './asset_resolver';
 import artifactListing from './artifact_listing';
+import debugInfoListing from './debug_info_listing';
 import serialize from './serialize';
 
 export {
@@ -29,6 +30,7 @@ export {
    artifactValidator,
    assetResolver,
    artifactListing,
+   debugInfoListing,
    serialize
 };
 
@@ -37,5 +39,6 @@ export default {
    artifactValidator,
    assetResolver,
    artifactListing,
+   debugInfoListing,
    serialize
 };

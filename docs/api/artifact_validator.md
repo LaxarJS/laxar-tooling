@@ -12,7 +12,6 @@ Assemble and validate application artifacts using JSON schema
 - [validateFlows()](#validateFlows)
 - [validatePages()](#validatePages)
 - [validateWidgets()](#validateWidgets)
-- [buildValidators()](#buildValidators)
 
 **Types**
 
@@ -55,14 +54,14 @@ Example:
 | ---- | ----------- |
 | `Promise.<Object>` |  the validated artifacts |
 
-#### <a id="validateFlows"></a>validateFlows( flows, validators )
+#### <a id="validateFlows"></a>validateFlows( validators, flows )
 
 ##### Parameters
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
+| validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
 | flows | `Array.<Object>` |  the flow artifacts to validate |
-| validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
 
 ##### Returns
 
@@ -70,17 +69,14 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated flows |
 
-#### <a id="validatePages"></a>validatePages( pages, validators, flows, widgets, layouts )
+#### <a id="validatePages"></a>validatePages( pageAssembler, pages )
 
 ##### Parameters
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
+| pageAssembler | `PageAssembler` |  the page assembler handles validation of the individual pages |
 | pages | `Array.<Object>` |  the page artifacts to validate |
-| validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
-| flows | `Array.<Object>` |  the flows telling us which pages are entry-pages |
-| widgets | `Array.<Object>` |  the widgets, used to perform name lookups |
-| layouts | `Array.<Object>` |  the layouts, used to perform name lookups |
 
 ##### Returns
 
@@ -95,24 +91,13 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | widgets | `Array.<Object>` |  the widget artifacts to validate |
-| validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
+| validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
 
 ##### Returns
 
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated widgets |
-
-#### <a id="buildValidators"></a>buildValidators()
-
-Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
-object including schema descriptions in widget descriptors and page composition definitions.
-
-##### Returns
-
-| Type | Description |
-| ---- | ----------- |
-| `Object` |  an object containg validation functions. |
 
 ## Types
 
