@@ -1,59 +1,59 @@
 {
    "someWidgetPath1": {
       "name": "someWidgetPath1",
-      "definition": {}
+      "descriptor": {}
    },
    "someWidgetPath1": {
       "name": "someWidgetPath1",
-      "definition": {}
+      "descriptor": {}
    },
    "someWidgetPath1": {
       "name": "someWidgetPath1",
-      "definition": {}
+      "descriptor": {}
    },
    "someWidgetPath1": {
       "name": "someWidgetPath1",
-      "definition": {}
+      "descriptor": {}
    },
    "category/widget1": {
       "name": "c-widget-1",
-      "definition": {}
+      "descriptor": {}
    },
    "category/widget2": {
       "name": "c-widget-2",
-      "definition": {}
+      "descriptor": {}
    },
    "category/widget3": {
       "name": "c-widget-3",
-      "definition": {}
+      "descriptor": {}
    },
    "laxarjs/test_widget": {
       "name": "ax-test-widget",
-      "definition": {}
+      "descriptor": {}
    },
    "laxarjs/test_widget1": {
       "name": "ax-test-widget1",
-      "definition": {}
+      "descriptor": {}
    },
    "laxarjs/test_widget2": {
       "name": "ax-test-widget2",
-      "definition": {}
+      "descriptor": {}
    },
    "laxarjs/headline_widget": {
       "name": "ax-headline-widget",
-      "definition": {}
+      "descriptor": {}
    },
    "before": {
       "name": "before-widget",
-      "definition": {}
+      "descriptor": {}
    },
    "before2": {
       "name": "before-widget2",
-      "definition": {}
+      "descriptor": {}
    },
    "widgetWithSchema": {
       "name": "widgetWithSchema",
-      "definition": {
+      "descriptor": {
          "features": {
             "$schema": "http://json-schema.org/draft-04/schema#",
             "type": "object",
@@ -87,7 +87,7 @@
    },
    "otherWidgetWithSchema": {
       "name": "otherWidgetWithSchema",
-      "definition": {
+      "descriptor": {
          "features": {
             "$schema": "http://json-schema.org/draft-04/schema#",
             "type": "object",
@@ -113,7 +113,7 @@
    },
    "widgetUsingFormats": {
       "name": "widgetUsingFormats",
-      "definition": {
+      "descriptor": {
          "features": {
             "$schema": "http://json-schema.org/draft-04/schema#",
             "type": "object",
