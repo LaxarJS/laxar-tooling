@@ -12,7 +12,6 @@ Assemble and validate application artifacts using JSON schema
 - [validateFlows()](#validateFlows)
 - [validatePages()](#validatePages)
 - [validateWidgets()](#validateWidgets)
-- [buildValidators()](#buildValidators)
 
 **Types**
 
@@ -62,7 +61,7 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | flows | `Array.<Object>` |  the flow artifacts to validate |
-| validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
+| validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
 
 ##### Returns
 
@@ -77,7 +76,7 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | pages | `Array.<Object>` |  the page artifacts to validate |
-| validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
+| validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
 | flows | `Array.<Object>` |  the flows telling us which pages are entry-pages |
 | widgets | `Array.<Object>` |  the widgets, used to perform name lookups |
 | layouts | `Array.<Object>` |  the layouts, used to perform name lookups |
@@ -95,24 +94,13 @@ Example:
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | widgets | `Array.<Object>` |  the widget artifacts to validate |
-| validators | `Object` |  validators created by [`#buildValidators`](#buildValidators) |
+| validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
 
 ##### Returns
 
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated widgets |
-
-#### <a id="buildValidators"></a>buildValidators()
-
-Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
-object including schema descriptions in widget descriptors and page composition definitions.
-
-##### Returns
-
-| Type | Description |
-| ---- | ----------- |
-| `Object` |  an object containg validation functions. |
 
 ## Types
 

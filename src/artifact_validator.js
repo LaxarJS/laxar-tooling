@@ -10,6 +10,7 @@
 'use strict';
 
 import { create as createAjv } from './ajv';
+import { create as createValidators } from './validators';
 import { create as createPageAssembler } from './page_assembler';
 
 export default { create };
@@ -35,8 +36,7 @@ export function create() {
       validateArtifacts,
       validateFlows,
       validatePages,
-      validateWidgets,
-      buildValidators
+      validateWidgets
    };
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ export function create() {
     * @return {Promise<Object>} the validated artifacts
     */
    function validateArtifacts( { schemas, flows, pages, widgets, layouts, ...artifacts } ) {
-      const validators = buildValidators( { schemas, widgets } );
+      const validators = createValidators( jsonSchema, { schemas, pages, widgets } );
 
       return Promise.all( [
          validateFlows( flows, validators ),
@@ -74,7 +74,7 @@ export function create() {
    /**
     * @memberOf ArtifactValidator
     * @param {Array<Object>} flows the flow artifacts to validate
-    * @param {Object} validators validators created by {@link #buildValidators}
+    * @param {Object} validators validators created by {@link validators#create}
     * @return {Promise<Array>} the validated flows
     */
    function validateFlows( flows, validators ) {
@@ -86,7 +86,7 @@ export function create() {
    /**
     * @memberOf ArtifactValidator
     * @param {Array<Object>} pages the page artifacts to validate
-    * @param {Object} validators validators created by {@link #buildValidators}
+    * @param {Object} validators validators created by {@link validators#create}
     * @param {Array<Object>} flows the flows telling us which pages are entry-pages
     * @param {Array<Object>} widgets the widgets, used to perform name lookups
     * @param {Array<Object>} layouts the layouts, used to perform name lookups
@@ -128,7 +128,7 @@ export function create() {
    /**
     * @memberOf ArtifactValidator
     * @param {Array<Object>} widgets the widget artifacts to validate
-    * @param {Object} validators validators created by {@link #buildValidators}
+    * @param {Object} validators validators created by {@link validators#create}
     * @return {Promise<Array>} the validated widgets
     */
    function validateWidgets( widgets, validators ) {
@@ -142,7 +142,7 @@ export function create() {
       const validate = validators.flow;
       return validate( definition ) ?
          Promise.resolve( flow ) :
-         Promise.reject( jsonSchema.error( `Validation failed for flow "${name}"`, validate.errors ) );
+         Promise.reject( validators.error( `Validation failed for flow "${name}"`, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,52 +152,8 @@ export function create() {
       const validate = validators.widget;
       return validate( descriptor ) ?
          Promise.resolve( widget ) :
-         Promise.reject( jsonSchema.error( `Validation failed for widget "${name}"`, validate.errors ) );
+         Promise.reject( validators.error( `Validation failed for widget "${name}"`, validate.errors ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   /**
-    * Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
-    * object including schema descriptions in widget descriptors and page composition definitions.
-    *
-    * @memberOf ArtifactValidator
-    * @return {Object} an object containg validation functions.
-    */
-   function buildValidators( { schemas, widgets } ) {
-      const validators = compileSchemas(
-         schemas,
-         ({ definition }) => definition,
-         {}
-      );
-
-      const features = {
-         widgets: compileSchemas(
-            widgets,
-            ({ descriptor }) => descriptor.features,
-            { isFeaturesValidator: true }
-         )
-      };
-
-      return {
-         ...validators,
-         features
-      };
-   }
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   function compileSchemas( artifacts, get, options ) {
-      return ( artifacts || [] ).reduce( ( schemas, { refs, ...artifact } ) => {
-         const schema = get( artifact );
-         if( schema ) {
-            const validate = jsonSchema.compile( schema, refs.join( ', ' ), options );
-            refs.forEach( ref => {
-               schemas[ ref ] = validate;
-            } );
-         }
-         return schemas;
-      }, {} );
-   }
-
 }

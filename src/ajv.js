@@ -78,6 +78,12 @@ export function create() {
       }
       if( isFeaturesValidator ) {
          setAdditionalPropertiesDefault( schema );
+         if( !schema.type ) {
+            throw new Error( `JSON schema for artifact "${sourceRef}" is missing "type" property (should be "object")` );
+         }
+         if( schema.type !== "object" && schema.type !== "array" ) {
+            throw new Error( `JSON schema for artifact "${sourceRef}" root element should have type "object"` );
+         }
       }
       translateCustomKeywordFormats( schema );
 

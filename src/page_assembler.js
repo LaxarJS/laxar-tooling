@@ -10,7 +10,6 @@
   * @module page_assembler
   */
 import { deepClone, path, setPath } from './utils';
-import { create as createAjv } from './ajv';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
@@ -39,7 +38,6 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
 export function create( validators, artifactsByRef ) {
 
    const pagesByRef = artifactsByRef.pages;
-   const jsonSchema = createAjv();
    let idCounter = 0;
 
    return {
@@ -91,7 +89,7 @@ export function create( validators, artifactsByRef ) {
       }
 
       if( !validators.page( definition ) ) {
-         return Promise.reject( jsonSchema.error(
+         return Promise.reject( validators.error(
             `Validation failed for page "${pageRef}"`,
             validators.page.errors
          ) );
@@ -127,7 +125,7 @@ export function create( validators, artifactsByRef ) {
                   item.features = {};
                }
                if( validate && !validate( item.features, `/areas/${areaName}/${index}/features` ) ) {
-                  throw jsonSchema.error(
+                  throw validators.error(
                      `Validation of page ${pageRef} failed for ${name} features`,
                      validate.errors
                   );
@@ -296,19 +294,17 @@ export function create( validators, artifactsByRef ) {
 
    function processCompositionExpressions( composition, item, itemPointer, containingPageRef ) {
 
-      const { definition } = composition;
+      const { name, definition } = composition;
 
       // Feature definitions in compositions may contain generated topics for default resource names or action
       // topics. As such these are generated before instantiating the composition's features.
       const compositionInstanceSchema = replaceExpressions( definition.features || {} );
       const ref = item.composition;
-      const validate = definition.features && jsonSchema.compile( compositionInstanceSchema, ref, {
-         isFeaturesValidator: true
-      } );
+      const validate = validators.features.pages[ name ];
 
       const itemFeatures = deepClone( item.features ) || {};
       if( validate && !validate( itemFeatures, `${itemPointer}/features` ) ) {
-         throw jsonSchema.error(
+         throw validators.error(
             `Validation of page ${containingPageRef} failed for ${ref} features`,
             validate.errors
          );
