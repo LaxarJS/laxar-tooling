@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#24](https://github.com/LaxarJS/laxar-tooling/issues/24): defaults: changed artifact directories to sub-folders of `application/`
+
 
 ## v0.6.0
 

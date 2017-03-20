@@ -14,12 +14,12 @@ import assetResolver from './asset_resolver';
 import { wrap } from './promise';
 
 const DEFAULT_PATHS = {
-   flows: './flows',
-   themes: './themes',
-   pages: './pages',
-   layouts: './layouts',
-   widgets: './widgets',
-   controls: './controls',
+   flows: './application/flows',
+   themes: './application/themes',
+   pages: './application/pages',
+   layouts: './application/layouts',
+   widgets: './application/widgets',
+   controls: './application/controls',
    schemas: 'laxar/static/schemas',
    'default-theme': 'laxar-uikit/themes/default.theme'
 };
