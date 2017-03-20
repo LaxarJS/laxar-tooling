@@ -45,11 +45,20 @@ const CUSTOM_KEYWORD_FORMATS = {
    'localization': keyTest( LANGUAGE_TAG_FORMAT )
 };
 
+const SEGMENTS_MATCHER = /[_/-]./g;
+
+const ID_SEPARATOR = '-';
+const ID_SEPARATOR_MATCHER = /-/g;
+const SUBTOPIC_SEPARATOR = '+';
+
+const COMPOSITION_EXPRESSION_MATCHER = /^(!?)\$\{([^}]+)\}$/;
+const COMPOSITION_TOPIC_PREFIX = 'topic:';
+
 /**
  * @return {Ajv} an Ajv instance
  */
 export function create() {
-   const ajv = new Ajv( { jsonPointers: true, useDefaults: true } );
+   const ajv = new Ajv( { jsonPointers: true, useDefaults: true, v5: true } );
 
    Object.keys( AJV_FORMATS ).forEach( key => {
       ajv.addFormat( key, AJV_FORMATS[ key ] );
@@ -70,28 +79,38 @@ export function create() {
 
    function compile( schema, sourceRef, options = {} ) {
       const {
-         isFeaturesValidator = false
+         isFeaturesValidator = false,
+         processExpressions = false
       } = options;
+
+      const decorators = [];
 
       if( !schema.$schema ) {
          throw new Error( `JSON schema for artifact "${sourceRef}" is missing "$schema" property` );
       }
+      if( processExpressions ) {
+         decorators.push( compileExpressions );
+      }
       if( isFeaturesValidator ) {
-         setAdditionalPropertiesDefault( schema );
          if( !schema.type ) {
             throw new Error( `JSON schema for artifact "${sourceRef}" is missing "type" property (should be "object")` );
          }
          if( schema.type !== "object" && schema.type !== "array" ) {
             throw new Error( `JSON schema for artifact "${sourceRef}" root element should have type "object"` );
          }
+
+         decorators.push( setAdditionalPropertiesDefaults );
+         decorators.push( setFirstLevelDefaults );
+         decorators.push( extractFeatures );
       }
       translateCustomKeywordFormats( schema );
 
+      const decoratedSchema = decorators.reduce( ( schema, decorator ) => {
+         return decorator( schema ) || schema;
+      }, schema );
+
       try {
-         const validate = ajv.compile( schema );
-         return isFeaturesValidator ?
-            decorateValidate( validate, schema, setFirstLevelDefaults ) :
-            validate;
+         return ajv.compile( decoratedSchema );
       }
       catch( e ) {
          throw new Error( `Failed to compile JSON schema for artifact "${sourceRef}":\n${e}` );
@@ -114,11 +133,11 @@ export function create() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function setAdditionalPropertiesDefault( schema, value = false ) {
+function setAdditionalPropertiesDefaults( schema ) {
    return applyToSchemas( schema, schema => {
       if( ( 'properties' in schema || 'patternProperties' in schema ) &&
          !( 'additionalProperties' in schema ) ) {
-         schema.additionalProperties = value;
+         schema.additionalProperties = false;
       }
    } );
 }
@@ -161,34 +180,60 @@ function applyToSchemas( schema, callback ) {
    }
 }
 
-function decorateValidate( validate, schema, decorator ) {
-   const f = (object, rootPointer) => {
-      decorator( schema, object );
-      const result = validate( object, rootPointer );
-      if( !result ) {
-         f.errors = validate.errors;
-      }
-      return result;
-   };
-   return f;
-}
-
 function validateKeywordFormat( format, object ) {
    return CUSTOM_KEYWORD_FORMATS[ format ]( object );
 }
 
+function extractFeatures( schema ) {
+   return {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+         "features": schema
+      },
+      "additionalProperties": true
+   };
+}
+
+function compileExpressions( schema ) {
+   return visitExpressions( schema, compileExpression );
+
+   function compileExpression( sourceExpression ) {
+      const matches = sourceExpression.match( COMPOSITION_EXPRESSION_MATCHER );
+      if( !matches ) {
+         return sourceExpression;
+      }
+
+      const possibleNegation = matches[ 1 ];
+      const expression = matches[ 2 ];
+      let result;
+      if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
+         result = 'some-topic';
+      }
+      else {
+         result = { "$data": '1/' + expression.replace( /\[([0-9]+)\]/g, '.$1' )
+                                              .replace( /\./g, '/' ) };
+      }
+
+      return result;
+   };
+}
+
 function setFirstLevelDefaults( schema, object ) {
-   Object.keys( schema.properties || {} ).forEach( key => {
-      if( object[ key ] !== undefined ) {
+   const properties = schema.properties || {};
+   Object.keys( properties ).forEach( key => {
+      if( properties[ key ].default !== undefined ) {
          return;
       }
-      if( schema.properties[ key ].type === 'object' ) {
-         object[ key ] = {};
+      if( properties[ key ].type === 'object' ) {
+         properties[ key ].default = {};
       }
-      else if( schema.properties[ key ].type === 'array' ) {
-         object[ key ] = [];
+      else if( properties[ key ].type === 'array' ) {
+         properties[ key ].default = [];
       }
    } );
+
+   return schema;
 }
 
 function stringTest( format ) {
@@ -203,4 +248,45 @@ function keyTest( format ) {
    return object => {
       return Object.keys( object ).every( key => pattern.test( key ) );
    };
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Common functionality and utility functions
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function visitExpressions( obj, f ) {
+   if( obj === null ) {
+      return obj;
+   }
+
+   if( Array.isArray( obj ) ) {
+      return obj
+         .map( value => {
+            if( typeof value === 'object' ) {
+               return visitExpressions( value, f );
+            }
+
+            return typeof value === 'string' ? f( value ) : value;
+         } )
+         .filter( _ => _ !== undefined );
+   }
+
+   const result = {};
+   Object.keys( obj ).forEach( key => {
+      const value = obj[ key ];
+      const replacedKey = f( key );
+      if( typeof value === 'object' ) {
+         result[ replacedKey ] = visitExpressions( value, f );
+         return;
+      }
+
+      const replacedValue = typeof value === 'string' ? f( value ) : value;
+      if( typeof replacedValue !== 'undefined' ) {
+         result[ replacedKey ] = replacedValue;
+      }
+   } );
+
+   return result;
 }

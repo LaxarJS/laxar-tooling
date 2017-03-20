@@ -23,7 +23,8 @@ export function create( jsonSchema, { schemas, pages, widgets } ) {
    const validators = compileSchemas(
       schemas,
       ({ definition }) => definition,
-      jsonSchema.compile
+      jsonSchema.compile,
+      {}
    );
 
    const features = {
@@ -31,7 +32,7 @@ export function create( jsonSchema, { schemas, pages, widgets } ) {
          pages,
          ({ definition }) => definition.features,
          jsonSchema.compile,
-         { isFeaturesValidator: true }
+         { isFeaturesValidator: true, processExpressions: true }
       ),
       widgets: compileSchemas(
          widgets,

@@ -124,7 +124,7 @@ export function create( validators, artifactsByRef ) {
                if( !item.features ) {
                   item.features = {};
                }
-               if( validate && !validate( item.features, `/areas/${areaName}/${index}/features` ) ) {
+               if( validate && !validate( item, `/areas/${areaName}/${index}` ) ) {
                   throw validators.error(
                      `Validation of page ${pageRef} failed for ${name} features`,
                      validate.errors
@@ -298,12 +298,12 @@ export function create( validators, artifactsByRef ) {
 
       // Feature definitions in compositions may contain generated topics for default resource names or action
       // topics. As such these are generated before instantiating the composition's features.
-      const compositionInstanceSchema = replaceExpressions( definition.features || {} );
+      //const compositionInstanceSchema = replaceExpressions( definition.features || {} );
       const ref = item.composition;
       const validate = validators.features.pages[ name ];
 
       const itemFeatures = deepClone( item.features ) || {};
-      if( validate && !validate( itemFeatures, `${itemPointer}/features` ) ) {
+      if( validate && !validate( { ...item, features: itemFeatures }, `${itemPointer}` ) ) {
          throw validators.error(
             `Validation of page ${containingPageRef} failed for ${ref} features`,
             validate.errors

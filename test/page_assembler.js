@@ -76,7 +76,7 @@ describe( 'A PageAssembler', () => {
          bucket[ name ] = jsonSchema.compile(
             features,
             name,
-            { isFeaturesValidator: true }
+            { isFeaturesValidator: true, processExpressions: type === 'page' }
          );
       }
    }
