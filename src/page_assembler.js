@@ -193,6 +193,15 @@ export function create( validators, artifactsByRef ) {
 
       function processNestedCompositions( page, pageRef, instanceId, compositionChain ) {
 
+         const debugInfo = {
+            id: instanceId,
+            name: page.name,
+            path: page.path,
+            FLAT: page.definition,
+            COMPACT: deepClone( page.definition ),
+            compositions: []
+         };
+
          let promise = Promise.resolve();
 
          forEachArea( page, (items, areaName) => {
@@ -223,17 +232,21 @@ export function create( validators, artifactsByRef ) {
                   )
                   .then( composition => {
                      const chain = compositionChain.concat( composition.name );
-                     return processNestedCompositions( composition, compositionRef, item.id, chain )
-                        .then( () => composition );
+                     return processNestedCompositions( composition, compositionRef, item.id, chain );
                   } )
                   .then( composition => {
+                     debugInfo.compositions.push( composition.debugInfo );
                      mergeCompositionAreasWithPageAreas( composition, page.definition, items, item );
                      validateWidgetItems( composition, compositionRef );
                   } );
             } );
          } );
 
-         return promise;
+         return promise
+            .then( () => {
+               page.debugInfo = debugInfo;
+               return page;
+            } );
       }
    }
 
@@ -298,7 +311,6 @@ export function create( validators, artifactsByRef ) {
 
       // Feature definitions in compositions may contain generated topics for default resource names or action
       // topics. As such these are generated before instantiating the composition's features.
-      //const compositionInstanceSchema = replaceExpressions( definition.features || {} );
       const ref = item.composition;
       const validate = validators.features.pages[ name ];
 

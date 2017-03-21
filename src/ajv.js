@@ -35,6 +35,7 @@ const AJV_FORMATS = {
 };
 
 const AX_FORMAT = 'axFormat';
+const AX_INTERPOLATE = 'axInterpolate';
 
 // ajv currently does not support formats for non-string types,
 // so we pre-process schemas to use "custom validation keywords" instead.
@@ -58,7 +59,7 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
  * @return {Ajv} an Ajv instance
  */
 export function create() {
-   const ajv = new Ajv( { jsonPointers: true, useDefaults: true, v5: true } );
+   const ajv = new Ajv( { jsonPointers: true, useDefaults: true, verbose: true } );
 
    Object.keys( AJV_FORMATS ).forEach( key => {
       ajv.addFormat( key, AJV_FORMATS[ key ] );
@@ -68,6 +69,16 @@ export function create() {
       type: 'object',
       validate: validateKeywordFormat,
       errors: false
+   } );
+
+   ajv.addKeyword( AX_INTERPOLATE, {
+      validate: function axInterpolate(data, curDataPath, parentData, parentProperty, rootData) {
+         parentData[ parentProperty ] = replaceExpressions( data, rootData );
+         return true;
+      },
+      modifying: true,
+      errors: false,
+      schema: false
    } );
 
    return {
@@ -88,9 +99,6 @@ export function create() {
       if( !schema.$schema ) {
          throw new Error( `JSON schema for artifact "${sourceRef}" is missing "$schema" property` );
       }
-      if( processExpressions ) {
-         decorators.push( compileExpressions );
-      }
       if( isFeaturesValidator ) {
          if( !schema.type ) {
             throw new Error( `JSON schema for artifact "${sourceRef}" is missing "type" property (should be "object")` );
@@ -102,6 +110,15 @@ export function create() {
          decorators.push( setAdditionalPropertiesDefaults );
          decorators.push( setFirstLevelDefaults );
          decorators.push( extractFeatures );
+      }
+      if( processExpressions ) {
+         decorators.push( function( schema ) {
+            applyToSchemas( schema, function( schema ) {
+               if( schema.default ) {
+                  schema[ AX_INTERPOLATE ] = true;
+               }
+            } );
+         } );
       }
       translateCustomKeywordFormats( schema );
 
@@ -195,10 +212,11 @@ function extractFeatures( schema ) {
    };
 }
 
-function compileExpressions( schema ) {
-   return visitExpressions( schema, compileExpression );
+function replaceExpressions( object, data ) {
+   visitExpressionsInplace( object, replaceExpression );
+   return object;
 
-   function compileExpression( sourceExpression ) {
+   function replaceExpression( sourceExpression ) {
       const matches = sourceExpression.match( COMPOSITION_EXPRESSION_MATCHER );
       if( !matches ) {
          return sourceExpression;
@@ -208,15 +226,28 @@ function compileExpressions( schema ) {
       const expression = matches[ 2 ];
       let result;
       if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
-         result = 'some-topic';
+         result = topicFromId( data.id ) +
+            SUBTOPIC_SEPARATOR + expression.slice( COMPOSITION_TOPIC_PREFIX.length );
+      }
+      else if( data.features ) {
+         result = path( data.features, expression.slice( 'features.'.length ) );
       }
       else {
-         result = { "$data": '1/' + expression.replace( /\[([0-9]+)\]/g, '.$1' )
-                                              .replace( /\./g, '/' ) };
+         throw new Error(
+            `Validation of page ${containingPageRef} failed: "${expression}" cannot be expanded here`
+         );
       }
 
-      return result;
-   };
+      return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;
+   }
+}
+
+function topicFromId( id ) {
+   return id.replace( ID_SEPARATOR_MATCHER, SUBTOPIC_SEPARATOR ).replace( SEGMENTS_MATCHER, dashToCamelcase );
+}
+
+function dashToCamelcase( segmentStart ) {
+   return segmentStart.charAt( 1 ).toUpperCase();
 }
 
 function setFirstLevelDefaults( schema, object ) {
@@ -225,7 +256,9 @@ function setFirstLevelDefaults( schema, object ) {
       if( properties[ key ].default !== undefined ) {
          return;
       }
-      if( properties[ key ].type === 'object' ) {
+      if( properties[ key ].axDefault !== undefined ) {
+         properties[ key ].default = '__axDefault';
+      } else if( properties[ key ].type === 'object' ) {
          properties[ key ].default = {};
       }
       else if( properties[ key ].type === 'array' ) {
@@ -256,37 +289,49 @@ function keyTest( format ) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function visitExpressions( obj, f ) {
+function visitExpressionsInplace( obj, f ) {
    if( obj === null ) {
       return obj;
    }
 
    if( Array.isArray( obj ) ) {
-      return obj
-         .map( value => {
-            if( typeof value === 'object' ) {
-               return visitExpressions( value, f );
-            }
+      for( let i = 0; i < obj.length; i++ ) {
+         const value = obj[ i ];
 
-            return typeof value === 'string' ? f( value ) : value;
-         } )
-         .filter( _ => _ !== undefined );
+         if( typeof value === 'object' ) {
+            visitExpressionsInplace( value, f );
+            return;
+         }
+
+         obj[ i ] = typeof value === 'string' ? f( value ) : value;
+
+         if( obj[ i ] === undefined ) {
+            obj.slice( i, 1 );
+            i--;
+         }
+      }
    }
 
-   const result = {};
-   Object.keys( obj ).forEach( key => {
-      const value = obj[ key ];
-      const replacedKey = f( key );
-      if( typeof value === 'object' ) {
-         result[ replacedKey ] = visitExpressions( value, f );
-         return;
-      }
+   if( typeof obj === 'object' ) {
+      Object.keys( obj ).forEach( key => {
+         const value = obj[ key ];
+         const replacedKey = f( key );
 
-      const replacedValue = typeof value === 'string' ? f( value ) : value;
-      if( typeof replacedValue !== 'undefined' ) {
-         result[ replacedKey ] = replacedValue;
-      }
-   } );
+         delete obj[ key ];
 
-   return result;
+         if( typeof value === 'object' ) {
+            obj[ replacedKey ] = visitExpressionsInplace( value, f );
+            return;
+         }
+
+         obj[ replacedKey ] = typeof value === 'string' ? f( value ) : value;
+
+         if( typeof obj[ replacedKey ] === 'undefined' ) {
+            delete obj[ replacedKey ];
+         }
+      } );
+   }
+
+   return obj;
 }
+
