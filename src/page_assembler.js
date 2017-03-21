@@ -10,15 +10,11 @@
   * @module page_assembler
   */
 import { deepClone, path, setPath } from './utils';
+import { create as createInterpolator } from './expression_interpolator';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
 const ID_SEPARATOR = '-';
-const ID_SEPARATOR_MATCHER = /-/g;
-const SUBTOPIC_SEPARATOR = '+';
-
-const COMPOSITION_EXPRESSION_MATCHER = /^(!?)\$\{([^}]+)\}$/;
-const COMPOSITION_TOPIC_PREFIX = 'topic:';
 
 /**
  * Creates and returns a new page assembler instance.
@@ -36,6 +32,8 @@ const COMPOSITION_TOPIC_PREFIX = 'topic:';
  * @private
  */
 export function create( validators, artifactsByRef ) {
+
+   const interpolator = createInterpolator();
 
    const pagesByRef = artifactsByRef.pages;
    let idCounter = 0;
@@ -314,8 +312,7 @@ export function create( validators, artifactsByRef ) {
       const ref = item.composition;
       const validate = validators.features.pages[ name ];
 
-      const itemFeatures = deepClone( item.features ) || {};
-      if( validate && !validate( { ...item, features: itemFeatures }, `${itemPointer}` ) ) {
+      if( validate && !validate( item, `${itemPointer}` ) ) {
          throw validators.error(
             `Validation of page ${containingPageRef} failed for ${ref} features`,
             validate.errors
@@ -323,50 +320,18 @@ export function create( validators, artifactsByRef ) {
       }
 
       if( typeof definition.mergedFeatures === 'object' ) {
-         const mergedFeatures = replaceExpressions( definition.mergedFeatures );
+         const mergedFeatures = interpolator.interpolate( item, definition.mergedFeatures );
          Object.keys( mergedFeatures ).forEach( featurePath => {
-            const currentValue = path( itemFeatures, featurePath, [] );
+            const currentValue = path( item.features, featurePath, [] );
             const values = mergedFeatures[ featurePath ];
-            setPath( itemFeatures, featurePath, values.concat( currentValue ) );
+            setPath( item.features, featurePath, values.concat( currentValue ) );
          } );
       }
 
-      definition.areas = replaceExpressions( definition.areas );
+      definition.areas = interpolator.interpolate( item, definition.areas );
 
       return composition;
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function replaceExpressions( obj ) {
-         return visitExpressions( obj, replaceExpression );
-      }
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function replaceExpression( sourceExpression ) {
-         const matches = sourceExpression.match( COMPOSITION_EXPRESSION_MATCHER );
-         if( !matches ) {
-            return sourceExpression;
-         }
-
-         const possibleNegation = matches[ 1 ];
-         const expression = matches[ 2 ];
-         let result;
-         if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
-            result = topicFromId( item.id ) +
-               SUBTOPIC_SEPARATOR + expression.slice( COMPOSITION_TOPIC_PREFIX.length );
-         }
-         else if( itemFeatures ) {
-            result = path( itemFeatures, expression.slice( 'features.'.length ) );
-         }
-         else {
-            throw new Error(
-               `Validation of page ${containingPageRef} failed: "${expression}" cannot be expanded here`
-            );
-         }
-
-         return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;
-      }
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -443,41 +408,6 @@ export function create( validators, artifactsByRef ) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function visitExpressions( obj, f ) {
-   if( obj === null ) {
-      return obj;
-   }
-
-   if( Array.isArray( obj ) ) {
-      return obj
-         .map( value => {
-            if( typeof value === 'object' ) {
-               return visitExpressions( value, f );
-            }
-
-            return typeof value === 'string' ? f( value ) : value;
-         } )
-         .filter( _ => _ !== undefined );
-   }
-
-   const result = {};
-   Object.keys( obj ).forEach( key => {
-      const value = obj[ key ];
-      const replacedKey = f( key );
-      if( typeof value === 'object' ) {
-         result[ replacedKey ] = visitExpressions( value, f );
-         return;
-      }
-
-      const replacedValue = typeof value === 'string' ? f( value ) : value;
-      if( typeof replacedValue !== 'undefined' ) {
-         result[ replacedKey ] = replacedValue;
-      }
-   } );
-
-   return result;
-}
-
 function mergeItemLists( targetList, sourceList, page ) {
    sourceList.forEach( item => {
       if( item.insertBeforeId ) {
@@ -515,12 +445,6 @@ function has( object, what ) {
 
 function dashToCamelcase( segmentStart ) {
    return segmentStart.charAt( 1 ).toUpperCase();
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function topicFromId( id ) {
-   return id.replace( ID_SEPARATOR_MATCHER, SUBTOPIC_SEPARATOR ).replace( SEGMENTS_MATCHER, dashToCamelcase );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -38,6 +38,9 @@ export default function serialize( object, indent = INDENT, pad = 0, space = SPA
    if( object === null ) {
       return 'null';
    }
+   if( object === undefined ) {
+      return 'undefined';
+   }
 
    if( typeof object === 'function' ) {
       return leftpad( object(), pad, space );

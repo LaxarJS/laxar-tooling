@@ -10,6 +10,7 @@
 'use strict';
 
 import Ajv from 'ajv';
+import { create as createInterpolator } from './expression_interpolator';
 
 // JSON schema formats:
 const TOPIC_IDENTIFIER = '([a-z][+a-zA-Z0-9]*|[A-Z][+A-Z0-9]*)';
@@ -46,20 +47,12 @@ const CUSTOM_KEYWORD_FORMATS = {
    'localization': keyTest( LANGUAGE_TAG_FORMAT )
 };
 
-const SEGMENTS_MATCHER = /[_/-]./g;
-
-const ID_SEPARATOR = '-';
-const ID_SEPARATOR_MATCHER = /-/g;
-const SUBTOPIC_SEPARATOR = '+';
-
-const COMPOSITION_EXPRESSION_MATCHER = /^(!?)\$\{([^}]+)\}$/;
-const COMPOSITION_TOPIC_PREFIX = 'topic:';
-
 /**
  * @return {Ajv} an Ajv instance
  */
 export function create() {
    const ajv = new Ajv( { jsonPointers: true, useDefaults: true, verbose: true } );
+   const interpolator = createInterpolator();
 
    Object.keys( AJV_FORMATS ).forEach( key => {
       ajv.addFormat( key, AJV_FORMATS[ key ] );
@@ -73,7 +66,7 @@ export function create() {
 
    ajv.addKeyword( AX_INTERPOLATE, {
       validate: function axInterpolate(data, curDataPath, parentData, parentProperty, rootData) {
-         parentData[ parentProperty ] = replaceExpressions( data, rootData );
+         parentData[ parentProperty ] = interpolator.interpolate( rootData, data );
          return true;
       },
       modifying: true,
@@ -91,10 +84,12 @@ export function create() {
    function compile( schema, sourceRef, options = {} ) {
       const {
          isFeaturesValidator = false,
-         processExpressions = false
+         interpolateExpressions = false
       } = options;
 
-      const decorators = [];
+      const decorators = [
+         translateCustomKeywordFormats
+      ];
 
       if( !schema.$schema ) {
          throw new Error( `JSON schema for artifact "${sourceRef}" is missing "$schema" property` );
@@ -111,7 +106,7 @@ export function create() {
          decorators.push( setFirstLevelDefaults );
          decorators.push( extractFeatures );
       }
-      if( processExpressions ) {
+      if( interpolateExpressions ) {
          decorators.push( function( schema ) {
             applyToSchemas( schema, function( schema ) {
                if( schema.default ) {
@@ -120,7 +115,6 @@ export function create() {
             } );
          } );
       }
-      translateCustomKeywordFormats( schema );
 
       const decoratedSchema = decorators.reduce( ( schema, decorator ) => {
          return decorator( schema ) || schema;
@@ -212,44 +206,6 @@ function extractFeatures( schema ) {
    };
 }
 
-function replaceExpressions( object, data ) {
-   visitExpressionsInplace( object, replaceExpression );
-   return object;
-
-   function replaceExpression( sourceExpression ) {
-      const matches = sourceExpression.match( COMPOSITION_EXPRESSION_MATCHER );
-      if( !matches ) {
-         return sourceExpression;
-      }
-
-      const possibleNegation = matches[ 1 ];
-      const expression = matches[ 2 ];
-      let result;
-      if( expression.indexOf( COMPOSITION_TOPIC_PREFIX ) === 0 ) {
-         result = topicFromId( data.id ) +
-            SUBTOPIC_SEPARATOR + expression.slice( COMPOSITION_TOPIC_PREFIX.length );
-      }
-      else if( data.features ) {
-         result = path( data.features, expression.slice( 'features.'.length ) );
-      }
-      else {
-         throw new Error(
-            `Validation of page ${containingPageRef} failed: "${expression}" cannot be expanded here`
-         );
-      }
-
-      return typeof result === 'string' && possibleNegation ? possibleNegation + result : result;
-   }
-}
-
-function topicFromId( id ) {
-   return id.replace( ID_SEPARATOR_MATCHER, SUBTOPIC_SEPARATOR ).replace( SEGMENTS_MATCHER, dashToCamelcase );
-}
-
-function dashToCamelcase( segmentStart ) {
-   return segmentStart.charAt( 1 ).toUpperCase();
-}
-
 function setFirstLevelDefaults( schema, object ) {
    const properties = schema.properties || {};
    Object.keys( properties ).forEach( key => {
@@ -281,57 +237,5 @@ function keyTest( format ) {
    return object => {
       return Object.keys( object ).every( key => pattern.test( key ) );
    };
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Common functionality and utility functions
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function visitExpressionsInplace( obj, f ) {
-   if( obj === null ) {
-      return obj;
-   }
-
-   if( Array.isArray( obj ) ) {
-      for( let i = 0; i < obj.length; i++ ) {
-         const value = obj[ i ];
-
-         if( typeof value === 'object' ) {
-            visitExpressionsInplace( value, f );
-            return;
-         }
-
-         obj[ i ] = typeof value === 'string' ? f( value ) : value;
-
-         if( obj[ i ] === undefined ) {
-            obj.slice( i, 1 );
-            i--;
-         }
-      }
-   }
-
-   if( typeof obj === 'object' ) {
-      Object.keys( obj ).forEach( key => {
-         const value = obj[ key ];
-         const replacedKey = f( key );
-
-         delete obj[ key ];
-
-         if( typeof value === 'object' ) {
-            obj[ replacedKey ] = visitExpressionsInplace( value, f );
-            return;
-         }
-
-         obj[ replacedKey ] = typeof value === 'string' ? f( value ) : value;
-
-         if( typeof obj[ replacedKey ] === 'undefined' ) {
-            delete obj[ replacedKey ];
-         }
-      } );
-   }
-
-   return obj;
 }
 

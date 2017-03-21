@@ -76,7 +76,7 @@ describe( 'A PageAssembler', () => {
          bucket[ name ] = jsonSchema.compile(
             features,
             name,
-            { isFeaturesValidator: true, processExpressions: type === 'page' }
+            { isFeaturesValidator: true, interpolateExpressions: type === 'page' }
          );
       }
    }
@@ -543,7 +543,7 @@ describe( 'A PageAssembler', () => {
 
       it( 'omits widgets that are disabled within compositions (#24)', () => {
          return pageAssembler.assemble( pagesByRef.pageWithCompositionWithDisabledWidgets )
-            .then( ({ definition }) => {
+            .then( ({ definition, ...s }) => {
                const { area1, area2 } = definition.areas;
                expect( area1.length ).to.equal( 3 );
                expect( area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );

@@ -32,7 +32,7 @@ export function create( jsonSchema, { schemas, pages, widgets } ) {
          pages,
          ({ definition }) => definition.features,
          jsonSchema.compile,
-         { isFeaturesValidator: true, processExpressions: true }
+         { isFeaturesValidator: true, interpolateExpressions: true }
       ),
       widgets: compileSchemas(
          widgets,
