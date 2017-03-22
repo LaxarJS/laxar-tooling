@@ -147,6 +147,9 @@
                "widget": "widget1"
             }, {
                "widget": "widget2"
+            }, {
+               "widget": "widget3",
+               "enabled": false
             } ]
          }
       },

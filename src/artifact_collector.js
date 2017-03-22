@@ -443,18 +443,21 @@ export function create( options ) {
 
       return resolveRef( pageRef + '.json', paths.pages )
          .then( path => readJson( path ).then( page => {
-            const pages = flatten( values( page.areas ) )
+            const items = flatten( values( page.areas ) )
+               .filter( item => item.enabled !== false );
+
+            const pages = items
                .filter( hasField( 'composition' ) )
                .map( getField( 'composition' ) )
                .concat( page.extends ? [ page.extends ] : [] );
 
-            const layouts = flatten( values( page.areas ) )
+            const layouts = items
                .filter( hasField( 'layout' ) )
                .map( getField( 'layout' ) )
                .concat( page.layout ? [ page.layout ] : [] )
                .filter( unique() );
 
-            const widgets = flatten( values( page.areas ) )
+            const widgets = items
                .filter( hasField( 'widget' ) )
                .map( getField( 'widget' ) )
                .filter( unique() );
