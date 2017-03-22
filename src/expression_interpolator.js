@@ -47,9 +47,7 @@ export function create() {
                }
             }
 
-            throw new Error(
-               `Expression "${expression}" cannot be expanded here`
-            );
+            throw new Error( `"\${${expression}}" cannot be expanded here` );
          } );
       }
    };

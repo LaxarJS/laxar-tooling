@@ -191,13 +191,14 @@ export function create( validators, artifactsByRef ) {
 
       function processNestedCompositions( page, pageRef, instanceId, compositionChain ) {
 
-         const debugInfo = {
+         page.debugInfo = {
             id: instanceId,
             name: page.name,
             path: page.path,
             FLAT: page.definition,
             COMPACT: deepClone( page.definition ),
-            compositions: []
+            compositions: [],
+            //validate: validators.features.pages[ page.name ]
          };
 
          let promise = Promise.resolve();
@@ -233,7 +234,7 @@ export function create( validators, artifactsByRef ) {
                      return processNestedCompositions( composition, compositionRef, item.id, chain );
                   } )
                   .then( composition => {
-                     debugInfo.compositions.push( composition.debugInfo );
+                     page.debugInfo.compositions.push( composition.debugInfo );
                      mergeCompositionAreasWithPageAreas( composition, page.definition, items, item );
                      validateWidgetItems( composition, compositionRef );
                   } );
@@ -241,10 +242,7 @@ export function create( validators, artifactsByRef ) {
          } );
 
          return promise
-            .then( () => {
-               page.debugInfo = debugInfo;
-               return page;
-            } );
+            .then( () => page );
       }
    }
 

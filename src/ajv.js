@@ -19,33 +19,33 @@ const TOPIC_FORMAT = `^(${TOPIC_IDENTIFIER}(-${TOPIC_IDENTIFIER})*)$`;
 const FLAG_TOPIC_FORMAT = `^[!]?(${TOPIC_IDENTIFIER}(-${TOPIC_IDENTIFIER})*)$`;
 // simplified RFC-5646 language-tag matcher with underscore/dash relaxation:
 // the parts are: language *("-"|"_" script|region|constant) *("-"|"_" extension|privateuse)
-const LANGUAGE_TAG_FORMAT = /^[a-z]{2,8}([-_][a-z0-9]{2,8})*([-_][a-z0-9][-_][a-z0-9]{2,8})*$/i;
+const LANGUAGE_TAG_FORMAT = '^[a-zA-Z]{2,8}([-_][a-zA-Z0-9]{2,8})*([-_][a-zA-Z0-9][-_][a-zA-Z0-9]{2,8})*$';
 
 const AJV_FORMATS = {
    // allows 'myTopic', 'myTopic-mySubTopic-SUB_0815+OK' and variations:
-   'topic': stringTest( TOPIC_FORMAT ),
+   'topic': TOPIC_FORMAT,
 
    // allows 'mySubTopic0815', 'MY_SUB_TOPIC+OK' and variations:
-   'sub-topic': stringTest( SUB_TOPIC_FORMAT ),
+   'sub-topic': SUB_TOPIC_FORMAT,
 
    // allows 'myTopic', '!myTopic-mySubTopic-SUB_0815+OK' and variations:
-   'flag-topic': stringTest( FLAG_TOPIC_FORMAT ),
+   'flag-topic': FLAG_TOPIC_FORMAT,
 
    // allows 'de_DE', 'en-x-laxarJS' and such:
-   'language-tag': stringTest( LANGUAGE_TAG_FORMAT )
+   'language-tag': LANGUAGE_TAG_FORMAT
 };
 
-const AX_FORMAT = 'axFormat';
-const AX_INTERPOLATE = 'axInterpolate';
-
-// ajv currently does not support formats for non-string types,
-// so we pre-process schemas to use "custom validation keywords" instead.
-const CUSTOM_KEYWORD_FORMATS = {
+const CUSTOM_FORMATS = {
    // checks that object keys have the 'topic' format:
-   'topic-map': keyTest( TOPIC_FORMAT ),
+   'topic-map': patternProperties( TOPIC_FORMAT, {
+      type: 'string',
+      format: 'topic'
+   } ),
    // checks that object keys have the 'language-tag' format:
-   'localization': keyTest( LANGUAGE_TAG_FORMAT )
+   'localization': patternProperties( LANGUAGE_TAG_FORMAT )
 };
+
+const AX_INTERPOLATE = 'axInterpolate';
 
 /**
  * @return {Ajv} an Ajv instance
@@ -58,19 +58,23 @@ export function create() {
       ajv.addFormat( key, AJV_FORMATS[ key ] );
    } );
 
-   ajv.addKeyword( AX_FORMAT, {
-      type: 'object',
-      validate: validateKeywordFormat,
-      errors: false
-   } );
-
    ajv.addKeyword( AX_INTERPOLATE, {
       validate: function axInterpolate(data, curDataPath, parentData, parentProperty, rootData) {
-         parentData[ parentProperty ] = interpolator.interpolate( rootData, data );
+         try {
+            parentData[ parentProperty ] = interpolator.interpolate( rootData, data );
+         }
+         catch( err ) {
+            axInterpolate.errors = [ {
+               keyword: AX_INTERPOLATE,
+               params: {},
+               message: err.message
+            } ];
+            return false;
+         }
          return true;
       },
       modifying: true,
-      errors: false,
+      errors: true,
       schema: false
    } );
 
@@ -155,8 +159,8 @@ function setAdditionalPropertiesDefaults( schema ) {
 
 function translateCustomKeywordFormats( schema ) {
    return applyToSchemas( schema, schema => {
-      if( schema.format && schema.format in CUSTOM_KEYWORD_FORMATS ) {
-         schema[ AX_FORMAT ] = schema.format;
+      if( schema.format && schema.format in CUSTOM_FORMATS ) {
+         CUSTOM_FORMATS[ schema.format ]( schema );
          delete schema.format;
       }
    } );
@@ -191,10 +195,6 @@ function applyToSchemas( schema, callback ) {
    }
 }
 
-function validateKeywordFormat( format, object ) {
-   return CUSTOM_KEYWORD_FORMATS[ format ]( object );
-}
-
 function extractFeatures( schema ) {
    return {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -212,9 +212,7 @@ function setFirstLevelDefaults( schema, object ) {
       if( properties[ key ].default !== undefined ) {
          return;
       }
-      if( properties[ key ].axDefault !== undefined ) {
-         properties[ key ].default = '__axDefault';
-      } else if( properties[ key ].type === 'object' ) {
+      if( properties[ key ].type === 'object' ) {
          properties[ key ].default = {};
       }
       else if( properties[ key ].type === 'array' ) {
@@ -225,17 +223,11 @@ function setFirstLevelDefaults( schema, object ) {
    return schema;
 }
 
-function stringTest( format ) {
-   const pattern = new RegExp( format );
-   return string => {
-      return ( typeof string !== 'string' ) || pattern.test( string );
-   };
-}
-
-function keyTest( format ) {
-   const pattern = new RegExp( format );
-   return object => {
-      return Object.keys( object ).every( key => pattern.test( key ) );
+function patternProperties( keyFormat, valueSchema = {} ) {
+   return schema => {
+      schema.patternProperties = schema.patternProperties || {};
+      schema.patternProperties[ keyFormat ] = schema.additionalProperties || valueSchema;
+      schema.additionalProperties = false;
    };
 }
 

@@ -29,7 +29,7 @@
     "resources"
   ],
   "dependencies": {
-    "ajv": "^4.10.0",
+    "ajv": "^4.11.5",
     "jsonlint": "^1.6.2",
     "source-map-support": "^0.4.2"
   },

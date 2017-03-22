@@ -842,7 +842,7 @@ describe( 'A PageAssembler', () => {
                      expect( message ).to.eql(
                         'Validation of page pageWithWidgetToValidateUsingFormats failed for ' +
                         'widgetUsingFormats features: /areas/content/0/features/testFeature/i18nLabel ' +
-                        'should pass "axFormat" keyword validation [{"keyword":"axFormat"}]'
+                        'should NOT have additional properties [{"additionalProperty":"bad tag"}]'
                      );
                   } );
             } );
@@ -920,7 +920,7 @@ describe( 'A PageAssembler', () => {
                         'Validation of page pageWithWidgetToValidateUsingFormats failed for ' +
                         'widgetUsingFormats features: ' +
                         '/areas/content/0/features/testFeature/resourceByAction ' +
-                        'should pass "axFormat" keyword validation [{"keyword":"axFormat"}]'
+                        'should NOT have additional properties [{"additionalProperty":"bad action"}]'
                      );
                   } );
             } );
