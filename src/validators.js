@@ -15,15 +15,14 @@ export default { create };
  * Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
  * object including schema descriptions in widget descriptors and page composition definitions.
  *
- * @memberOf ArtifactValidator
  * @return {Object} an object containg validation functions.
  */
-export function create( jsonSchema, { schemas, pages, widgets } ) {
+export function create( ajv, { schemas, pages, widgets } ) {
 
    const validators = compileSchemas(
       schemas,
       ({ definition }) => definition,
-      jsonSchema.compile,
+      ajv.compile,
       {}
    );
 
@@ -31,20 +30,20 @@ export function create( jsonSchema, { schemas, pages, widgets } ) {
       pages: compileSchemas(
          pages,
          ({ definition }) => definition.features,
-         jsonSchema.compile,
+         ajv.compile,
          { isFeaturesValidator: true, interpolateExpressions: true }
       ),
       widgets: compileSchemas(
          widgets,
          ({ descriptor }) => descriptor.features,
-         jsonSchema.compile,
+         ajv.compile,
          { isFeaturesValidator: true }
       )
    };
 
    return {
       ...validators,
-      error: jsonSchema.error,
+      error: ajv.error,
       features
    };
 }

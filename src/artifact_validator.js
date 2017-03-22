@@ -26,7 +26,7 @@ export default { create };
  */
 export function create() {
 
-   const jsonSchema = createAjv();
+   const ajv = createAjv();
 
    /**
     * @name ArtifactValidator
@@ -54,12 +54,25 @@ export function create() {
     * @return {Promise<Object>} the validated artifacts
     */
    function validateArtifacts( { schemas, flows, pages, widgets, layouts, ...artifacts } ) {
-      const validators = createValidators( jsonSchema, { schemas, pages, widgets } );
+      const validators = createValidators( ajv, { schemas, pages, widgets } );
+      const pageAssembler = createPageAssembler( validators, {
+         pages: byRef( pages ),
+         widgets: byRef( widgets ),
+         layouts: byRef( layouts )
+      } );
+
+      const entryPageRefs = {};
+      flows.forEach( flow => {
+         flow.pages.forEach( ref => {
+            entryPageRefs[ ref ] = true;
+         } );
+      } );
+      const entryPages = pages.filter( ({ refs }) => refs.some( _ => entryPageRefs[ _ ] ) );
 
       return Promise.all( [
-         validateFlows( flows, validators ),
-         validatePages( pages, validators, flows, widgets, layouts ),
-         validateWidgets( widgets, validators )
+         validateFlows( validators, flows ),
+         validatePages( pageAssembler, entryPages ),
+         validateWidgets( validators, widgets )
       ] ).then( ( [ flows, pages, widgets ] ) => ( {
          ...artifacts,
          layouts,
@@ -67,50 +80,6 @@ export function create() {
          pages,
          widgets
       } ) );
-   }
-
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   /**
-    * @memberOf ArtifactValidator
-    * @param {Array<Object>} flows the flow artifacts to validate
-    * @param {Object} validators validators created by {@link validators#create}
-    * @return {Promise<Array>} the validated flows
-    */
-   function validateFlows( flows, validators ) {
-      return Promise.all( flows.map( flow => validateFlow( flow, validators ) ) );
-   }
-
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   /**
-    * @memberOf ArtifactValidator
-    * @param {Array<Object>} pages the page artifacts to validate
-    * @param {Object} validators validators created by {@link validators#create}
-    * @param {Array<Object>} flows the flows telling us which pages are entry-pages
-    * @param {Array<Object>} widgets the widgets, used to perform name lookups
-    * @param {Array<Object>} layouts the layouts, used to perform name lookups
-    * @return {Promise<Array>} the validated pages
-    */
-   function validatePages( pages, validators, flows, widgets, layouts ) {
-      const entryPageRefs = {};
-      flows.forEach( flow => {
-         flow.pages.forEach( ref => {
-            entryPageRefs[ ref ] = true;
-         } );
-      } );
-      const entryPages = pages.filter( _ => _.refs.some( _ => entryPageRefs[ _ ] ) );
-
-      const artifactsByRef = {
-         pages: byRef( pages ),
-         widgets: byRef( widgets ),
-         layouts: byRef( layouts )
-      };
-      const pageAssembler = createPageAssembler( validators, artifactsByRef );
-
-      return Promise.all(
-         entryPages.map( page => pageAssembler.assemble( page ) )
-      );
 
       function byRef( artifacts ) {
          const artifactsByRef = {};
@@ -127,17 +96,41 @@ export function create() {
 
    /**
     * @memberOf ArtifactValidator
+    * @param {Object} validators validators created by {@link validators#create}
+    * @param {Array<Object>} flows the flow artifacts to validate
+    * @return {Promise<Array>} the validated flows
+    */
+   function validateFlows( validators, flows ) {
+      return Promise.all( flows.map( flow => validateFlow( validators, flow ) ) );
+   }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * @memberOf ArtifactValidator
+    * @param {PageAssembler} pageAssembler the page assembler handles validation of the individual pages
+    * @param {Array<Object>} pages the page artifacts to validate
+    * @return {Promise<Array>} the validated pages
+    */
+   function validatePages( pageAssembler, pages ) {
+      return Promise.all( pages.map( page => validatePage( pageAssembler, page ) ) );
+   }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * @memberOf ArtifactValidator
     * @param {Array<Object>} widgets the widget artifacts to validate
     * @param {Object} validators validators created by {@link validators#create}
     * @return {Promise<Array>} the validated widgets
     */
-   function validateWidgets( widgets, validators ) {
+   function validateWidgets( validators, widgets ) {
       return Promise.all( widgets.map( widget => validateWidget( widget, validators ) ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function validateFlow( flow, validators ) {
+   function validateFlow( validators, flow ) {
       const { name, definition } = flow;
       const validate = validators.flow;
       return validate( definition ) ?
@@ -147,7 +140,13 @@ export function create() {
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function validateWidget( widget, validators ) {
+   function validatePage( pageAssembler, page ) {
+      return pageAssember.assemble( page );
+   }
+
+   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   function validateWidget( validators, widget ) {
       const { name, descriptor } = widget;
       const validate = validators.widget;
       return validate( descriptor ) ?

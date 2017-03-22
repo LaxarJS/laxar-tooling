@@ -35,7 +35,6 @@ export function create( validators, artifactsByRef ) {
 
    const interpolator = createInterpolator();
 
-   const pagesByRef = artifactsByRef.pages;
    let idCounter = 0;
 
    return {
@@ -59,18 +58,13 @@ export function create( validators, artifactsByRef ) {
             'PageAssembler.assemble must be called with a page artifact (object)'
          ) );
       }
-      try {
-         return loadPageRecursively( page, page.name, [] );
-      }
-      catch( error ) {
-         return Promise.reject( error );
-      }
+      return loadPageRecursively( page, page.name, [] );
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function lookup( pageRef ) {
-      return deepClone( pagesByRef[ pageRef ] );
+      return deepClone( artifactsByRef.pages[ pageRef ] );
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,10 +74,10 @@ export function create( validators, artifactsByRef ) {
       const { definition, name } = page;
 
       if( extensionChain.indexOf( name ) !== -1 ) {
-         throwError(
+         return Promise.reject( formatError(
             page,
             `Cycle in page extension detected: ${extensionChain.concat( [ name ] ).join( ' -> ' )}`
-         );
+         ) );
       }
 
       if( !validators.page( definition ) ) {
@@ -161,7 +155,7 @@ export function create( validators, artifactsByRef ) {
       const mergedPageAreas = deepClone( basePage.definition.areas );
       if( has( basePage.definition, 'layout' ) ) {
          if( has( page.definition, 'layout' ) ) {
-            throwError( page, `Page overwrites layout set by base page "${basePage.name}"` );
+            throw formatError( page, `Page overwrites layout set by base page "${basePage.name}"` );
          }
          page.definition.layout = basePage.definition.layout;
       }
@@ -217,7 +211,7 @@ export function create( validators, artifactsByRef ) {
                if( compositionChain.indexOf( compositionRef ) !== -1 ) {
                   const chainString = compositionChain.concat( [ compositionRef ] ).join( ' -> ' );
                   const message = `Cycle in compositions detected: ${chainString}`;
-                  throwError( topPage, message );
+                  throw formatError( topPage, message );
                }
 
                const itemPointer = `/areas/${areaName}/${items.length - index - 1}`;
@@ -356,7 +350,7 @@ export function create( validators, artifactsByRef ) {
 
       const duplicates = Object.keys( idCount ).filter( id => idCount[ id ] > 1 );
       if( duplicates.length ) {
-         throwError( page, `Duplicate widget/composition/layout ID(s): ${duplicates.join( ', ' )}` );
+         throw formatError( page, `Duplicate widget/composition/layout ID(s): ${duplicates.join( ', ' )}` );
       }
    }
 
@@ -364,7 +358,7 @@ export function create( validators, artifactsByRef ) {
 
    function itemName( item ) {
       const tables = {
-         composition: pagesByRef,
+         composition: artifactsByRef.pages,
          widget: artifactsByRef.widgets,
          layout: artifactsByRef.layouts
       };
@@ -416,7 +410,7 @@ function mergeItemLists( targetList, sourceList, page ) {
             }
          }
 
-         throwError( page, `No id found that matches insertBeforeId value "${item.insertBeforeId}"` );
+         throw formatError( page, `No id found that matches insertBeforeId value "${item.insertBeforeId}"` );
       }
       targetList.push( item );
    } );
@@ -447,7 +441,7 @@ function dashToCamelcase( segmentStart ) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function throwError( page, message ) {
+function formatError( page, message ) {
    const text = `Error loading page "${page.name}": ${message}`;
-   throw new Error( text );
+   return new Error( text );
 }
