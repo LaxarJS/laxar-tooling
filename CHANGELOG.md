@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#21](https://github.com/LaxarJS/laxar-tooling/issues/21): artifact collector: don't include widgets/layouts/compositions which are not enabled
+
 
 ## v0.6.0
 

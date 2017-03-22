@@ -219,6 +219,10 @@
                   },
                   {
                      "widget" : "widget2"
+                  },
+                  {
+                     "widget" : "widget3",
+                     "enabled" : false
                   }
                ],
                "area1" : [
