@@ -3,6 +3,7 @@
 ## Last Changes
 
 - [#21](https://github.com/LaxarJS/laxar-tooling/issues/21): artifact collector: don't include widgets/layouts/compositions which are not enabled
+  + **BREAKING CHANGE:** see ticket for details
 - [#24](https://github.com/LaxarJS/laxar-tooling/issues/24): defaults: changed artifact directories to sub-folders of `application/`
 
 
