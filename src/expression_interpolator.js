@@ -60,6 +60,8 @@ export function visitExpressions( obj, f ) {
 
    if( typeof obj === 'string' ) {
       const match = EXPRESSION_PATTERN.exec( obj );
+      EXPRESSION_PATTERN.lastIndex = 0;
+
       if( match && match.index === 0 && match[ 0 ] === obj ) {
          // exact matches may return non-strings
          return f( match[ 1 ] );
