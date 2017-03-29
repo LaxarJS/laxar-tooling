@@ -113,8 +113,8 @@ describe( 'expressionInterpolator', () => {
          } );
 
          it( 'replaces feature references in object keys', () => {
-            expect( interpolator.interpolate( context, { '${features.test.resource}': '${topic:my-topic}' } ) )
-               .to.eql( { 'my-resource': 'my+id0+my-topic' } );
+            expect( interpolator.interpolate( context, { '${features.test.resource}': 'test' } ) )
+               .to.eql( { 'my-resource': 'test' } );
          } );
 
          it( 'drops properties where the expression evaluates to undefined', () => {

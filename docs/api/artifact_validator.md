@@ -54,14 +54,14 @@ Example:
 | ---- | ----------- |
 | `Promise.<Object>` |  the validated artifacts |
 
-#### <a id="validateFlows"></a>validateFlows( flows, validators )
+#### <a id="validateFlows"></a>validateFlows( validators, flows )
 
 ##### Parameters
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| flows | `Array.<Object>` |  the flow artifacts to validate |
 | validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
+| flows | `Array.<Object>` |  the flow artifacts to validate |
 
 ##### Returns
 
@@ -69,17 +69,14 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated flows |
 
-#### <a id="validatePages"></a>validatePages( pages, validators, flows, widgets, layouts )
+#### <a id="validatePages"></a>validatePages( pageAssembler, pages )
 
 ##### Parameters
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
+| pageAssembler | `PageAssembler` |  the page assembler handles validation of the individual pages |
 | pages | `Array.<Object>` |  the page artifacts to validate |
-| validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
-| flows | `Array.<Object>` |  the flows telling us which pages are entry-pages |
-| widgets | `Array.<Object>` |  the widgets, used to perform name lookups |
-| layouts | `Array.<Object>` |  the layouts, used to perform name lookups |
 
 ##### Returns
 

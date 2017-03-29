@@ -125,7 +125,7 @@ export function create() {
     * @return {Promise<Array>} the validated widgets
     */
    function validateWidgets( validators, widgets ) {
-      return Promise.all( widgets.map( widget => validateWidget( widget, validators ) ) );
+      return Promise.all( widgets.map( widget => validateWidget( validators, widget ) ) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ export function create() {
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validatePage( pageAssembler, page ) {
-      return pageAssember.assemble( page );
+      return pageAssembler.assemble( page );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
