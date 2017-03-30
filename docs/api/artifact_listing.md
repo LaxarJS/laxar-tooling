@@ -10,7 +10,6 @@ Determine application artifacts by inspecting flow, pages and widgets.
 - [defaultAssets()](#defaultAssets)
 - [create()](#create)
 - [buildArtifacts()](#buildArtifacts)
-- [buildAliases()](#buildAliases)
 - [buildAssets()](#buildAssets)
 
 **Types**
@@ -85,22 +84,6 @@ Example:
 | Type | Description |
 | ---- | ----------- |
 | `Promise.<Object>` |  the generated listing, ready to be serialized. |
-
-#### <a id="buildAliases"></a>buildAliases( entries )
-
-Create a map from artifact refs to indices.
-
-##### Parameters
-
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| entries | `Array` |  any of the artifact sub-lists returned by [`ArtifactCollector`](artifact_collector.md) |
-
-##### Returns
-
-| Type | Description |
-| ---- | ----------- |
-| `Promise.<Object>` |  the map from artifact refs to indices |
 
 #### <a id="buildAssets"></a>buildAssets( artifact, themes )
 

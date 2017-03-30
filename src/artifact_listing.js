@@ -7,10 +7,10 @@
  * Determine application artifacts by inspecting flow, pages and widgets.
  * @module artifactListing
  */
-'use strict';
 
 import { wrap } from './promise';
 import { flatten, merge } from './utils';
+import { buildAliases } from './aliases';
 import defaults from './defaults';
 
 /**
@@ -87,7 +87,6 @@ export function create( options ) {
     */
    return {
       buildArtifacts,
-      buildAliases,
       buildFlows,
       buildThemes,
       buildPages,
@@ -108,9 +107,7 @@ export function create( options ) {
     */
    function buildArtifacts( artifacts ) {
       return Promise.all( [
-         Promise.all( Object.keys( artifacts )
-            .map( key => buildAliases( artifacts[ key ] ).then( aliases => ( { [ key ]: aliases } ) ) ) )
-            .then( merge ),
+         buildAliases( artifacts ),
          buildFlows( artifacts.flows ),
          buildThemes( artifacts.themes ),
          buildPages( artifacts.pages ),
@@ -126,20 +123,6 @@ export function create( options ) {
          widgets,
          controls
       } ) );
-   }
-
-   /**
-    * Create a map from artifact refs to indices.
-    *
-    * @memberOf ArtifactListing
-    * @param {Array} entries
-    *    any of the artifact sub-lists returned by {@link ArtifactCollector}
-    * @return {Promise<Object>} the map from artifact refs to indices
-    */
-   function buildAliases( entries ) {
-      return Promise.all( entries.map( ( { name, refs }, index ) => [ name, ...refs ]
-         .map( ref => ( { [ ref ]: index } ) )
-      ) ).then( flatten ).then( merge );
    }
 
    function buildFlows( flows ) {

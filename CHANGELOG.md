@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+- [#25](https://github.com/LaxarJS/laxar-tooling/issues/25): debug information: it is now possible to gather debug information while collecting artifacts
+   + NEW FEATURE: see ticket for details
+
 
 ## v2.0.0-alpha.0
 

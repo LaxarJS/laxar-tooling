@@ -46,8 +46,10 @@ describe( 'A PageAssembler', () => {
       jsonSchema = createAjv();
       validators = {
          page: jsonSchema.compile( mockPageSchema, 'page.json' ),
+         error: jsonSchema.error,
          features: {
-            widgets: {}
+            widgets: {},
+            pages: {}
          }
       };
       pageAssembler = createPageAssembler( validators, {
@@ -56,6 +58,28 @@ describe( 'A PageAssembler', () => {
          layouts: {}
       } );
    } );
+
+   function compile( type, name ) {
+      let bucket;
+      let features;
+
+      if( type === 'widget' ) {
+         bucket = validators.features.widgets;
+         features = widgetsByRef[ name ].descriptor.features;
+      }
+      else if( type === 'page' ) {
+         bucket = validators.features.pages;
+         features = pagesByRef[ name ].definition.features;
+      }
+
+      if( features ) {
+         bucket[ name ] = jsonSchema.compile(
+            features,
+            name,
+            { isFeaturesValidator: true, interpolateExpressions: type === 'page' }
+         );
+      }
+   }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -310,6 +334,7 @@ describe( 'A PageAssembler', () => {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'replaces feature expressions with provided features and overwritten defaults', () => {
+         compile( 'page', 'compositionWithFeaturesDefined' );
          return pageAssembler.assemble( pagesByRef.pageWithCompositionWithFeaturesOverwritingDefaults )
             .then( ({ definition }) => {
                expect( definition.areas.area1.length ).to.equal( 1 );
@@ -339,6 +364,10 @@ describe( 'A PageAssembler', () => {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'replaces feature expressions with provided features and omitted defaults', () => {
+         compile( 'widget', 'laxarjs/test_widget1' );
+         compile( 'widget', 'laxarjs/test_widget2' );
+         compile( 'page', 'compositionWithFeaturesDefined' );
+         compile( 'page', 'pageWithCompositionWithFeaturesOmittingDefaults' );
          return pageAssembler.assemble( pagesByRef.pageWithCompositionWithFeaturesOmittingDefaults )
             .then( ({ definition }) => {
                expect( definition.areas.area1.length ).to.equal( 1 );
@@ -368,6 +397,7 @@ describe( 'A PageAssembler', () => {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'compositions within compositions are resolved', () => {
+         compile( 'page', 'compositionWithEmbeddedComposition' );
          return pageAssembler.assemble( pagesByRef.pageWithCompositionWithEmbeddedComposition )
             .then( ({ definition }) => {
                expect( definition.areas.area1.length ).to.equal( 2 );
@@ -513,7 +543,7 @@ describe( 'A PageAssembler', () => {
 
       it( 'omits widgets that are disabled within compositions (#24)', () => {
          return pageAssembler.assemble( pagesByRef.pageWithCompositionWithDisabledWidgets )
-            .then( ({ definition }) => {
+            .then( ({ definition, ...s }) => {
                const { area1, area2 } = definition.areas;
                expect( area1.length ).to.equal( 3 );
                expect( area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );
@@ -530,6 +560,7 @@ describe( 'A PageAssembler', () => {
       describe( 'when features are missing from the composition configuration (#29)', () => {
 
          it( 'removes undefined values in widget features', () => {
+            compile( 'page', 'compositionWithFeaturesWithoutDefaults' );
             return pageAssembler.assemble( pagesByRef.pageWithFeaturesOfCompositionNotConfigured )
                .then( ({ definition }) => {
                   expect( Object.keys( definition.areas.area1[ 0 ].features.anything ) ).to.eql( [] );
@@ -564,12 +595,15 @@ describe( 'A PageAssembler', () => {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'demands that compositions specify their schema version', () => {
-         return pageAssembler.assemble( pagesByRef.pageWithCompositionWithoutSchemaVersion )
-            .then( unreachable, ({ message }) => {
-               expect( message ).to.eql(
-                  'JSON schema for artifact "compositionWithoutSchemaVersion" is missing "$schema" property'
-               );
-            } );
+         /* handled in schema compiler in validators.js */
+         try {
+            compile( 'page', 'compositionWithoutSchemaVersion' );
+         }
+         catch( { message } ) {
+            expect( message ).to.eql(
+               'JSON schema for artifact "compositionWithoutSchemaVersion" is missing "$schema" property'
+            );
+         }
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -643,6 +677,10 @@ describe( 'A PageAssembler', () => {
 
    describe( 'when loading a page with invalid composition feature configuration', () => {
 
+      beforeEach( function() {
+         compile( 'page', 'compositionWithFeaturesWithoutDefaults' );
+      } );
+
       it( 'rejects the load-promise', () => {
          return pageAssembler.assemble( pagesByRef.pageWithFeaturesOfCompositionBadlyConfigured )
             .then( unreachable, pass );
@@ -670,16 +708,9 @@ describe( 'A PageAssembler', () => {
       beforeEach( () => {
          validators.features.widgets.widgetWithoutSchema = null;
 
-         compile( 'widgetWithSchema' );
-         compile( 'otherWidgetWithSchema' );
-         compile( 'widgetUsingFormats' );
-         function compile( name ) {
-            validators.features.widgets[ name ] = jsonSchema.compile(
-               widgetsByRef[ name ].definition.features,
-               name,
-               { isFeaturesValidator: true }
-            );
-         }
+         compile( 'widget', 'widgetWithSchema' );
+         compile( 'widget', 'otherWidgetWithSchema' );
+         compile( 'widget', 'widgetUsingFormats' );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -811,7 +842,7 @@ describe( 'A PageAssembler', () => {
                      expect( message ).to.eql(
                         'Validation of page pageWithWidgetToValidateUsingFormats failed for ' +
                         'widgetUsingFormats features: /areas/content/0/features/testFeature/i18nLabel ' +
-                        'should pass "axFormat" keyword validation [{"keyword":"axFormat"}]'
+                        'should NOT have additional properties [{"additionalProperty":"bad tag"}]'
                      );
                   } );
             } );
@@ -889,7 +920,7 @@ describe( 'A PageAssembler', () => {
                         'Validation of page pageWithWidgetToValidateUsingFormats failed for ' +
                         'widgetUsingFormats features: ' +
                         '/areas/content/0/features/testFeature/resourceByAction ' +
-                        'should pass "axFormat" keyword validation [{"keyword":"axFormat"}]'
+                        'should NOT have additional properties [{"additionalProperty":"bad action"}]'
                      );
                   } );
             } );
