@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#26](https://github.com/LaxarJS/laxar-tooling/issues/26): fixed NPE when using `"enabled": false` for items in pages
 - [#25](https://github.com/LaxarJS/laxar-tooling/issues/25): debug information: it is now possible to gather debug information while collecting artifacts
    + NEW FEATURE: see ticket for details
 

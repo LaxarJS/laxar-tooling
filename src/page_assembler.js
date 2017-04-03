@@ -58,13 +58,16 @@ export function create( validators, artifactsByRef ) {
             'PageAssembler.assemble must be called with a page artifact (object)'
          ) );
       }
+      removeDisabledItems( page );
       return loadPageRecursively( page, page.name, [] );
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function lookup( pageRef ) {
-      return deepClone( artifactsByRef.pages[ pageRef ] );
+      const page = deepClone( artifactsByRef.pages[ pageRef ] );
+      removeDisabledItems( page );
+      return page;
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +103,6 @@ export function create( validators, artifactsByRef ) {
          } )
          .then( () => {
             checkForDuplicateIds( page );
-            removeDisabledItems( page );
             validateWidgetItems( page, pageRef );
             return page;
          } );
@@ -189,10 +191,10 @@ export function create( validators, artifactsByRef ) {
             id: instanceId,
             name: page.name,
             path: page.path,
+            //validate: validators.features.pages[ page.name ],
             FLAT: page.definition,
             COMPACT: deepClone( page.definition ),
-            compositions: [],
-            //validate: validators.features.pages[ page.name ]
+            compositions: []
          };
 
          let promise = Promise.resolve();
