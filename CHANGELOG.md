@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v2.0.0-alpha.3
+
 - [#28](https://github.com/LaxarJS/laxar-tooling/issues/28): layouts must now include a `layout.json` file
     + **BREAKING CHANGE:** see ticket for details
 
