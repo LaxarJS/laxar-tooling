@@ -206,7 +206,7 @@ export function create( options ) {
    }
 
    function buildDescriptor( { name, descriptor } ) {
-      return descriptor || { name };
+      return Promise.resolve( descriptor || { name } );
    }
 
    function buildDefinition( { definition } ) {
@@ -288,3 +288,4 @@ function requireAssets( requireFile, assetPaths, assetUrlPaths ) {
       } ) ).then( merge );
    };
 }
+

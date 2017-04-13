@@ -12,6 +12,7 @@
 import { create as createAjv } from './ajv';
 import { create as createValidators } from './validators';
 import { create as createPageAssembler } from './page_assembler';
+import { DESC } from './debug_info_listing';
 
 export default { create };
 
@@ -141,18 +142,37 @@ export function create() {
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validatePage( pageAssembler, page ) {
-      return pageAssembler.assemble( page );
+      return pageAssembler.assemble( page )
+         .then( page => ({
+            ...page,
+            descriptor: stripSchemas( page.descriptor )
+         }) );
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function validateWidget( validators, widget ) {
-      const { name, descriptor } = widget;
+      const { name, path, descriptor } = widget;
       const validate = validators.widget;
       return validate( descriptor ) ?
-         Promise.resolve( widget ) :
+         Promise.resolve( {
+            ...widget,
+            descriptor: stripSchemas( descriptor ),
+            debugInfo: {
+               name,
+               path,
+               [ DESC ]: descriptor
+            }
+         } ) :
          Promise.reject( validators.error( `Validation failed for widget "${name}"`, validate.errors ) );
    }
+}
 
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function stripSchemas( { features, ...object } ) {
+   if( features && features.$schema ) {
+      console.log( 'strip features from', object.name );
+   }
+   return { ...object, features: {} };
 }

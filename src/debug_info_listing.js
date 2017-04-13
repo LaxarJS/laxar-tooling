@@ -41,21 +41,21 @@ export function create( options ) {
    }
 
    function buildPageDebugInfos( pages ) {
-      return pages.map( page => ( {
+      return pages.map( page => ({
          name: page.name,
          path: page.path,
          [ COMPACT ]: page.definition,
          [ FLAT ]: page.definition,
          ...page.debugInfo
-      } ) );
+      }) );
    }
 
    function buildWidgetDebugInfos( widget ) {
-      return widget.map( widget => ( {
+      return widget.map( widget => ({
          name: widget.name,
          path: widget.path,
          [ DESC ]: widget.descriptor,
          ...widget.debugInfo
-      } ) );
+      }) );
    }
 };

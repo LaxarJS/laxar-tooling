@@ -11,6 +11,7 @@
   */
 import { deepClone, path, setPath } from './utils';
 import { create as createInterpolator } from './expression_interpolator';
+import { FLAT, COMPACT } from './debug_info_listing';
 
 const SEGMENTS_MATCHER = /[_/-]./g;
 
@@ -192,9 +193,9 @@ export function create( validators, artifactsByRef ) {
             name: page.name,
             path: page.path,
             //validate: validators.features.pages[ page.name ],
-            FLAT: page.definition,
-            COMPACT: deepClone( page.definition ),
-            compositions: []
+            compositions: [],
+            [ FLAT ]: page.definition,
+            [ COMPACT ]: deepClone( page.definition )
          };
 
          let promise = Promise.resolve();

@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#18](https://github.com/LaxarJS/laxar-tooling/issues/18): the artifact listing now removes `features` from widget descriptors and composition definitions
+    + **BREAKING CHANGE:** see ticket for details
 - [#27](https://github.com/LaxarJS/laxar-tooling/issues/27): themes must include a `theme.json` now
     + **BREAKING CHANGE:** see ticket for details
 
