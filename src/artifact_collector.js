@@ -360,16 +360,6 @@ export function create( options ) {
                category: 'themes',
                schemas: [ 'theme' ]
             } ];
-         } ), () => resolveRef( lookupRef, paths.themes ).then( path => {
-            const name = basename( path );
-
-            return [ {
-               refs: [ themeRef ],
-               name,
-               path,
-               descriptor: { name },
-               category: 'themes'
-            } ];
          } ) );
    }
 

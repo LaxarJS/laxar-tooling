@@ -52,7 +52,7 @@
       "x-flows/flow2.json": "/app/x-flows/flow2.json",
       "x-flows/flow3.json": "/app/x-flows/flow3.json",
       "x-flows/flow4.json": "/app/x-flows/flow4.json",
-      "x-themes/default.theme": "/app/x-themes/default.theme",
+      "x-themes/default.theme/theme.json": "/app/x-themes/default.theme/theme.json",
       "x-pages/page1.json": "/app/x-pages/page1.json",
       "x-pages/page2.json": "/app/x-pages/page2.json",
       "x-pages/page3.json": "/app/x-pages/page3.json",
@@ -132,6 +132,9 @@
                "page": "page2"
             }
          }
+      },
+      "/app/x-themes/default.theme/theme.json": {
+         "name": "default.theme"
       },
       "/app/x-pages/page1.json": {
          "layout": "layout1",

@@ -2,6 +2,10 @@
 
 ## Last Changes
 
+- [#27](https://github.com/LaxarJS/laxar-tooling/issues/27): themes must include a `theme.json` now
+    + **BREAKING CHANGE:** see ticket for details
+
+
 ## v2.0.0-alpha.1
 
 - [#26](https://github.com/LaxarJS/laxar-tooling/issues/26): fixed NPE when using `"enabled": false` for items in pages

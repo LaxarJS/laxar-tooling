@@ -19,6 +19,24 @@
          ]
       },
       {
+         "path" : "/app/x-schemas/theme.json",
+         "category" : "schemas",
+         "definition" : {
+            "required" : [
+               "name"
+            ],
+            "type" : "object",
+            "$schema" : "http://json-schema.org/draft-04/schema#"
+         },
+         "descriptor" : {
+            "name" : "theme"
+         },
+         "refs" : [
+            "theme"
+         ],
+         "name" : "theme"
+      },
+      {
          "name" : "page",
          "refs" : [
             "page"
@@ -270,6 +288,9 @@
    "themes" : [
       {
          "path" : "/app/x-themes/default.theme",
+         "schemas": [
+            "theme"
+         ],
          "category" : "themes",
          "descriptor" : {
             "name" : "default.theme"
