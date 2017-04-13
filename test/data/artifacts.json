@@ -60,8 +60,8 @@
       "x-widgets/widget2/widget.json": "/app/x-widgets/widget2/widget.json",
       "x-controls/control1/control.json": false,
       "x-controls/control2/control.json": "/app/x-controls/control2/control.json",
-      "x-layouts/layout1": "/app/x-layouts/layout1",
-      "x-layouts/layout2": "/app/x-layouts/layout2",
+      "x-layouts/layout1/layout.json": "/app/x-layouts/layout1/layout.json",
+      "x-layouts/layout2/layout.json": "/app/x-layouts/layout2/layout.json",
 
       "x-widgets/widget1/default.theme/widget1.haml": "/app/x-widgets/widget1/default.theme/widget1.haml",
       "x-widgets/widget1/default.theme/scss/widget1.scss": "/app/x-widgets/widget1/default.theme/scss/widget1.scss",
@@ -184,7 +184,19 @@
          },
          "controls": [ "control1" ]
       },
+      "/app/x-layouts/layout1/layout.json": {
+         "name": "layout1"
+      },
+      "/app/x-layouts/layout2/layout.json": {
+         "name": "layout2"
+      },
       "/app/libs/control1/control.json": {
+         "name": "control1",
+         "integration": {
+            "type": "control"
+         }
+      },
+      "/app/libs/control2/control.json": {
          "name": "control1",
          "integration": {
             "type": "control"

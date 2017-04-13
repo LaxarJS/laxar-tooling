@@ -524,16 +524,6 @@ export function create( options ) {
                category: 'layouts',
                schemas: [ 'layout' ]
             } ];
-         } ), () => resolveRef( layoutRef, paths.layouts ).then( path => {
-            const name = basename( path );
-
-            return [ {
-               refs: [ layoutRef ],
-               name,
-               path,
-               descriptor: { name },
-               category: 'layouts'
-            } ];
          } ) );
    }
 

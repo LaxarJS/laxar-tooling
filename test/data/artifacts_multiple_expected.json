@@ -120,6 +120,24 @@
          ]
       },
       {
+         "category" : "schemas",
+         "descriptor" : {
+            "name" : "layout"
+         },
+         "refs" : [
+            "layout"
+         ],
+         "name" : "layout",
+         "definition" : {
+            "$schema" : "http://json-schema.org/draft-04/schema#",
+            "type" : "object",
+            "required" : [
+               "name"
+            ]
+         },
+         "path" : "/app/x-schemas/layout.json"
+      },
+      {
          "refs" : [
             "widget"
          ],
@@ -235,7 +253,8 @@
             "name" : "layout1"
          },
          "name" : "layout1",
-         "path" : "/app/x-layouts/layout1"
+         "path" : "/app/x-layouts/layout1",
+         "schemas": [ "layout" ]
       },
       {
          "path" : "/app/x-layouts/layout2",
@@ -246,7 +265,8 @@
          "descriptor" : {
             "name" : "layout2"
          },
-         "category" : "layouts"
+         "category" : "layouts",
+         "schemas": [ "layout" ]
       }
    ],
    "themes" : [

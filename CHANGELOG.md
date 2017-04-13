@@ -2,12 +2,15 @@
 
 ## Last Changes
 
+- [#28](https://github.com/LaxarJS/laxar-tooling/issues/28): layouts must now include a `layout.json` file
+    + **BREAKING CHANGE:** see ticket for details
+
 
 ## v2.0.0-alpha.2
 
 - [#18](https://github.com/LaxarJS/laxar-tooling/issues/18): the artifact listing now removes `features` from widget descriptors and composition definitions
     + **BREAKING CHANGE:** see ticket for details
-- [#27](https://github.com/LaxarJS/laxar-tooling/issues/27): themes must include a `theme.json` now
+- [#27](https://github.com/LaxarJS/laxar-tooling/issues/27): themes must now include a `theme.json` file
     + **BREAKING CHANGE:** see ticket for details
 
 
