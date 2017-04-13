@@ -171,8 +171,5 @@ export function create() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function stripSchemas( { features, ...object } ) {
-   if( features && features.$schema ) {
-      console.log( 'strip features from', object.name );
-   }
    return { ...object, features: {} };
 }

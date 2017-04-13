@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#29](https://github.com/LaxarJS/laxar-tooling/issues/29): a leftover `console.log()` has been removed
+
 
 ## v2.0.0-alpha.3
 
