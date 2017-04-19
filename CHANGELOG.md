@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#30](https://github.com/LaxarJS/laxar-tooling/issues/30): small fixes
+
 
 ## v2.0.0-alpha.4
 
