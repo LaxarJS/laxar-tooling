@@ -1,6 +1,6 @@
 # laxar-tooling [![Build Status](https://travis-ci.org/LaxarJS/laxar-tooling.svg?branch=master)](https://travis-ci.org/LaxarJS/laxar-tooling)
 
-> A tool support library to inspect [LaxarJS][] applications
+> A tool support library to inspect [LaxarJS](https://laxarjs.org) applications
 
 This library serves as a central point to codify build-time knowledge of LaxarJS applications.
 Use it to add LaxarJS support to your build tool.
