@@ -23,6 +23,13 @@ import defaults from './defaults';
 
 export default { create };
 
+const DOTSLASH = './';
+function safeJoin( ...args ) {
+   const joined = join(...args);
+   const prefix = args[ 0 ].substr(0, 2) === DOTSLASH ? DOTSLASH : '';
+   return prefix + joined;
+}
+
 /**
  * Create an artifact collector instance.
  *
@@ -70,7 +77,7 @@ export function create( options ) {
    const lookup = {
       default: ( ...args ) => lookup.local( ...args )
          .catch( () => lookup.module( ...args ) ),
-      local: ( ref, lookupPath ) => resolve( join( lookupPath, ref ) ),
+      local: ( ref, lookupPath ) => resolve( safeJoin( lookupPath, ref ) ),
       module: resolve
    };
 
