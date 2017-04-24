@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v2.0.0-rc.1
+
 - [#32](https://github.com/LaxarJS/laxar-tooling/issues/32): fix `path.join()` usage breaking _webpack_ resolve with default paths
 
 
