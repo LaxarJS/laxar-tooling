@@ -73,8 +73,9 @@ describe( 'expressionInterpolator', () => {
          /* Undocumented/hidden feature */
          /*
          it( 'supports multiple matches per string', () => {
-            expect( interpolator.interpolate( context, '${topic:my-topic} => ( ${features.test.resource}, ${features.test.enabled} )' ) )
-               .to.eql( 'my+id0+my-topic => ( my-resource, true )' );
+            expect( interpolator.interpolate( context,
+               '${topic:my-topic} => ( ${features.test.resource}, ${features.test.enabled} )' )
+            ).to.eql( 'my+id0+my-topic => ( my-resource, true )' );
          } );
          */
       } );

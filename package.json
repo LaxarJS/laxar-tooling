@@ -18,7 +18,7 @@
     "prepublish": "npm run build && npm run docs",
     "build": "babel -d lib src",
     "test": "mocha --compilers js:babel-register",
-    "postTest": "npm run lint",
+    "posttest": "npm run lint",
     "lint": "eslint src test",
     "docs": "laxar-dox -d docs/api src/*.js"
   },

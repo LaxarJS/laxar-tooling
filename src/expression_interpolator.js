@@ -51,7 +51,7 @@ export function create() {
          } );
       }
    };
-};
+}
 
 export function visitExpressions( obj, f ) {
    if( obj === null ) {

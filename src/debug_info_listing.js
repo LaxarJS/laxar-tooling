@@ -9,7 +9,6 @@
  */
 
 import { buildAliases } from './aliases';
-import defaults from './defaults';
 
 export const FLAT = 'FLAT';
 export const COMPACT = 'COMPACT';
@@ -17,10 +16,7 @@ export const DESC = 'DESC';
 
 export default { create };
 
-export function create( options ) {
-   const {
-   } = defaults( options );
-
+export function create() {
    return {
       buildDebugInfos
    };
@@ -58,4 +54,4 @@ export function create( options ) {
          ...widget.debugInfo
       }) );
    }
-};
+}

@@ -121,8 +121,8 @@ export function create() {
 
    /**
     * @memberOf ArtifactValidator
-    * @param {Array<Object>} widgets the widget artifacts to validate
     * @param {Object} validators validators created by {@link validators#create}
+    * @param {Array<Object>} widgets the widget artifacts to validate
     * @return {Promise<Array>} the validated widgets
     */
    function validateWidgets( validators, widgets ) {
@@ -170,6 +170,6 @@ export function create() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function stripSchemas( { features, ...object } ) {
+function stripSchemas( object ) {
    return { ...object, features: {} };
 }

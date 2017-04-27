@@ -15,6 +15,9 @@ export default { create };
  * Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
  * object including schema descriptions in widget descriptors and page composition definitions.
  *
+ * @param {Ajv} ajv tha ajv instance to use for validation
+ * @param {Object} artifacts the artifacts to build validators from
+ *
  * @return {Object} an object containg validation functions.
  */
 export function create( ajv, { schemas, pages, widgets } ) {

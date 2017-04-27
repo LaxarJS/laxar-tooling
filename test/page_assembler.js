@@ -543,7 +543,7 @@ describe( 'A PageAssembler', () => {
 
       it( 'omits widgets that are disabled within compositions (#24)', () => {
          return pageAssembler.assemble( pagesByRef.pageWithCompositionWithDisabledWidgets )
-            .then( ({ definition, ...s }) => {
+            .then( ({ definition }) => {
                const { area1, area2 } = definition.areas;
                expect( area1.length ).to.equal( 3 );
                expect( area1[ 0 ] ).to.eql( { widget: 'someWidgetPath1', id: 'id1' } );
@@ -677,7 +677,7 @@ describe( 'A PageAssembler', () => {
 
    describe( 'when loading a page with invalid composition feature configuration', () => {
 
-      beforeEach( function() {
+      beforeEach( () => {
          compile( 'page', 'compositionWithFeaturesWithoutDefaults' );
       } );
 

@@ -96,14 +96,20 @@ export function create() {
       ];
 
       if( !schema.$schema ) {
-         throw new Error( `JSON schema for artifact "${sourceRef}" is missing "$schema" property` );
+         throw new Error(
+            `JSON schema for artifact "${sourceRef}" is missing "$schema" property`
+         );
       }
       if( isFeaturesValidator ) {
          if( !schema.type ) {
-            throw new Error( `JSON schema for artifact "${sourceRef}" is missing "type" property (should be "object")` );
+            throw new Error(
+               `JSON schema for artifact "${sourceRef}" is missing "type" property (should be "object")`
+            );
          }
-         if( schema.type !== "object" && schema.type !== "array" ) {
-            throw new Error( `JSON schema for artifact "${sourceRef}" root element should have type "object"` );
+         if( schema.type !== 'object' && schema.type !== 'array' ) {
+            throw new Error(
+               `JSON schema for artifact "${sourceRef}" root element should have type "object"`
+            );
          }
 
          decorators.push( setAdditionalPropertiesDefaults );
@@ -111,8 +117,8 @@ export function create() {
          decorators.push( extractFeatures );
       }
       if( interpolateExpressions ) {
-         decorators.push( function( schema ) {
-            applyToSchemas( schema, function( schema ) {
+         decorators.push( schema => {
+            applyToSchemas( schema, schema => {
                if( schema.default ) {
                   schema[ AX_INTERPOLATE ] = true;
                }
@@ -197,16 +203,16 @@ function applyToSchemas( schema, callback ) {
 
 function extractFeatures( schema ) {
    return {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "object",
-      "properties": {
-         "features": schema
+      $schema: 'http://json-schema.org/draft-04/schema#',
+      type: 'object',
+      properties: {
+         features: schema
       },
-      "additionalProperties": true
+      additionalProperties: true
    };
 }
 
-function setFirstLevelDefaults( schema, object ) {
+function setFirstLevelDefaults( schema ) {
    const properties = schema.properties || {};
    Object.keys( properties ).forEach( key => {
       if( properties[ key ].default !== undefined ) {

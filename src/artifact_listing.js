@@ -9,7 +9,7 @@
  */
 
 import { wrap } from './promise';
-import { flatten, merge } from './utils';
+import { merge } from './utils';
 import { buildAliases } from './aliases';
 import defaults from './defaults';
 

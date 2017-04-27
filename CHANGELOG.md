@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#31](https://github.com/LaxarJS/laxar-tooling/issues/31): fix some coding style violations and re-enable _eslint_
+
 
 ## v2.0.0-rc.1
 
