@@ -927,9 +927,9 @@ escope@^3.6.0:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
 
-eslint-config-laxarjs@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-laxarjs/-/eslint-config-laxarjs-0.3.0.tgz#322dc060ade649f740062b6d5e69c523bb3b6e55"
+eslint-config-laxarjs@2.0.0-rc.0:
+  version "2.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-laxarjs/-/eslint-config-laxarjs-2.0.0-rc.0.tgz#bef8972f85dac0ead520fe4bded7993dfe654a06"
 
 eslint@^3.0.1:
   version "3.17.1"
@@ -1529,7 +1529,7 @@ kind-of@^3.0.2:
   dependencies:
     is-buffer "^1.0.2"
 
-laxar-dox@^2.0.0:
+laxar-dox@2.0.0-rc.0:
   version v2.0.0-rc.0
   resolved "https://registry.yarnpkg.com/laxar-dox/-/laxar-dox-2.0.0-rc.0.tgz#9f61c0cc85137bd7b88c52d86ebd4112830723a7"
   dependencies:

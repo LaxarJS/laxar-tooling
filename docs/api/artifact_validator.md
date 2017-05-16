@@ -84,14 +84,14 @@ Example:
 | ---- | ----------- |
 | `Promise.<Array>` |  the validated pages |
 
-#### <a id="validateWidgets"></a>validateWidgets( widgets, validators )
+#### <a id="validateWidgets"></a>validateWidgets( validators, widgets )
 
 ##### Parameters
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| widgets | `Array.<Object>` |  the widget artifacts to validate |
 | validators | `Object` |  validators created by [`validators#create`](validators.md#create) |
+| widgets | `Array.<Object>` |  the widget artifacts to validate |
 
 ##### Returns
 

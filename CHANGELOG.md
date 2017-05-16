@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#33](https://github.com/LaxarJS/laxar-tooling/issues/33): fix dependencies in package.json
+
 - [#31](https://github.com/LaxarJS/laxar-tooling/issues/31): fix some coding style violations and re-enable _eslint_
 
 

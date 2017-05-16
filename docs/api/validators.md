@@ -11,10 +11,17 @@ Build a set of artifact specific validators.
 
 ## Module Members
 
-#### <a id="create"></a>create()
+#### <a id="create"></a>create( ajv, artifacts )
 
 Create validation functions from the given artifacts. Compiles all schemas listed in the artifacts
 object including schema descriptions in widget descriptors and page composition definitions.
+
+##### Parameters
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| ajv | `Ajv` |  tha ajv instance to use for validation |
+| artifacts | `Object` |  the artifacts to build validators from |
 
 ##### Returns
 
