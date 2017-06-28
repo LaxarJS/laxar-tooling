@@ -3,6 +3,7 @@
 ## Last Changes
 
 
+## v2.0.0
 ## v2.0.0-rc.2
 
 - [#33](https://github.com/LaxarJS/laxar-tooling/issues/33): fix dependencies in package.json

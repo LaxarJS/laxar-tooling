@@ -1,6 +1,6 @@
 {
   "name": "laxar-tooling",
-  "version": "2.0.0-rc.2",
+  "version": "2.0.0",
   "description": "Tool support for LaxarJS",
   "homepage": "https://laxarjs.org/docs/laxar-tooling-latest",
   "authors": [],
@@ -40,8 +40,8 @@
     "babel-register": "^6.11.6",
     "chai": "^3.5.0",
     "eslint": "^3.0.1",
-    "eslint-config-laxarjs": "2.0.0-rc.0",
-    "laxar-dox": "2.0.0-rc.0",
+    "eslint-config-laxarjs": "^2.0.0",
+    "laxar-dox": "^2.0.0",
     "mocha": "^2.5.3"
   }
 }
