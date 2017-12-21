@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#35](https://github.com/LaxarJS/laxar-tooling/issues/35): fix page assembler incorrectly treating all nested areas as "internal"
+
 
 ## v2.0.0
 ## v2.0.0-rc.2

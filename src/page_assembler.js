@@ -277,20 +277,26 @@ export function create( validators, artifactsByRef ) {
 
    function prefixCompositionIds( composition, containerItem ) {
       const prefixedAreas = {};
-      forEachArea( composition, (items, areaName) => {
+      const itemIds = {};
+      forEachArea( composition, items => {
          items.forEach( item => {
             if( has( item, 'id' ) ) {
-               item.id = containerItem.id + ID_SEPARATOR + item.id;
+               item.id = itemIds[ item.id ] = containerItem.id + ID_SEPARATOR + item.id;
             }
          } );
+      } );
 
-         if( areaName.indexOf( '.' ) > 0 ) {
-            // All areas prefixed with a local widget id need to be prefixed as well
-            prefixedAreas[ containerItem.id + ID_SEPARATOR + areaName ] = items;
-            return;
-         }
+      forEachArea( composition, (items, areaName) => {
+         const index = areaName.indexOf( '.' );
+         const itemId = index > 0 ? areaName.substr( 0, index ) : null;
+         const areaSuffix = index > 0 ? areaName.substr( index ) : null;
 
-         prefixedAreas[ areaName ] = items;
+         // All areas prefixed with a local widget id need to be prefixed as well
+         const prefixedName = ( itemId && itemId in itemIds ) ?
+            itemIds[ itemId ] + areaSuffix :
+            areaName;
+
+         prefixedAreas[ prefixedName ] = items;
       } );
       composition.definition.areas = prefixedAreas;
       return composition;
