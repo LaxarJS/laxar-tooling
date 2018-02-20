@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#36](https://github.com/LaxarJS/laxar-tooling/issues/36): fixed generated asset paths on windows
+
 
 ## v2.0.1
 

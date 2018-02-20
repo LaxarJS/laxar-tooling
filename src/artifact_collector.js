@@ -14,8 +14,8 @@
  * @see {@link http://nodejs.org/api/path.html}
  * @ignore
  */
-import { posix } from 'path';
-const { basename, dirname, join } = posix;
+import path from 'path';
+const { basename, dirname, join } = path;
 
 import { once } from './promise';
 import { flatten, values } from './utils';

@@ -15,7 +15,7 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run build && npm run docs",
+    "prepublish": "npm run build",
     "build": "babel -d lib src",
     "test": "mocha --compilers js:babel-register",
     "posttest": "npm run lint",
