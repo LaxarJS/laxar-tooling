@@ -157,7 +157,6 @@ export function create( options ) {
          widgetsPromise,
          controlsPromise
       ] ).then( artifacts => {
-
          const entries = add( flatten( artifacts ) );
 
          return collectSchemas( entries )
@@ -170,7 +169,8 @@ export function create( options ) {
          layouts,
          widgets,
          controls,
-         schemas
+         schemas,
+         entries
       } ) );
    }
 

@@ -54,7 +54,7 @@ export function create() {
     * @param {Object} artifacts artifacts returned by {@link ArtifactCollector#collectArtifacts}
     * @return {Promise<Object>} the validated artifacts
     */
-   function validateArtifacts( { schemas, flows, pages, widgets, layouts, ...artifacts } ) {
+   function validateArtifacts( { schemas, flows, pages, widgets, layouts, entries, ...artifacts } ) {
       const validators = createValidators( ajv, { schemas, pages, widgets } );
       const pageAssembler = createPageAssembler( validators, {
          pages: byRef( pages ),
@@ -63,8 +63,8 @@ export function create() {
       } );
 
       const entryPageRefs = {};
-      flows.forEach( flow => {
-         flow.pages.forEach( ref => {
+      [ ...entries, ...flows ].forEach( ({ pages = [] }) => {
+         pages.forEach( ref => {
             entryPageRefs[ ref ] = true;
          } );
       } );
