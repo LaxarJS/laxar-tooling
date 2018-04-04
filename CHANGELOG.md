@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v2.0.3
+
 - [#37](https://github.com/LaxarJS/laxar-tooling/issues/37): include "entry" pages, even if they are not referenced from flows
 
 
